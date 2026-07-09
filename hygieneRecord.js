@@ -76,3 +76,50 @@ app.get("/stalls/:id/hygiene", async (req, res) => {
     }
   }
 });
+
+
+//POST for creating new records for stalls that have not been scored
+
+app.post("/stalls/:id/hygiene", async (req, res) => {
+  const stallId = parseInt(req.params.id);
+  const { InspectionDate, Grade } = req.body;
+
+  if (isNaN(stallId)) {
+    return res.status(400).send("Invalid stall ID");
+  }
+
+  if (!InspectionDate || !Grade) {
+    return res.status(400).send("InspectionDate and Grade are required");
+  }
+
+  let connection;
+
+  try {
+    connection = await sql.connect(dbConfig);
+
+    const sqlQuery = `
+      INSERT INTO HygieneRecord (StallID, InspectionDate, Grade)
+      VALUES (@stallId, @inspectionDate, @grade)
+    `;
+
+    const request = connection.request();
+    request.input("stallId", stallId);
+    request.input("inspectionDate", InspectionDate);
+    request.input("grade", Grade);
+
+    await request.query(sqlQuery);
+
+    res.status(201).send("Hygiene record created successfully");
+  } catch (error) {
+    console.error(`Error in POST /stalls/${stallId}/hygiene:`, error);
+    res.status(500).send("Error creating hygiene record");
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (closeError) {
+        console.error("Error closing database connection:", closeError);
+      }
+    }
+  }
+});
