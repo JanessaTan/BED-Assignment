@@ -33,7 +33,7 @@ process.on("SIGINT", async () => {
 
 //PUT Route for updating the hygiene record
 
-app.get("/stalls/:id/hygiene", async (req, res) => {
+app.put("/stalls/:id/hygiene", async (req, res) => {
   const stallId = parseInt(req.params.id);
   const { InspectionDate, Grade } = req.body;
   if (isNaN(stallId)) {
