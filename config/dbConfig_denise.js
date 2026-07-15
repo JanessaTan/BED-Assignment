@@ -1,8 +1,8 @@
 module.exports = {
-  user: "hygienerecord_user",
+  user: "health_inspector",
   password: "123456",
   server: "localhost",
-  database: "HawkerCentreHygieneRating",
+  database: "HawkerCentreManagementSystem",
   trustServerCertificate: true,
   options: {
     port: 1433, // Default SQL Server port
