@@ -1,0 +1,341 @@
+<!-- Student ID- S10274395 -->
+<!-- Student Name: Than Thar Wint Htal -->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hawker Centre — Vendor Dashboard</title>
+  
+
+  <!-- CSS Files linking-->
+  <link rel="stylesheet" href="../css/analytics.css">
+  <link rel="stylesheet" href="../css/base.css">
+
+  <!-- Chart.js CDN used for creating sales analytics graph -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+
+  <a href="../index.html" class="hc-back">&lt; About</a>
+  <!-- ===== Top Navigation Bar ===== -->
+  <!-- Shows stall name and contact information -->
+  <header class="topbar" role="banner" aria-label="Top bar with contact">
+
+    <div class="brand">
+      <!-- Stall logo emoji -->
+      <span class="logo" aria-hidden="true">🍜</span>
+
+      <!-- Stall name -->
+      <span class="brand-name">Tian Tian Hainanese Chicken Rice</span>
+    </div>
+
+    <!-- Contact section -->
+    <div class="contact">
+      <a class="contact-item" href="tel:12345678" aria-label="Call 1234 5678">📞 1234 5678</a>
+      <a class="contact-item" href="mailto:HawkerCentre@gmail.com" aria-label="Email HawkerCentre@gmail.com">✉️ HawkerCentre@gmail.com</a>
+    </div>
+
+  </header>
+
+  <!-- ===== Main Dashboard Layout ===== -->
+  
+  <div class="app">
+
+    <!-- ===== Sidebar Navigation ===== -->
+        
+    <nav>
+      <ul class="menu">
+        <li class="menu-item active"><a href="#sales-analytics">Sale Analytics</a></li>
+        <li class="menu-item"><a href="Hygiene.html">Hygiene</a></li>
+        <li class="menu-item"><a href="Feedback.html">Feedback</a></li>
+        <li class="menu-item"><a href="#welcome">Welcome Vendors</a></li>
+        <li class="menu-item logout"><a href="#logout">LOG OUT</a></li>
+      </ul>
+    </nav>
+
+    <!-- ===== Main Content Section ===== -->
+    <main class="content" role="main">
+
+      <!-- ===== Sales Analytics Card ===== -->
+      <!-- Shows sales chart using Chart.js -->
+      <section class="card" id="sales-analytics" aria-labelledby="sales-title">
+
+        <div class="card-header">
+          <h2 id="sales-title">Sales Analytics</h2>
+
+          <!-- Time range buttons to switch chart data -->
+          <div class="currency-toggle" role="group" aria-label="Timeframe selector">
+            <button class="chip chip-range active" data-range="7d" type="button">Week</button>
+            <button class="chip chip-range" data-range="30d" type="button">Month</button>
+            <button class="chip chip-range" data-range="ytd" type="button">Year</button>
+          </div>
+        </div>
+
+        <!-- Canvas where chart will be drawn -->
+        <div class="chart-wrap">
+          <canvas id="salesChart" height="120" aria-label="Sales line chart" role="img"></canvas>
+        </div>
+
+        <!-- Small helper text -->
+        <p class="chart-hint">Total gross sales across all currencies .</p>
+      </section>
+
+
+      <!-- ===== Today's Sales Summary ===== -->
+      
+      <section class="card sales-summary" aria-labelledby="sales-summary-title">
+
+        <div class="card-header">
+          <h2 id="sales-summary-title">Today's Sales Summary</h2>
+        </div>
+
+        <div class="summary-grid">
+
+          <article class="summary-tile">
+            <div class="label">Total Revenue</div>
+            <div class="value">$1,250.00</div>
+          </article>
+
+          <article class="summary-tile">
+            <div class="label">Total Orders</div>
+            <div class="value">184</div>
+          </article>
+
+          <article class="summary-tile">
+            <div class="label">Avg. Order Value</div>
+            <div class="value">$6.79</div>
+          </article>
+
+          <article class="summary-tile">
+            <div class="label">Peak Hour</div>
+            <div class="value">12 PM – 1 PM</div>
+          </article>
+
+        </div>
+      </section>
+            
+
+      <!-- ===== Vendor Rating Section ===== -->
+      <!-- Shows rating score and progress bar -->
+      <section class="card" aria-labelledby="rating-title">
+
+        <div class="card-header">
+          <h2 id="rating-title">Rating</h2>
+        </div>
+
+        <div class="rating">
+          <div class="stars" aria-label="4.5 out of 5 stars" role="img">
+            ★★★★☆ <span class="rating-score">4.5</span>
+          </div>
+
+          <div class="rating-subtext">Based on recent vendor feedback</div>
+
+          <progress class="rating-progress" value="90" max="100" aria-label="Rating progress"></progress>
+        </div>
+
+      </section>
+
+
+      <!-- ===== Rental Agreement Section ===== -->
+      <!-- Shows vendor rental details -->
+      <section class="card" aria-labelledby="rental-title">
+
+        <div class="card-header">
+          <h2 id="rental-title">Rental Agreement</h2>
+        </div>
+
+        <div class="rental">
+          <ul class="rental-list">
+            <li><strong>Status:</strong> Active</li>
+            <li><strong>Start Date:</strong> 01 Jan 2026</li>
+            <li><strong>End Date:</strong> 31 Dec 2026</li>
+            <li><strong>Stall:</strong> #B1-12</li>
+          </ul>
+
+          <!-- Buttons for vendor actions -->
+          <div class="rental-actions">
+            <button class="btn primary" type="button" onclick="window.location.href='rental-agreement.html'">View Agreement</button>
+            <button class="btn primary" type="button">Download PDF</button>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- ===== About Vendor Portal ===== -->
+      <!-- Small description of dashboard purpose -->
+      <section class="card" aria-labelledby="about-title">
+
+        <div class="card-header">
+          <h2 id="about-title">About</h2>
+        </div>
+
+        <p class="about-text">
+          Welcome to the Hawker Centre vendor portal. Manage balances, view hygiene and feedback,
+          and keep track of your rental agreement—all in one place.
+        </p>
+
+      </section>
+
+    </main>
+  </div>
+
+
+
+  <!-- ===== JavaScript Section ===== -->
+  
+  <script>
+
+    // ===== Menu Active State =====
+    // Highlights selected menu item when user clicks
+    document.querySelectorAll('.menu-item a').forEach(a => {
+      a.addEventListener('click', (e) => {
+        document.querySelectorAll('.menu-item').forEach(li => li.classList.remove('active'));
+        e.target.closest('.menu-item').classList.add('active');
+      });
+    });
+
+
+    // ===== Currency Chips UI =====
+    
+    document.querySelectorAll('.chip:not(.chip-range)').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip:not(.chip-range)').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      });
+    });
+
+
+    // ===== Sales Chart Creation =====
+    // Using Chart.js library
+    const ctx = document.getElementById('salesChart').getContext('2d');
+
+
+    // Function to create gradient colours for chart styling
+    function makeGradients(ctx) {
+
+      const gradientFill = ctx.createLinearGradient(0, 0, 0, 240);
+      gradientFill.addColorStop(0, 'rgba(59,178,246,0.35)');
+      gradientFill.addColorStop(1, 'rgba(59,178,246,0.02)');
+
+      const gradientStroke = ctx.createLinearGradient(0, 0, 0, 180);
+      gradientStroke.addColorStop(0, '#6ee7b7');
+      gradientStroke.addColorStop(1, '#3bb2f6');
+
+      return { gradientFill, gradientStroke };
+    }
+
+    const { gradientFill, gradientStroke } = makeGradients(ctx);
+
+
+    // ===== Demo Sales Data =====
+    
+    const datasets = {
+
+      '7d': {
+        labels: ['Thu','Fri','Sat','Sun','Mon','Tue','Wed'],
+        data: [820, 1050, 1230, 980, 1400, 1320, 1500]
+      },
+
+      '30d': {
+        labels: Array.from({length: 30}, (_, i) => `Day ${i+1}`),
+        data: [820,760,910,980,1010,890,940,1100,1180,1240,1300,1220,1280,1360,1420,1380,1450,1510,1480,1520,1600,1580,1640,1700,1680,1750,1820,1780,1850,1900]
+      },
+
+      'ytd': (() => {
+        const labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const data = [18000, 19500, 21000, 20500, 23000, 25000, 24500, 26000, 27500, 29000, 30000, 32000];
+        return { labels, data };
+      })()
+    };
+
+
+    // Common chart styling options
+    const commonOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: 'rgba(20,26,34,0.95)',
+          borderColor: '#253041',
+          borderWidth: 1,
+          titleColor: '#e8eef7',
+          bodyColor: '#cde1ff',
+          padding: 10,
+          callbacks: {
+            label: (ctx) => ` Sales: ${ctx.parsed.y.toLocaleString()}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#9fb0c5' },
+          grid: { color: 'rgba(37,48,65,0.35)' }
+        },
+        y: {
+          ticks: { color: '#9fb0c5' },
+          grid: { color: 'rgba(37,48,65,0.35)' },
+          beginAtZero: true
+        }
+      },
+      elements: {
+        line: { tension: 0.35, borderWidth: 2.5, borderColor: gradientStroke },
+        point: { radius: 3, hoverRadius: 5, backgroundColor: '#cde1ff', borderWidth: 0 }
+      }
+    };
+
+
+    // Default chart view
+    let currentRange = '7d';
+
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: datasets[currentRange].labels,
+        datasets: [{
+          label: 'Sales',
+          data: datasets[currentRange].data,
+          fill: true,
+          backgroundColor: gradientFill
+        }]
+      },
+      options: commonOptions
+    });
+
+
+    // ===== Time Range Button Logic =====
+    // Allows user to switch chart data
+    document.querySelectorAll('.chip-range').forEach(btn => {
+      btn.addEventListener('click', () => {
+
+        document.querySelectorAll('.chip-range').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        currentRange = btn.dataset.range;
+
+        chart.data.labels = datasets[currentRange].labels;
+        chart.data.datasets[0].data = datasets[currentRange].data;
+
+        chart.update();
+      });
+    });
+
+
+    // Adjust gradients when screen resizes
+    window.addEventListener('resize', () => {
+      const grads = makeGradients(ctx);
+      chart.data.datasets[0].backgroundColor = grads.gradientFill;
+      chart.options.elements.line.borderColor = grads.gradientStroke;
+      chart.update('none');
+    });
+
+  
+  </script>
+</body>
+</html>

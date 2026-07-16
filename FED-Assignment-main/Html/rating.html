@@ -1,0 +1,67 @@
+<!-- Student ID- S10274395 -->
+<!-- Student Name: Than Thar Wint Htal -->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hawker Centre — Menu Rating</title>
+
+  <!-- CSS Files linking-->
+  <link rel="stylesheet" href="../css/rating.css" />
+  <link rel="stylesheet" href="../css/base.css" />
+</head>
+
+<body class="hc-body">
+
+  <!-- === Header === -->
+  <header class="hc-header" role="banner">
+    <div class="hc-top">
+
+      <!-- Back button to previous page -->
+      <a href="Stalls.html" class="hc-back">&lt; Stalls</a>
+
+      <!-- Hawker Center Logo-->
+      <div class="hc-brand">
+        <div class="hc-logo" aria-hidden="true">🍜</div>
+        <div class="hc-title">
+          <div class="hc-name">Hawker Centre</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="hc-tabs" aria-label="Sections">
+      <a href="Hygiene.html" class="hc-tab">Hygiene</a>
+      <a href="rating.html" class="hc-tab is-active" aria-current="page">Rating</a>
+      <a href="Feedback.html" class="hc-tab">Feedback</a>
+      <a href="saved-order.html" class="hc-tab">AddToCart</a>
+    </nav>
+  </header>
+
+  <!-- === Main Content === -->
+  <main class="hc-main" id="main">
+
+    <!-- Menu grid injected by Rating.js -->
+    <section class="hc-grid" id="menuGrid" aria-label="Menu items (ratings)"></section>
+  </main>
+
+  <!-- Sticky CTA -->
+  <footer class="hc-cta" role="contentinfo">
+    <a href="Menu.html" class="hc-btn-cta">View Menu</a>
+    <!-- Dots for visual feedback-->
+    <div class="hc-dots" aria-hidden="true">
+      <span class="dot is-active"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+  </footer>
+
+  <!-- Screen reader live region  -->
+  <div id="cartLiveRegion" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- === JavaScript === -->
+  <script src="../js/Rating.js"></script>
+</body>
+</html>
