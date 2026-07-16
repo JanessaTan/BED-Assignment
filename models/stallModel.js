@@ -5,6 +5,15 @@ async function getAllStalls() {
     const pool = await poolPromise;
     const result = await pool.request()
         .input('id', sql.int, id)
+        .query('SELECT * FROM Stall');
+    return result.recordset[0];
+}
+
+// Get stall by ID
+async function getStallById(id) {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('id', sql.int, id)
         .query('SELECT * FROM Stall WHERE StallID = @id');
     return result.recordset[0];
 }
