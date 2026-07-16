@@ -1,0 +1,70 @@
+a{
+    color: crimson;
+    margin: 20px;
+    font-weight: 800;
+}
+
+.header{
+    text-align: center;
+}
+
+.card{
+    margin-bottom: 30px;
+}
+
+.promo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.promo-card {
+    display: flex;
+    flex-direction: column;
+    background: #ddd;
+    border-radius: 12px;
+    padding: 22px;
+    margin-top: 22px;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: 0.25s;
+    cursor: pointer;
+}
+
+.promo-card:hover {
+  border-color: crimson;
+  border-width: 5px;
+  transform: translateY(-2px);
+}
+
+.promo-card.selected {
+  border-color: #ff9800;
+  background: #fff7ed;
+}
+
+.promo-stall {
+  font-size: 1.1rem;
+  color: #777;
+  margin-bottom: 0.4rem;
+}
+
+.promo-title {
+    color: #b00710;
+  font-size: 1.1rem;
+  margin-bottom: 0.4rem;
+}
+
+.promo-desc {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.promo-select-btn {
+  width: 100%;
+  padding: 0.6rem;
+  border: none;
+  background: #ff9800;
+  color: white;
+  border-radius: 8px;
+  font-weight: 500;
+}

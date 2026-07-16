@@ -1,0 +1,248 @@
+/* Student ID - S10275480F 
+Student Name -Nicole Agnes Sim Hui En */
+
+/* Contact Page Styles - Layout for the contact form and information card */
+
+/* The contact form uses grid layout for consistent spacing */
+form {
+    display: grid;
+    gap: 12px;
+    max-width: 600px;
+}
+
+/* Form inputs (text fields and text areas) have white background */
+form input,
+form textarea {
+    background: #fff;
+}
+
+/* Rows containing multiple fields should align items at the top */
+form .row {
+    align-items: flex-start;
+}
+
+/* Main wrapper contains form on left and info card on right */
+.contact-wrapper {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+/* Each section in the form (reason, your info, message, etc.) */
+.form-section {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* The last section doesn't need a border below it */
+.form-section:last-of-type {
+    border-bottom: none;
+}
+
+/* Heading for each form section */
+.form-section h3 {
+    margin: 0 0 12px 0;
+    color: var(--brand);
+    font-size: 1rem;
+}
+
+/* Container for the contact method radio buttons (Email, Phone, Either) */
+.contact-method-options {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+/* Each contact method option (like a pill button) */
+.contact-method {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+/* Highlight the contact method when hovering over it */
+.contact-method:hover {
+    border-color: var(--brand-2);
+    background: #f8fafc;
+}
+
+/* Hide the actual radio button (the label styling handles the appearance) */
+.contact-method input[type="radio"] {
+    width: auto;
+    margin: 0;
+}
+
+/* When a contact method is selected, highlight it */
+.contact-method input[type="radio"]:checked + span,
+.contact-method:has(input[type="radio"]:checked) {
+    border-color: var(--brand);
+    background: #e6f4f4;
+    font-weight: 600;
+}
+
+/* Red asterisk (*) for required fields */
+.required {
+    color: var(--danger);
+}
+
+/* Character counter showing how many characters typed (right-aligned and small) */
+#contactCharCount {
+    display: block;
+    text-align: right;
+    margin-top: 4px;
+    font-size: 0.85rem;
+}
+
+/* Container for form buttons at the bottom */
+.button-group {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+/* The contact info card on the right side (address, phone, email, etc.) */
+.contact-info-card {
+    position: sticky;
+    top: 80px;
+}
+
+/* Heading in the contact info card */
+.contact-info-card h3 {
+    margin-top: 0;
+    color: var(--brand);
+}
+
+/* Sub-headings for each contact info section (Address, Phone, Email, etc.) */
+.contact-info-card h4 {
+    margin: 16px 0 8px 0;
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+/* Each contact info item (icon + content) */
+.contact-info-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+}
+
+/* The emoji/icon next to each info item */
+.info-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* The text content of each info item */
+.info-content strong {
+    display: block;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+/* Description/details under the heading */
+.info-content p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* Container for social media links */
+.social-links {
+    margin-top: 16px;
+}
+
+/* The list of social media icons */
+.social-icons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Individual social media link */
+.social-icon {
+    display: block;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    color: var(--text);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+/* Social icon highlights on hover - shows brand color and slides right */
+.social-icon:hover {
+    background: var(--brand);
+    color: #fff;
+    transform: translateX(4px);
+}
+
+/* Focus/active states for form inputs - add blue border and subtle shadow */
+form input:focus,
+form select:focus,
+form textarea:focus {
+    border-color: var(--brand);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 109, 119, 0.1);
+}
+
+/* Tablet-sized screens - put form above info card */
+@media (max-width: 1024px) {
+    .contact-wrapper {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Remove sticky positioning on tablets */
+    .contact-info-card {
+        position: static;
+    }
+}
+
+/* Mobile screens - make everything full width */
+@media (max-width: 768px) {
+    form {
+        max-width: 100%;
+    }
+    
+    /* Stack form row items vertically */
+    form .row {
+        flex-direction: column;
+    }
+    
+    /* Make all items in rows full width */
+    form .row > div {
+        width: 100%;
+    }
+    
+    /* Stack buttons vertically */
+    .button-group {
+        flex-direction: column;
+    }
+    
+    /* Make buttons full width on mobile */
+    .button-group .btn {
+        width: 100%;
+    }
+    
+    /* Stack contact method options vertically */
+    .contact-method-options {
+        flex-direction: column;
+    }
+    
+    /* Make contact method buttons full width */
+    .contact-method {
+        width: 100%;
+    }
+}

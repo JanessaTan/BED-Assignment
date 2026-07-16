@@ -1,0 +1,313 @@
+/* Student ID- S10274395 */
+/* Student Name: Than Thar Wint Htal */
+
+:root {
+  /* Main colours */
+  --hc-red: #E50914;
+  --hc-red-700: #b00710;
+  --hc-bg: #0b0b0b;
+  --hc-panel: #111;
+  --hc-panel-2: #181818;
+
+  /* Text & lines */
+  --hc-text: #e6e6e6;
+  --hc-muted: #b3b3b3;
+  --hc-line: #2a2a2a;
+
+  /* Rounded corners & shadows */
+  --hc-radius: 14px;
+  --hc-shadow: 0 12px 30px rgba(0,0,0,0.45);
+
+  /* Font */
+  --hc-font: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+}
+
+/* ===== Body & Main Section ===== */
+.hc-body {
+  margin: 0;
+  background: var(--hc-bg);
+  color: var(--hc-text);
+  font-family: var(--hc-font);
+  line-height: 1.6;
+}
+
+.hc-section { padding: 24px; }
+
+.hc-wrap { 
+  max-width: 1200px;
+  margin: 0 auto; 
+}
+
+/* ===== Topbar / NAV ===== */
+.hc-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.hc-breadcrumb__back {
+  font-weight: 800;
+  color: var(--hc-red);
+  text-decoration: none;
+}
+.hc-breadcrumb__back:hover { color: var(--hc-red-700); }
+
+/* ===== SECTION CAPTION ===== */
+.hc-caption { margin: 8px 0 16px; }
+
+.hc-caption__pill {
+  display: inline-block;
+  background: #1a1a1a;
+  color: #fff;
+  border: 1px solid var(--hc-line);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 700;
+}
+
+/* ===== Buttons ===== */
+.hc-btn-sm {
+  --pad-x: .8rem;
+  --pad-y: .45rem;
+
+
+  font-size: .9rem;
+  line-height: 1;
+  padding: var(--pad-y) var(--pad-x);
+  border-radius: 999px;
+
+  background: var(--hc-panel-2);
+  border: 1px solid var(--hc-line);
+  color: #fff;
+
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  cursor: pointer;
+
+  transition: background .2s ease, border-color .2s ease, color .2s ease, transform .04s ease;
+}
+
+
+.hc-btn-sm:hover {
+  background: #151515;
+  border-color: #3a3a3a;
+}
+
+
+.hc-btn-sm:active { transform: translateY(1px); }
+
+.hc-btn-sm--primary {
+  background: var(--hc-red);
+  border-color: var(--hc-red);
+}
+
+
+.hc-btn-sm--primary:hover {
+  background: var(--hc-red-700);
+  border-color: var(--hc-red-700);
+}
+
+/* ===== Grid of Cards ===== */
+.hc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+/* Responsiveness */
+@media (max-width: 980px) { 
+  .hc-grid { grid-template-columns: repeat(2, 1fr); } 
+}
+
+@media (max-width: 640px) { 
+  .hc-grid { grid-template-columns: 1fr; } 
+}
+
+/* ===== CARD STYLES ===== */
+.hc-card {
+  background: var(--hc-panel);
+  border: 1px solid var(--hc-line);
+  border-radius: var(--hc-radius);
+  box-shadow: var(--hc-shadow);
+  overflow: hidden;
+
+
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  cursor: pointer;
+}
+
+.hc-card__media {
+  height: 140px;
+  background: #0f0f0f;
+  border-bottom: 1px solid var(--hc-line);
+}
+
+.hc-card__media img {
+  width: 100%; 
+  height: 100%;
+  object-fit: cover; 
+  display: block;
+}
+
+.hc-card__body { 
+  padding: 12px 12px 10px; 
+}
+
+.hc-card__title {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+/* clickable stall names */
+.hc-card__title.clickable {
+  cursor: pointer;
+  color: var(--hc-red);
+  transition: color 0.2s ease;
+}
+
+.hc-card__title.clickable:hover {
+  text-decoration: underline;
+  color: var(--hc-red-700);
+}
+
+.hc-card__hours {
+  display: inline-block;
+  font-size: .85rem;
+  color: var(--hc-muted);
+  background: #0f0f0f;
+  border: 1px solid var(--hc-line);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+/*==== CARD FOOTER / TAGS ====*/
+.hc-card__footer {
+  display: flex;
+  align-items: center; 
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--hc-line);
+  background: #101010;
+}
+
+
+.hc-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: .75rem;
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--hc-line);
+}
+
+/* ===== Chart ===== */
+.hc-chart {
+  background: var(--hc-panel);
+  border: 1px solid var(--hc-line);
+  border-radius: var(--hc-radius);
+  box-shadow: var(--hc-shadow);
+  padding: 14px 16px 16px;
+  margin-top: 20px;
+}
+
+.hc-chart__head {
+  display: flex; 
+  align-items: baseline; 
+  justify-content: space-between; 
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+
+.hc-chart__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.hc-legend { 
+  color: var(--hc-muted); 
+  font-size: .85rem; 
+}
+
+/* ==== GRID INSIDE CHART ==== */
+.hc-chart__grid {
+  --rows: 10;
+  --gap: 14px;
+
+  position: relative;
+  height: 260px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--gap);
+  padding: 10px 8px 26px;
+
+  background:
+    repeating-linear-gradient(
+      to top,
+      #141414 0, #141414 1px,
+      transparent 1px, transparent calc( (100% - 0px) / var(--rows) )
+    );
+
+  border-radius: 10px;
+}
+
+/* ===== INDIVIDUAL BARS ===== */
+.hc-bar {
+  position: relative;
+  align-self: end;
+  background: linear-gradient(180deg, rgba(229,9,20,0.9), rgba(176,7,16,0.9));
+  border: 1px solid rgba(229,9,20,0.55);
+  border-radius: 8px 8px 4px 4px;
+
+
+  height: calc((var(--v) / 10) * 100%);
+  transition: height 0.5s ease, filter .2s ease, transform .04s ease;
+}
+
+.hc-bar:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+.hc-bar__label {
+  position: absolute; 
+  left: 50%; 
+  bottom: -22px; 
+  transform: translateX(-50%);
+  font-size: .85rem; 
+  color: var(--hc-muted);
+}
+
+
+.hc-bar__value {
+  position: absolute; 
+  left: 50%; top: -22px; 
+  transform: translateX(-50%);
+  font-size: .8rem; 
+  color: #fff;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid var(--hc-line); 
+  padding: 2px 6px; 
+  border-radius: 999px;
+}
+
+
+
+/* Focus styles */
+.hc-btn-sm:focus-visible,
+.hc-breadcrumb__back:focus-visible {
+  outline: 2px solid var(--hc-red);
+  outline-offset: 2px;
+}

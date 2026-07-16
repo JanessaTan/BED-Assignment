@@ -1,0 +1,96 @@
+/* Page Wrapper */
+.stalls-wrapper {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 0 16px;
+}
+
+/* Title */
+.stalls-title {
+    text-align: center;
+    margin-bottom: 35px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+/* Stall Card */
+.stall-card {
+    background: #1a1a1a;
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 22px;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: 0.25s ease;
+}
+
+.stall-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+}
+
+/* Top Row */
+.stall-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stall-top h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #ffffff;
+}
+
+.stall-hours {
+    font-size: 13px;
+    color: #b3b3b3;
+}
+
+/* Description Box */
+.stall-desc {
+    background: #2a2a2a;
+    padding: 14px;
+    border-radius: 12px;
+    margin: 14px 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #e0e0e0;
+}
+
+/* Buttons */
+.stall-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.stall-actions .btn {
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 14px;
+}
+
+/* Keep your brand colours */
+.stall-actions .btn.primary {
+    background: var(--brand);
+    color: #fff;
+}
+
+.stall-actions .btn.secondary {
+    background: var(--brand-2);
+    color: #00323a;
+}
+
+.stall-actions .btn.muted {
+    background: #3a3a3a;
+    color: #ddd;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .stall-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+}
