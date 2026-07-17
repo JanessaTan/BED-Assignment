@@ -29,6 +29,9 @@ document.addEventListener("DOMContentLoaded", function () {
     paymentForm.addEventListener("submit", function (e) {
       e.preventDefault();
 
+      // Get selected payment method
+      const paymentMethod = document.getElementById("payment-method").value;
+
       const cardNumber = document.querySelector("#card-number").value.trim();
       const expiry = document.querySelector("#expiry").value.trim();
       const cvc = document.querySelector("#cvc").value.trim();
@@ -37,22 +40,82 @@ document.addEventListener("DOMContentLoaded", function () {
       const expiryRegex = /^\d{2}\/\d{2}$/;
       const cvcRegex = /^\d{3}$/;
 
-      if (!cardRegex.test(cardNumber) ||
-          !expiryRegex.test(expiry) ||
-          !cvcRegex.test(cvc)) {
-
-        alert("Invalid payment details.");
+      // Check that a payment method was selected
+      if (paymentMethod === "") {
+        alert("Please select a payment method.");
         return;
       }
 
-      clearCart();
-      clearOrder();
+      // Only validate card details if paying by Visa
+      if (paymentMethod === "Visa") {
+        if (
+          !cardRegex.test(cardNumber) ||
+          !expiryRegex.test(expiry) ||
+          !cvcRegex.test(cvc)
+        ) {
+          alert("Invalid Visa card details.");
+          return;
+        }
+      }
 
-      alert("Payment successful!");
-      window.location.href = "Success.html";
+      console.log("Payment Method:", paymentMethod);
+
+      const store = JSON.parse(localStorage.getItem("store")) || {
+        cart: [],
+        order: null
+      };
+
+    console.log("Cart before sending:", store.cart);  
+    const orderData = {
+    OrderDate: new Date().toISOString().split("T")[0],
+    PmtType: paymentMethod,
+    CustomerID: "CU001",
+
+    Items: store.cart.map(item => ({
+        StallID: item.stallId,
+        ItemCode: item.itemCode,
+        Quantity: item.qty,
+        UnitPrice: item.price
+    }))
+};
+
+
+  fetch("http://localhost:3000/orders", {
+
+    method: "POST",
+
+    headers: {
+        "Content-Type": "application/json"
+    },
+
+    body: JSON.stringify(orderData)
+
+  })
+
+  .then(response => response.json())
+
+  .then(data => {
+
+    console.log(data);
+
+    clearCart();
+    clearOrder();
+
+    alert("Payment successful!");
+
+    window.location.href = "Success.html";
+
+})
+
+.catch(error => {
+
+    console.error("Order error:", error);
+
+    alert("Failed to create order.");
+
+});
     });
   }
-
 });
 
 
