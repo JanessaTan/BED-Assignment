@@ -1,0 +1,273 @@
+<!--  Student ID - S10275480F 
+Student Name -Nicole Agnes Sim Hui En  -->
+
+<!-- feedback.html -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Feedback – HawkerHub</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/feedback.css">
+</head>
+<body>
+<script src="../JS/feedback.js"></script>
+<script>renderHeader('feedback');</script>
+
+<main class="container">
+    <div class="card">
+        <!-- Back button at top -->
+        <div style="margin-bottom: 20px;">
+            <a href="About.html" class="btn secondary" style="
+                display: inline-block;
+                padding: 10px 20px;
+                background: #0d6d77;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                cursor: pointer;
+            ">← Back to About</a>
+        </div>
+
+        <h2>Share Your Feedback</h2>
+        <p class="muted">We value your opinion and use your feedback to improve our hawker centre</p>
+        
+        <form id="feedbackForm">
+
+          <div class="feedback-section">
+                <label>What would you like to share?</label>
+                <div class="feedback-type-grid">
+                    <label class="feedback-type-card">
+                        <input type="radio" name="feedbackType" value="compliment" checked>
+                        <div class="type-content">
+                            <span class="type-icon">😊</span>
+                            <span class="type-label">Compliment</span>
+                        </div>
+                    </label>
+
+                    <label class="feedback-type-card">
+                        <input type="radio" name="feedbackType" value="suggestion">
+                        <div class="type-content">
+                            <span class="type-icon">💡</span>
+                            <span class="type-label">Suggestion</span>
+                        </div>
+                    </label>
+                    
+                    <label class="feedback-type-card">
+                        <input type="radio" name="feedbackType" value="complaint">
+                        <div class="type-content">
+                            <span class="type-icon">😟</span>
+                            <span class="type-label">Complaint</span>
+                        </div>
+                    </label>
+                    
+                    <label class="feedback-type-card">
+                        <input type="radio" name="feedbackType" value="general">
+                        <div class="type-content">
+                            <span class="type-icon">💬</span>
+                            <span class="type-label">General</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="feedback-section">
+                <h3>Your Information (Optional)</h3>
+                <div class="row">
+                    <div style="flex:1">
+                        <label>Name</label>
+                        <input type="text" id="userName" placeholder="Your name">
+                    </div>
+                    <div style="flex:1">
+                        <label>Email</label>
+                        <input type="email" id="userEmail" placeholder="your.email@example.com">
+                    </div>
+                </div>
+            </div>
+
+            <div class="feedback-section">
+                <div class="row">
+                    <div style="flex:1">
+                        <label>Related to a specific stall? (Optional)</label>
+                        <select id="stallSelect">
+                          <option value="">-- Select a stall (optional) --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feedback-section">
+                <label>Your Feedback <span class="required">*</span></label>
+                <textarea 
+                id="feedbackMessage" 
+                rows="6" 
+                placeholder="Please share your thoughts with us..."
+                required
+                maxlength="500"></textarea>
+            </div>
+
+                       <div class="button-group">
+                <button type="submit" class="btn">Submit Feedback</button>
+            </div>
+        </form>
+    </div>
+</main>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script>
+(function() {
+  'use strict';
+  
+  console.log('Feedback script starting...');
+  
+  // Helper function for DOM selection
+  function $(id) {
+    return document.getElementById(id);
+  }
+  
+  // Populate stall dropdown
+  const stallSelect = $('stallSelect');
+  
+  if (typeof STALLS !== 'undefined' && stallSelect) {
+    STALLS.forEach(stall => {
+      const option = document.createElement('option');
+      option.value = stall.id;
+      option.textContent = stall.name;
+      stallSelect.appendChild(option);
+    });
+    console.log('Stalls loaded:', STALLS.length);
+  } else {
+    console.warn('STALLS not defined or stallSelect not found');
+    // Add hardcoded options as fallback
+    if (stallSelect) {
+      const stalls = [
+        {id: 'wok', name: 'Golden Wok'},
+        {id: 'malay', name: 'Mak Cik Delights'},
+        {id: 'indian', name: 'Little India Express'},
+        {id: 'thai', name: 'Tom Yum House'},
+        {id: 'western', name: 'Western Bites'},
+        {id: 'drinks', name: 'Kopi & Teh Corner'}
+      ];
+      stalls.forEach(stall => {
+        const option = document.createElement('option');
+        option.value = stall.id;
+        option.textContent = stall.name;
+        stallSelect.appendChild(option);
+      });
+    }
+  }
+
+  // Function to close success message and return to form
+  window.closeSuccess = function() {
+    const successMsg = document.getElementById('successMessage');
+    const backBtn = document.getElementById('backButtonDiv');
+    
+    if (successMsg) successMsg.remove();
+    if (backBtn) backBtn.remove();
+    
+    form.style.display = 'block';
+    form.reset();
+  };
+  
+  // Form submission handler
+  const form = $('feedbackForm');
+  
+  if (form) {
+    console.log('Form found, attaching submit handler');
+    
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      console.log('Form submitted!');
+      
+      // Get all form values
+      const feedbackType = document.querySelector('input[name="feedbackType"]:checked');
+      const userName = $('userName');
+      const userEmail = $('userEmail');
+      const feedbackMessage = $('feedbackMessage');
+      
+      if (!feedbackType) {
+        alert('Please select a feedback type.');
+        return;
+      }
+      
+      if (!feedbackMessage || !feedbackMessage.value.trim()) {
+        alert('Please enter your feedback message.');
+        if (feedbackMessage) feedbackMessage.focus();
+        return;
+      }
+      
+      // Create feedback object
+      const feedback = {
+        type: feedbackType.value,
+        name: userName ? userName.value.trim() || 'Anonymous' : 'Anonymous',
+        email: userEmail ? userEmail.value.trim() || 'Not provided' : 'Not provided',
+        stallId: stallSelect ? stallSelect.value || 'General' : 'General',
+        message: feedbackMessage.value.trim(),
+        timestamp: new Date().toISOString()
+      };
+      
+      console.log('Feedback object:', feedback);
+      
+      // Save to localStorage
+      try {
+        let feedbackList = [];
+        
+        // Try to get existing feedback
+        const stored = localStorage.getItem('feedbackList');
+        if (stored) {
+          feedbackList = JSON.parse(stored);
+        }
+        
+        feedbackList.push(feedback);
+        localStorage.setItem('feedbackList', JSON.stringify(feedbackList));
+        console.log('Saved to localStorage successfully');
+      } catch (error) {
+        console.error('Error saving to localStorage:', error);
+      }
+
+      // Show success message with X button
+const successDiv = document.createElement('div');
+successDiv.id = 'successMessage';
+successDiv.style.cssText = `
+  background: #dcfce7;
+  border: 2px solid #22c55e;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  color: #166534;
+  font-weight: bold;
+`;
+
+successDiv.innerHTML = `
+  <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <span> Thank you for your feedback! We appreciate your input and will use it to improve our service.</span>
+    <button onclick="closeSuccess()" style="
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      color: #22c55e;
+    ">✕</button>
+  </div>
+`;
+
+form.parentNode.insertBefore(successDiv, form.nextSibling);
+
+// Hide the form temporarily
+form.style.display = 'none';
+      
+
+    });
+  } else {
+    console.error('Form not found!');
+  }
+})();
+</script>
+</body>
+</html>

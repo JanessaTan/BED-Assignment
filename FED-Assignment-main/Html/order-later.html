@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Order Later - HawkerHub</title>
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="..\css\order-late.css">
+
+</head>
+<body>
+
+<header id = "site-header">
+    <div class="top-bar">
+      <div class="contact">
+        <span>📞 1234 5678</span>
+        <span>✉️ HawkerCentre@gmail.com</span>
+      </div>
+      <div class="social-icons">
+        <img src="https://th.bing.com/th/id/R.26d9974a1feec9905a4e0d5e5ddf8db6?rik=Og1ujXM2C1AJHQ&riu=http%3a%2f%2fupload.wikimedia.org%2fwikipedia%2fcommons%2fa%2fa5%2fInstagram_icon.png&ehk=1%2fZWXYn2nN%2fR80TOtcKH5SsdLkkUvMLrB%2fHUXRDHk9I%3d&risl=&pid=ImgRaw&r=0" alt="Instagram">
+        <img src="https://pngimg.com/uploads/facebook_logos/facebook_logos_PNG19757.png" alt="Facebook">
+        <img src="https://static.vecteezy.com/system/resources/previews/016/716/480/original/whatsapp-icon-free-png.png" alt="WhatsApp">
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <div class="logo">
+        <h1>🍽 HawkerHub</h1>
+      </div>
+      <nav class="nav-links">
+        <a href="Home.html">Home</a>
+      <a href="About.html" class="active">About</a>
+      <a href="Stalls.html">Stalls</a>
+      <a href="Promotion.html">Promotion</a>
+      <a href="Contact.html">Contact</a>
+      </nav>
+      <div class="order-btn">
+        <button>Order</button>
+      </div>
+    </div>
+  </header>
+<!--this let customer chose the timing they want to pick up their order-->
+<main class="order-later">
+  <h2>Order for Later (Pickup)</h2>
+  <form id="ol">
+    <div class="ol-row">
+      <div class="ol-field">
+        <label for="pickupTime">Pickup Time</label>
+        <input type="datetime-local" id="pickupTime">
+      </div> 
+    </div>
+    <p>We will notify the stall of your scheduled pickup.</p>
+    <button class="scheduleBtn">Schedule</button>
+  </form>
+</main>
+
+<footer class = "footer">
+  <div class = "footer-brand">
+    <h1>HawkerHub</h1>
+    <h3>Follow us on Instagram</h3>
+    <div class="footer-images">
+      <img src="https://tse2.mm.bing.net/th/id/OIP.JIo_erHjGUXp0-Z86gJAqAHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Instagram photo 1">
+      <img src="https://tse2.mm.bing.net/th/id/OIP.JIo_erHjGUXp0-Z86gJAqAHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Instagram photo 2">
+    </div>
+  </div>
+
+  <div class="footerPage">
+    <h2>Pages</h2>
+      <p>Home</p>
+      <p>About</p>
+      <p>Stall</p>
+      <p>Menu</p>
+      <p>Feedback</p>
+      <p>Promotion</p>
+      <p>Contact</p>
+  </div>
+
+  <div class="FooterUtility">
+    <h2>Utility Pages</h2>
+      <p>Start Here</p>
+      <p>Register</p>
+      <p>Analytics</p>
+      <p>Password Protected</p>
+      <p>Licenses</p>
+      <p>View More</p>
+  </div>
+</footer>
+<script src="../JS/utils.js"></script>
+<script src="../js/card-and-orders.js"></script><script src="../JS/about-and-orderlater.js"></script>
+<script src="../JS/Order.js"></script><script src="../JS/CheckOut.js"></script>
+</body>
+</html>
