@@ -1,4 +1,4 @@
-const { sql, poolPromise } = require('../config/db');
+const { sql, poolPromise } = require('../dbConfig');
 
 // GET all stalls
 async function getAllStalls() {
