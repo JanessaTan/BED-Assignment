@@ -49,16 +49,24 @@
 <!--payment form where customer key in card details-->
   <form class="payment-form">
     <h3>Payment</h3>
-      <label>Card Number</label>
-      <input id="card-number" placeholder="1111 1111 1111 1111" required>
 
-      <label>Expiry</label>
-      <input id="expiry" placeholder="MM/YY" required>
+    <label for="payment-method">Payment Method</label>
+    <select id="payment-method" required>
+      <option value="">-- Select Payment Method --</option>
+      <option value="Visa">Visa</option>
+      <option value="Cash">Cash</option>
+    </select>
 
-      <label>CVC</label>
-      <input id="cvc" placeholder="123" required>
-<!--paynow btn that leads to history page when clicked-->
-    <a href="History.html"><button class="payment-btn">Pay Now</button></a>
+    <label>Card Number</label>
+    <input id="card-number" placeholder="1111 1111 1111 1111">
+
+    <label>Expiry</label>
+    <input id="expiry" placeholder="MM/YY">
+
+    <label>CVC</label>
+    <input id="cvc" placeholder="123">
+
+    <button type="submit" class="payment-btn">Pay Now</button>
   </form>
   <p class="promo-link">Change or review selected promotion</p>
 </main>
