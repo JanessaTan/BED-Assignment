@@ -1,5 +1,5 @@
---CREATE DATABASE HawkerCentreManagementSystem;
---GO
+CREATE DATABASE HawkerCentreManagementSystem;
+GO
 
 USE HawkerCentreManagementSystem; 
 GO
