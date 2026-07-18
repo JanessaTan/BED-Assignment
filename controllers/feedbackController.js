@@ -12,10 +12,10 @@ async function getFeedback(req, res) {
 }
 
 // Get feedback by ID
-async function getfeedbackById(req, res) {
+async function getFeedbackById(req, res) {
   try {
     const id = req.params.id;
-    const feedback = await feedbackModel.getfeedbackById(id);
+    const feedback = await feedbackModel.getFeedbackById(id);
     if (!feedback) {
       return res.status(404).json({ error: "feedback not found" });
     }
@@ -28,9 +28,9 @@ async function getfeedbackById(req, res) {
 }
 
 // Submit new feedback
-async function submitfeedback(req, res) {
+async function submitFeedback(req, res) {
   try {
-    const newfeedback = await feedbackModel.submitfeedback(req.body);
+    const newfeedback = await feedbackModel.submitFeedback(req.body);
     res.status(201).json(newfeedback);
   } catch (error) {
     console.error("Controller error:", error);
@@ -41,6 +41,6 @@ async function submitfeedback(req, res) {
 
 module.exports = {
     getFeedback,
-    getfeedbackById,
-    submitfeedback
+    getFeedbackById,
+    submitFeedback
 }
