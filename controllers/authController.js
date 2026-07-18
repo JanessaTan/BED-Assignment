@@ -55,7 +55,8 @@ async function login(req, res) {
         // create a JWT so the customer stays logged in for later requests
         const token = jwt.sign(
             { customerId: customer.CustomerID, email: customer.Email },
-            process.env. JWT_SECRET,
+            // process.env. JWT_SECRET,
+            "your_secret_key",
             { expiresIn: '1h' }
         );
         

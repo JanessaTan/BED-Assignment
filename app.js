@@ -2,19 +2,29 @@ const express = require('express');
 const path = require('path');
 require('dotenv').config();
 
+const {
+  verifyJWT,
+} = require("./middlewares/auth");
+
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ===== You guys can update your routes here =====
 
-const stallRoutes = require('./routes/stallRoutes');
-app.use('/api/stalls', stallRoutes);
-
 // Home page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+// Stalls
+const stallRoutes = require('./routes/stallRoutes');
+app.use('/stalls', stallRoutes);
+
+// Feedback
+const stallRoutes = require('./routes/feedbackRoutes');
+app.use('/feedback', stallRoutes);
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
