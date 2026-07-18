@@ -1,5 +1,5 @@
-CREATE DATABASE HawkerCentreManagementSystem;
-GO
+--CREATE DATABASE HawkerCentreManagementSystem;
+--GO
 
 USE HawkerCentreManagementSystem; 
 GO
@@ -85,6 +85,7 @@ CREATE TABLE dbo.Customer
 );
 GO
 
+/*
 CREATE TABLE dbo.Complaint
 (
    FbkID  VARCHAR(4)   NOT NULL,
@@ -92,7 +93,7 @@ CREATE TABLE dbo.Complaint
    CONSTRAINT PK_Complaint PRIMARY KEY (FbkID)
 );
 GO
-
+*/
 
 CREATE TABLE dbo.Cuisine 
 ( 
@@ -118,10 +119,12 @@ GO
 CREATE TABLE dbo.Feedback
 (
 	FbkID	VARCHAR(4)	NOT NULL,
+    Category VARCHAR(50) NOT NULL CHECK (Category IN ('General', 'Compliment', 'Complaint', 'Suggestion')),
+    Subcategory  VARCHAR(50) NOT NULL CHECK (Subcategory IN ('Misc.', 'Hygiene', 'Environment', 'Food Quality', 'Portion Size', 'Price', 'Service', 'Wait Time')),
 	FbkComment	VARCHAR(255),
 	FbkDateTime	DATETIME NOT NULL,
 	FbkRating INT,
-	CustomerID	VARCHAR(10)	NOT NULL,
+	CustomerID	VARCHAR(10) NOT NULL,
 	StallID	VARCHAR(4) NOT NULL,
 	CONSTRAINT PK_Feedback PRIMARY KEY (FbkID),
 	CONSTRAINT FK_Feedback_Customer
@@ -141,8 +144,8 @@ CREATE TABLE dbo.Inspection
 	CONSTRAINT PK_Inspection PRIMARY KEY (InspectionID),
     CONSTRAINT FK_Inspection_Officer FOREIGN KEY (OfficerID) REFERENCES dbo.NEA_Officer(OfficerID),
 	CONSTRAINT FK_Inspection_Stall FOREIGN KEY (StallID) REFERENCES dbo.FoodStall(StallID)
-	);
-
+);
+GO
 
 /*CREATE TABLE dbo.InspectionRemark
 (
@@ -381,7 +384,7 @@ insert into Customer values ('CU001','S1234567A','Alex Tan','91234567','alex@gma
 ('CU039','S9999999S','Hafiz Rosli','93330019','hafiz.rosli@example.com'),
 ('CU040','T0102030T','Evelyn Toh','93330020','evelyn.toh@example.com');
 
-
+/*
 insert into Complaint values ('F001' , 'Hygiene'),
 ('F002','Service'),
 ('F003','Food Quality'),
@@ -392,7 +395,7 @@ insert into Complaint values ('F001' , 'Hygiene'),
 ('F008','Undercooked Food'),
 ('F009','Noisy Environment'),
 ('F010','Wrong Order');
-
+*/
 
 insert into Cuisine values 
 ('C01','Chinese'),
@@ -507,26 +510,21 @@ INSERT INTO CustOrder (OrderID, OrderDate, PmtType, CustomerID) VALUES
 
 
 insert into FeedBack values
-('F001', 'Food was delicious', '2025-01-05 12:30', 5, 'CU001', 'S001'),
-('F002', 'Service was slow', '2025-01-06 13:10', 3, 'CU002', 'S002'),
-('F003', 'Portion size is generous', '2025-01-07 18:45', 4, 'CU003', 'S003'),
-('F004', 'Stall was very clean', '2025-01-08 11:20', 5, 'CU004', 'S004'),
-('F005', 'Price slightly high', '2025-01-09 19:00', 3, 'CU005', 'S005'),
-('F006', 'Friendly staff', '2025-01-10 14:15', 4, 'CU006', 'S006'),
-('F007', 'Healthy and tasty', '2025-01-11 12:40', 5, 'CU007', 'S007'),
-('F008', 'Soup could be hotter', '2025-01-12 18:30', 3, 'CU008', 'S008'),
-('F009', 'Worth the wait', '2025-01-13 20:10', 4, 'CU009', 'S009'),
-('F010', 'Great BBQ flavor', '2025-01-14 13:55', 5, 'CU010', 'S010'),
-('F011', 'Portions are generous and tasty.', '2025-01-15 12:20', 5, 'CU021', 'S011'),
-('F012', 'Burger was juicy but bun was soggy.', '2025-01-16 13:05', 4, 'CU022', 'S003'),
-('F013', 'Service was friendly and quick.', '2025-01-17 18:10', 5, 'CU023', 'S002'),
-('F014', 'Dim sum fresh but a bit salty.', '2025-01-18 11:35', 3, 'CU024', 'S008'),
-('F015', 'Drinks are value for money.', '2025-01-19 09:10', 4, 'CU025', 'S010'),
-('F016', 'Queue moves slowly at lunch.', '2025-01-20 12:55', 3, 'CU026', 'S007'),
-('F017', 'Ice kachang perfect for hot day.', '2025-01-21 15:40', 5, 'CU027', 'S009'),
-('F018', 'Satay was slightly overcooked.', '2025-01-22 19:20', 3, 'CU028', 'S007'),
-('F019', 'Fish & chips crispy and well-seasoned.', '2025-01-23 13:15', 4, 'CU029', 'S011'),
-('F020', 'Briyani rice fragrant and flavorful.', '2025-01-24 14:05', 5, 'CU030', 'S012');
+('F001', 'Compliment', 'Food Quality', 'Food was delicious!', '2025-01-05 12:30', 5, 'CU001', 'S001'),
+('F002', 'Complaint', 'Service', 'Poor service and rude staff.', '2025-01-06 13:10', 1, 'CU002', 'S002'),
+('F003', 'Compliment', 'Portion Size', 'Portion size is generous', '2025-01-07 18:45', 4, 'CU003', 'S003'),
+('F004', 'Compliment', 'Hygiene', 'Stall was very clean', '2025-01-08 11:20', 5, 'CU004', 'S004'),
+('F005', 'Complaint', 'Price', 'Price slightly high', '2025-01-09 19:00', 3, 'CU005', 'S005'),
+('F006', 'Compliment', 'Service', 'Friendly staff', '2025-01-10 14:15', 4, 'CU006', 'S006'),
+('F007', 'Complaint', 'Misc.', 'Annoying pest birds around stall', '2025-01-12 18:30', 2, 'CU008', 'S008'),
+('F008', 'Compliment', 'Environment', 'Pleasant atmosphere.', '2025-01-14 13:55', 5, 'CU010', 'S010'),
+('F009', 'General', 'Food Quality', 'Burger was juicy but bun was soggy.', '2025-01-16 13:05', 4, 'CU022', 'S003'),
+('F010', 'Compliment', 'Wait Time', 'Food was served quickly', '2025-01-17 18:10', 5, 'CU023', 'S002'),
+('F011', 'Complaint', 'Environment', 'Environment was very noisy', '2025-01-18 11:35', 2, 'CU024', 'S008'),
+('F012', 'Compliment', 'Price', 'Drinks are value for money.', '2025-01-19 09:10', 4, 'CU025', 'S010'),
+('F013', 'General', 'Wait Time', 'Queue can move slowly at lunch, but is fast at non-peak hours.', '2025-01-20 12:55', 3, 'CU026', 'S007'),
+('F014', 'Complaint', 'Hygiene', 'Food stains and bird poop on tables', '2025-01-21 15:40', 1, 'CU027', 'S009'),
+('F015', 'Suggestion', 'Misc.', 'Bring back takoyaki as a side option!', '2025-01-22 19:20', 3, 'CU028', 'S013');
 
 
 insert into Inspection values
@@ -566,7 +564,7 @@ insert into Inspection values
 
 /*insert into InspectionRemark values
 ('IN001', 'Excellent hygiene practices observed.'),
-('IN002', 'Minor cleanliness issues found near sink area.'),
+('IN002', 'Minor Hygiene issues found near sink area.'),
 ('IN003', 'Food handling procedures followed correctly.'),
 ('IN004', 'Poor waste disposal management detected.'),
 ('IN005', 'Stall maintained very high cleanliness standards.'),
@@ -973,7 +971,6 @@ SELECT * FROM NEA_Officer;
 SELECT * FROM HawkerCentre;
 SELECT * FROM FoodStall;
 SELECT * FROM Customer;
-SELECT * FROM Complaint;
 SELECT * FROM Cuisine;
 SELECT * FROM CustOrder;
 SELECT * FROM FeedBack;
