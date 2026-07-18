@@ -12,11 +12,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ===== You guys can update your routes here =====
 
-// Home page
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
 // Stalls
 const stallRoutes = require('./routes/stallRoutes');
 app.use('/stalls', stallRoutes);
@@ -25,6 +20,12 @@ app.use('/stalls', stallRoutes);
 const stallRoutes = require('./routes/feedbackRoutes');
 app.use('/feedback', stallRoutes);
 
+
+
+// Home page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
