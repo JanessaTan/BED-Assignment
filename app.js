@@ -8,6 +8,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ===== You guys can update your routes here =====
 
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
+
 const stallRoutes = require('./routes/stallRoutes');
 app.use('/api/stalls', stallRoutes);
 

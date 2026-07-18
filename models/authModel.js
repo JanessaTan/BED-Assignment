@@ -1,11 +1,11 @@
-const { sql, poolPromise } = require('../.config/db');
+const { sql, poolPromise } = require('../dbConfig');
 
 // Find a customer by email (used during registration check and login)
 async function getCustomerByEmail(email) {
     const pool = await poolPromise;
     const result = await pool.request()
-        .input('email', sql.NVarChar, email)
-        .query('SELECT * FROM Customer WHERE Email = @email');
+        .input('email', sql.VarChar, email)
+        .query('SELECT * FROM Customer WHERE CustEmail = @email');
     return result.recordset[0];
 }
 
@@ -13,22 +13,36 @@ async function getCustomerByEmail(email) {
 async function getCustomerById(id) {
     const pool = await poolPromise;
     const result = await pool.request()
-        .input('id', sql.Int, id)
-        .query('SELECT CustomerID, Name, Email FROM Customer WHERE CustomerID = @id');
+        .input('id', sql.VarChar, id)
+        .query('SELECT CustomerID, CustName, CustEmail FROM Customer WHERE CustomerID = @id');
     return result.recordset[0];
+}
+
+// Generate the next CustomerID in sequence, e.g. CU040 -> CU041
+// (needed because CustomerID is VARCHAR and hand-formatted, not auto-increment)
+async function getNextCustomerId() {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .query('SELECT TOP 1 CustomerID FROM Customer ORDER BY CustomerID DESC');
+    const last = result.recordset[0]?.CustomerID; // e.g. 'CU040'
+    const nextNum = last ? parseInt(last.substring(2)) + 1 : 1;
+    return 'CU' + String(nextNum).padStart(3, '0');
 }
 
 // Create a new customer account (password should already be hashed before calling this)
 async function createCustomer(name, email, hashedPassword) {
     const pool = await poolPromise;
-    const result = await pool.request()
-        .input('Name', sql.NVarChar, name)
-        .input('Email', sql.NVarChar, email)
-        .input('Password', sql.NVarChar, hashedPassword)
-        .query(`INSERT INTO Customer (Name, Email, Password)
-                OUTPUT INSERTED.CustomerID, INSERTED.Name, INSERTED.Email
-                VALUES (@Name, @Email, @Password)`);
-    return result.recordset[0];
+    const newId = await getNextCustomerId();
+
+    await pool.request()
+        .input('CustomerID', sql.VarChar, newId)
+        .input('CustName', sql.VarChar, name)
+        .input('CustEmail', sql.VarChar, email)
+        .input('Password', sql.VarChar, hashedPassword)
+        .query(`INSERT INTO Customer (CustomerID, CustNRIC, CustName, CustEmail, Password)
+                VALUES (@CustomerID, 'PENDING', @CustName, @CustEmail, @Password)`);
+
+    return { customerId: newId, name, email };
 }
 
 module.exports = { getCustomerByEmail, getCustomerById, createCustomer };
