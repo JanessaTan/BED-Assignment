@@ -1,11 +1,9 @@
 const express = require ('express');
 const router = express.Router();
-const stallController = require('../controllers/feedbackController');
+const feedbackController = require('../controllers/feedbackController');
 
-router.get('/', stallController.getStalls);
-router.get('/:id', stallController.getStall);
-router.post('/', stallController.addStall);
-router.put('/:id', stallController.editStall);
-router.delete('/:id', stallController.removeStall);
+router.get('/', feedbackController.getFeedback);
+router.get('/:id', feedbackController.getfeedbackById);
+router.post('/', feedbackController.submitfeedback);
 
 module.exports = router;

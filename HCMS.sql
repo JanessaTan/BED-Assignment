@@ -1,5 +1,5 @@
-CREATE DATABASE HawkerCentreManagementSystem;
-GO
+--CREATE DATABASE HawkerCentreManagementSystem;
+--GO
 
 USE HawkerCentreManagementSystem; 
 GO
@@ -119,11 +119,12 @@ GO
 CREATE TABLE dbo.Feedback
 (
 	FbkID	VARCHAR(4)	NOT NULL,
-    Category  VARCHAR(50) NOT NULL CHECK (Category IN ('Misc.', 'Hygiene', 'Environment', 'Food Quality', 'Portion Size', 'Price', 'Service', 'Wait Time')),
+    Category VARCHAR(50) NOT NULL CHECK (Category IN ('General', 'Compliment', 'Complaint', 'Suggestion')),
+    Subcategory  VARCHAR(50) NOT NULL CHECK (Subcategory IN ('Misc.', 'Hygiene', 'Environment', 'Food Quality', 'Portion Size', 'Price', 'Service', 'Wait Time')),
 	FbkComment	VARCHAR(255),
 	FbkDateTime	DATETIME NOT NULL,
 	FbkRating INT,
-	CustomerID	VARCHAR(10)	NOT NULL,
+	CustomerID	VARCHAR(10) NOT NULL,
 	StallID	VARCHAR(4) NOT NULL,
 	CONSTRAINT PK_Feedback PRIMARY KEY (FbkID),
 	CONSTRAINT FK_Feedback_Customer
@@ -509,21 +510,21 @@ INSERT INTO CustOrder (OrderID, OrderDate, PmtType, CustomerID) VALUES
 
 
 insert into FeedBack values
-('F001', 'Food Quality', 'Food was delicious!', '2025-01-05 12:30', 5, 'CU001', 'S001'),
-('F002', 'Service', 'Poor service and rude staff.', '2025-01-06 13:10', 1, 'CU002', 'S002'),
-('F003', 'Portion Size', 'Portion size is generous', '2025-01-07 18:45', 4, 'CU003', 'S003'),
-('F004', 'Hygiene', 'Stall was very clean', '2025-01-08 11:20', 5, 'CU004', 'S004'),
-('F005', 'Price', 'Price slightly high', '2025-01-09 19:00', 3, 'CU005', 'S005'),
-('F006', 'Service', 'Friendly staff', '2025-01-10 14:15', 4, 'CU006', 'S006'),
-('F007', 'Misc.', 'Annoying pest birds around stall', '2025-01-12 18:30', 2, 'CU008', 'S008'),
-('F008', 'Environment', 'Pleasant atmosphere', '2025-01-14 13:55', 5, 'CU010', 'S010'),
-('F009', 'Food Quality', 'Burger was juicy but bun was soggy.', '2025-01-16 13:05', 4, 'CU022', 'S003'),
-('F010', 'Wait Time', 'Food was served quickly', '2025-01-17 18:10', 5, 'CU023', 'S002'),
-('F011', 'Environment', 'Environment was very noisy', '2025-01-18 11:35', 2, 'CU024', 'S008'),
-('F012', 'Price', 'Drinks are value for money.', '2025-01-19 09:10', 4, 'CU025', 'S010'),
-('F013', 'Wait Time', 'Queue moves slowly at lunch.', '2025-01-20 12:55', 3, 'CU026', 'S007'),
-('F014', 'Hygiene', 'Food stains and bird poop on tables', '2025-01-21 15:40', 1, 'CU027', 'S009'),
-('F015', 'Portion Size', 'Satay pieces were small', '2025-01-22 19:20', 3, 'CU028', 'S007');
+('F001', 'Compliment', 'Food Quality', 'Food was delicious!', '2025-01-05 12:30', 5, 'CU001', 'S001'),
+('F002', 'Complaint', 'Service', 'Poor service and rude staff.', '2025-01-06 13:10', 1, 'CU002', 'S002'),
+('F003', 'Compliment', 'Portion Size', 'Portion size is generous', '2025-01-07 18:45', 4, 'CU003', 'S003'),
+('F004', 'Compliment', 'Hygiene', 'Stall was very clean', '2025-01-08 11:20', 5, 'CU004', 'S004'),
+('F005', 'Complaint', 'Price', 'Price slightly high', '2025-01-09 19:00', 3, 'CU005', 'S005'),
+('F006', 'Compliment', 'Service', 'Friendly staff', '2025-01-10 14:15', 4, 'CU006', 'S006'),
+('F007', 'Complaint', 'Misc.', 'Annoying pest birds around stall', '2025-01-12 18:30', 2, 'CU008', 'S008'),
+('F008', 'Compliment', 'Environment', 'Pleasant atmosphere.', '2025-01-14 13:55', 5, 'CU010', 'S010'),
+('F009', 'General', 'Food Quality', 'Burger was juicy but bun was soggy.', '2025-01-16 13:05', 4, 'CU022', 'S003'),
+('F010', 'Compliment', 'Wait Time', 'Food was served quickly', '2025-01-17 18:10', 5, 'CU023', 'S002'),
+('F011', 'Complaint', 'Environment', 'Environment was very noisy', '2025-01-18 11:35', 2, 'CU024', 'S008'),
+('F012', 'Compliment', 'Price', 'Drinks are value for money.', '2025-01-19 09:10', 4, 'CU025', 'S010'),
+('F013', 'General', 'Wait Time', 'Queue can move slowly at lunch, but is fast at non-peak hours.', '2025-01-20 12:55', 3, 'CU026', 'S007'),
+('F014', 'Complaint', 'Hygiene', 'Food stains and bird poop on tables', '2025-01-21 15:40', 1, 'CU027', 'S009'),
+('F015', 'Suggestion', 'Misc.', 'Bring back takoyaki as a side option!', '2025-01-22 19:20', 3, 'CU028', 'S013');
 
 
 insert into Inspection values
