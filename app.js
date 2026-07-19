@@ -14,6 +14,10 @@ app.use('/api/auth', authRoutes);
 const stallRoutes = require('./routes/stallRoutes');
 app.use('/api/stalls', stallRoutes);
 
+const feedbackRoutes = require('./routes/feedbackRoutes');
+app.use('/api/feedback', feedbackRoutes);
+
+
 // Home page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
