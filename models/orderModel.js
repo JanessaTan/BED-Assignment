@@ -1,72 +1,94 @@
-const { sql, poolPromise } = require('../config/db');
-
+const { sql, poolPromise } = require('../dbConfig');
+ 
 // GET all orders
 async function getAllOrders() {
     const pool = await poolPromise;
     const result = await pool.request()
-        .query('SELECT * FROM [Order]');
+        .query('SELECT * FROM CustOrder');
     return result.recordset;
 }
-
+ 
 // GET a single order by ID
 async function getOrderById(id) {
     const pool = await poolPromise;
     const result = await pool.request()
-        .input('id', sql.Int, id)
-        .query('SELECT * FROM [Order] WHERE OrderID = @id');
+        .input('id', sql.VarChar, id)
+        .query('SELECT * FROM CustOrder WHERE OrderID = @id');
     return result.recordset[0];
 }
-
+ 
 // GET all orders belonging to a specific customer
 async function getOrdersByCustomer(customerId) {
     const pool = await poolPromise;
     const result = await pool.request()
-        .input('customerId', sql.Int, customerId)
-        .query('SELECT * FROM [Order] WHERE CustomerID = @customerId ORDER BY OrderDate DESC');
+        .input('customerId', sql.VarChar, customerId)
+        .query('SELECT * FROM CustOrder WHERE CustomerID = @customerId ORDER BY OrderDate DESC');
     return result.recordset;
 }
-
+ 
+// GET all line items for a specific order (from OrderItem table)
+async function getOrderItems(orderId) {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('orderId', sql.VarChar, orderId)
+        .query('SELECT * FROM OrderItem WHERE OrderID = @orderId ORDER BY OrderItemNo');
+    return result.recordset;
+}
+ 
+// Generate the next OrderID in sequence, e.g. O043 -> O044
+// (needed because OrderID is VARCHAR and hand-formatted, not auto-increment)
+async function getNextOrderId() {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .query('SELECT TOP 1 OrderID FROM CustOrder ORDER BY OrderID DESC');
+    const last = result.recordset[0]?.OrderID; // e.g. 'O043'
+    const nextNum = last ? parseInt(last.substring(1)) + 1 : 1;
+    return 'O' + String(nextNum).padStart(3, '0');
+}
+ 
 // CREATE a new order
 async function createOrder(order) {
     const pool = await poolPromise;
-    const result = await pool.request()
-        .input('CustomerID', sql.Int, order.customerId)
-        .input('StallID', sql.Int, order.stallId)
-        .input('Status', sql.NVarChar, order.status || 'Pending')
-        .input('TotalAmount', sql.Decimal(10, 2), order.totalAmount)
-        .query(`INSERT INTO [Order] (CustomerID, StallID, OrderDate, Status, TotalAmount)
-                OUTPUT INSERTED.*
-                VALUES (@CustomerID, @StallID, GETDATE(), @Status, @TotalAmount)`);
-    return result.recordset[0];
+    const newId = await getNextOrderId();
+ 
+    await pool.request()
+        .input('OrderID', sql.VarChar, newId)
+        .input('OrderDate', sql.Date, order.orderDate || new Date())
+        .input('PmtType', sql.VarChar, order.pmtType)
+        .input('CustomerID', sql.VarChar, order.customerId)
+        .query(`INSERT INTO CustOrder (OrderID, OrderDate, PmtType, CustomerID)
+                VALUES (@OrderID, @OrderDate, @PmtType, @CustomerID)`);
+ 
+    return getOrderById(newId);
 }
-
-// UPDATE an existing order (e.g. status or total amount)
+ 
+// UPDATE an existing order (e.g. payment type)
 async function updateOrder(id, order) {
     const pool = await poolPromise;
-    const result = await pool.request()
-        .input('id', sql.Int, id)
-        .input('Status', sql.NVarChar, order.status)
-        .input('TotalAmount', sql.Decimal(10, 2), order.totalAmount)
-        .query(`UPDATE [Order]
-                SET Status = @Status, TotalAmount = @TotalAmount
-                OUTPUT INSERTED.*
+    await pool.request()
+        .input('id', sql.VarChar, id)
+        .input('PmtType', sql.VarChar, order.pmtType)
+        .query(`UPDATE CustOrder
+                SET PmtType = @PmtType
                 WHERE OrderID = @id`);
-    return result.recordset[0];
+ 
+    return getOrderById(id);
 }
-
+ 
 // DELETE an order
 async function deleteOrder(id) {
     const pool = await poolPromise;
-    const result = await pool.request()
-        .input('id', sql.Int, id)
-        .query('DELETE FROM [Order] WHERE OrderID = @id');
-    return result.rowsAffected[0] > 0;
+    await pool.request()
+        .input('id', sql.VarChar, id)
+        .query('DELETE FROM CustOrder WHERE OrderID = @id');
+    return true;
 }
-
+ 
 module.exports = {
     getAllOrders,
     getOrderById,
     getOrdersByCustomer,
+    getOrderItems,
     createOrder,
     updateOrder,
     deleteOrder
