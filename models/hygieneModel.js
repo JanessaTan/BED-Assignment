@@ -1,10 +1,9 @@
-const sql = require("mssql");
-const dbConfig = require("../dbConfig");
+const { sql, poolPromise } = require('../dbConfig');
 
 // GET current hygiene record
 
 async function getCurrentHygiene(stallId){
-    const connection = await sql.connect(dbConfig);
+    const connection = await poolPromise;
     const request = connection.request();
     request.input("StallID", stallId);
 

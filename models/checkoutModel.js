@@ -1,9 +1,8 @@
-const sql = require("mssql");
-const dbConfig = require("../dbConfig");
+const { sql, poolPromise } = require('../dbConfig');
 
 //Generate OrderID
 async function generateOrderID(){
-    const connection = await sql.connect(dbConfig);
+    const connection = await poolPromise;
     const result = await connection.request().query(`
         SELECT TOP 1 OrderID
         FROM CustOrder
@@ -25,7 +24,7 @@ async function generateOrderID(){
 
 // CREATE ORDER
 async function createOrder(data) {
-    const connection = await sql.connect(dbConfig);
+    const connection = await poolPromise;
 
     // Generate a new OrderID
     const orderID = await generateOrderID();
@@ -102,7 +101,7 @@ async function createOrder(data) {
 // GET ORDER DETAILS
 async function getOrder(orderID){
 
-    const connection = await sql.connect(dbConfig);
+    const connection = await poolPromise;
 
     const request = connection.request();
 
