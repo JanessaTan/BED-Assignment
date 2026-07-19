@@ -1,5 +1,5 @@
---CREATE DATABASE HawkerCentreManagementSystem;
---GO
+CREATE DATABASE HawkerCentreManagementSystem;
+GO
 
 USE HawkerCentreManagementSystem; 
 GO
@@ -147,7 +147,7 @@ CREATE TABLE dbo.Inspection
 );
 GO
 
-/*CREATE TABLE dbo.InspectionRemark
+CREATE TABLE dbo.InspectionRemark
 (
     InspectionID VARCHAR(10) NOT NULL,
     InspectionRemark VARCHAR(255) NOT NULL,
@@ -159,7 +159,7 @@ GO
         FOREIGN KEY (InspectionID)
         REFERENCES dbo.Inspection (InspectionID)
 );
-GO*/
+GO
 
 CREATE TABLE dbo.Promotion
 (
@@ -564,7 +564,7 @@ insert into Inspection values
 ('IN032','2025-02-25','B','2025-08-25','O007','S032');*/
 
 
-/*insert into InspectionRemark values
+insert into InspectionRemark values
 ('IN001', 'Excellent hygiene practices observed.'),
 ('IN002', 'Minor Hygiene issues found near sink area.'),
 ('IN003', 'Food handling procedures followed correctly.'),
@@ -582,8 +582,8 @@ insert into Inspection values
 ('IN016','All hygiene SOPs followed; equipment well-maintained.'),
 ('IN017','Expired condiments found; removed and briefed owner.'),
 ('IN018','Waste disposal schedule improved since last check.'),
-('IN019','Excellent record-keeping and sanitization routines.'),
-('IN020','Deep-cleaning plan requested; follow-up in one month.'),
+('IN019','Excellent record-keeping and sanitization routines.')
+/*('IN020','Deep-cleaning plan requested; follow-up in one month.'),
 ('IN021','Overall cleanliness acceptable; some dust on shelves.'),
 ('IN022','Cutting boards need replacement due to wear.'),
 ('IN023','Good pest prevention measures observed.'),
@@ -595,9 +595,9 @@ insert into Inspection values
 ('IN029','Temperature logs incomplete for the week.'),
 ('IN030','Thorough cleaning observed; no major issues.'),
 ('IN031','Handwashing compliance improved since last visit.'),
-('IN032','Stale ingredients found; advised immediate disposal.');
+('IN032','Stale ingredients found; advised immediate disposal.');*/
 
-SELECT * FROM InspectionRemark;*/
+SELECT * FROM InspectionRemark;
 
 insert into Promotion values 
 ('P001','10% off main dishes','2025-06-20','2025-07-20','S003'),
