@@ -19,6 +19,12 @@ app.use('/api/stalls', stallRoutes);
 const feedbackRoutes = require('./routes/feedbackRoutes');
 app.use('/api/feedback', feedbackRoutes);
 
+const checkoutRoutes = require('./routes/checkoutRoute');
+app.use('/api/checkout', checkoutRoutes);
+
+const hygieneRoutes = require('./routes/hygieneRoute');
+app.use('/api/stalls', hygieneRoutes);
+
 
 // Home page
 app.get('/', (req, res) => {
