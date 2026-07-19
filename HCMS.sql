@@ -684,7 +684,7 @@ insert into RentalAgreement values
 insert into MenuItem values
 ('S001','I001','Chicken Rice',4.50,'Main'),
 ('S002','I002','Roasted Duck Rice',5.00,'Main'),
-('S003','I003','Nasi Lemak',4.00,'Main'),
+('S003','I003','Veggie Burger',4.00,'Main'),
 ('S004','I004','Roti Prata',1.20,'Side'),
 ('S005','I005','Fish Soup',5.50,'Main'),
 ('S006','I006','Char Kway Teow',4.80,'Main'),
