@@ -574,16 +574,16 @@ insert into InspectionRemark values
 ('IN007', 'All hygiene requirements fully met.'),
 ('IN008', 'Storage area needs better organisation.'),
 ('IN009', 'Clean and well-maintained cooking equipment.'),
-('IN010', 'Pest control measures need improvement.'),
-('IN012','Exemplary food storage and temperature logs maintained.'),
-('IN013','Cluttered preparation area; recommend 5S organization.'),
+('IN010', 'Pest control measures need improvement.')
+/*('IN012','Exemplary food storage and temperature logs maintained.'),
+('IN013','Cluttered preparation area; recommend 5S organization.')
 ('IN014','Multiple critical issues: pest sighting and dirty bins.'),
 ('IN015','Handwash basins available but insufficient soap refills.'),
 ('IN016','All hygiene SOPs followed; equipment well-maintained.'),
 ('IN017','Expired condiments found; removed and briefed owner.'),
 ('IN018','Waste disposal schedule improved since last check.'),
 ('IN019','Excellent record-keeping and sanitization routines.')
-/*('IN020','Deep-cleaning plan requested; follow-up in one month.'),
+('IN020','Deep-cleaning plan requested; follow-up in one month.'),
 ('IN021','Overall cleanliness acceptable; some dust on shelves.'),
 ('IN022','Cutting boards need replacement due to wear.'),
 ('IN023','Good pest prevention measures observed.'),
