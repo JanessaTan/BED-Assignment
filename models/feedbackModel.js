@@ -5,7 +5,7 @@ async function getFeedback() {
   try{
     const connection = await poolPromise;
     const query = "SELECT * FROM Feedback"
-    const request = await connection.request()
+    const request = connection.request()
     const result = await request.query(query);
     return result.recordset
   } catch (error) {
@@ -86,23 +86,36 @@ async function getFeedbackById(id) {
   }
 }
 
+// Get new Feedback ID (next one after the last one)
+async function getNextFbkId() {
+    const connection = await poolPromise;
+    const query = "SELECT TOP 1 FbkID FROM Feedback ORDER BY FbkID DESC"
+    const request = connection.request()
+    const result = await request.query(query);
+    const lastId = result.recordset[0]?.FbkID;
+    const nextId = lastId ? parseInt(lastId.substring(1)) + 1 : 1;
+    return 'F' + String(nextId).padStart(3, '0');
+}
+
 // Create new feedback
 async function submitFeedback(feedbackData) {
   try {
     const connection = await poolPromise;
-    const query = "INSERT INTO Feedback (Category, Subcategory, FbkComment, FbkDateTime, FbkRating, CustomerID, StallID) VALUES (@Category, @Subcategory, @FbkComment, GETDATE(), @FbkRating, @CustomerID, @StallID); SELECT SCOPE_IDENTITY() AS FbkID;";
-    
+    const newFbkId = await getNextFbkId();
+
+    const query = "INSERT INTO Feedback (FbkID, Category, Subcategory, FbkComment, FbkDateTime, FbkRating, CustomerID, StallID) VALUES (@FbkID, @Category, @Subcategory, @FbkComment, GETDATE(), @FbkRating, @CustomerID, @StallID)";
     const request = connection.request();
+
+    request.input("FbkID", newFbkId);
     request.input("Category", feedbackData.Category);
     request.input("Subcategory", feedbackData.Subcategory);
     request.input("FbkComment", feedbackData.FbkComment);
     request.input("FbkRating", feedbackData.FbkRating);
     request.input("CustomerID", feedbackData.CustomerID);
     request.input("StallID", feedbackData.StallID);
-    const result = await request.query(query);
 
-    const newFeedbackId = result.recordset.FbkID;
-    return await getFeedbackById(newFeedbackId);
+    const result = await request.query(query);
+    return await getFeedbackById(newFbkId);
   } catch (error) {
     console.error("Database error:", error);
     throw error;
