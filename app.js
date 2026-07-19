@@ -28,6 +28,9 @@ app.use('/api/stalls', hygieneRoutes);
 const orderRoutes = require('./routes/orderRoute');
 app.use('/api/orders', orderRoutes);
 
+const likeRoutes = require('./routes/likeRoutes');
+app.use('/api/likes', likeRoutes);
+
 
 // Home page
 app.get('/', (req, res) => {
