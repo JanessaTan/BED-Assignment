@@ -1,5 +1,5 @@
-CREATE DATABASE HawkerCentreManagementSystem;
-GO
+--CREATE DATABASE HawkerCentreManagementSystem;
+--GO
 
 USE HawkerCentreManagementSystem; 
 GO
@@ -239,8 +239,8 @@ CREATE TABLE dbo.Likes
     ItemCode varchar(10) NOT NULL,
 
 
-    CONSTRAINT PK_Likes 
-        PRIMARY KEY (CustomerID, ItemCode),
+    --CONSTRAINT PK_Likes 
+    --    PRIMARY KEY (CustomerID, ItemCode),
 
     CONSTRAINT FK_Likes_CustomerID 
         FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
@@ -597,7 +597,6 @@ insert into InspectionRemark values
 ('IN031','Handwashing compliance improved since last visit.'),
 ('IN032','Stale ingredients found; advised immediate disposal.');*/
 
-SELECT * FROM InspectionRemark;
 
 insert into Promotion values 
 ('P001','10% off main dishes','2025-06-20','2025-07-20','S003'),
