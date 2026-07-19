@@ -5,24 +5,29 @@ const { sql, poolPromise } = require('../dbConfig');
 async function getCurrentHygiene(stallId){
     const connection = await poolPromise;
     const request = connection.request();
+
     request.input("StallID", stallId);
 
     const result = await request.query(`
         SELECT TOP 1
-            InspectionDate,
-            GradeExpiry,
-            HygieneGrade
-        FROM Inspection
-        WHERE StallID = @StallID
-        ORDER BY InspectionDate DESC
+            i.InspectionID,
+            i.InspectionDate,
+            i.GradeExpiry,
+            i.HygieneGrade,
+            r.InspectionRemark
+        FROM Inspection i
+        LEFT JOIN InspectionRemark r
+            ON i.InspectionID = r.InspectionID
+        WHERE i.StallID = @StallID
+        ORDER BY i.InspectionDate DESC
     `);
+
     return result.recordset[0];
 }
-
 // PUT route for hygiene
 
 async function updateHygiene(inspectionId, data){
-    const connection = await sql.connect(dbConfig);
+    const connection = await poolPromise;
     const request = connection.request();
 
     request.input("InspectionID", inspectionId);
@@ -46,8 +51,10 @@ async function updateHygiene(inspectionId, data){
 // POST route for hygiene
 
 async function createHygiene(data){
-    const connection = await sql.connect(dbConfig);
-    const request = connection.request();
+    const connection = await poolPromise;
+
+    // Create inspection
+    let request = connection.request();
 
     request.input("InspectionID", data.InspectionID);
     request.input("InspectionDate", data.InspectionDate);
@@ -66,7 +73,6 @@ async function createHygiene(data){
             OfficerID,
             StallID
         )
-
         VALUES
         (
             @InspectionID,
@@ -75,6 +81,26 @@ async function createHygiene(data){
             @GradeExpiry,
             @OfficerID,
             @StallID
+        )
+    `);
+
+
+    // Create remark
+    request = connection.request();
+
+    request.input("InspectionID", data.InspectionID);
+    request.input("InspectionRemark", data.InspectionRemark);
+
+    await request.query(`
+        INSERT INTO InspectionRemark
+        (
+            InspectionID,
+            InspectionRemark
+        )
+        VALUES
+        (
+            @InspectionID,
+            @InspectionRemark
         )
     `);
 }

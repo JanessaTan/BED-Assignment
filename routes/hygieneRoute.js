@@ -18,7 +18,7 @@ router.post(
 
 // UPDATE hygiene
 router.put(
-    "/:id",
+    "inspection/:id/hygiene",
     hygieneController.updateHygiene
 );
 
