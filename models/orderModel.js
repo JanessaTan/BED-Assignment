@@ -1,4 +1,4 @@
-const { sql, poolPromise } = require('../dbConfig');
+const { sql, poolPromise } = require('../dbConfig_nicole');
  
 // GET all orders
 async function getAllOrders() {
