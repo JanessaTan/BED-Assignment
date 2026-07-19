@@ -58,7 +58,7 @@
 
         try {
 
-            const response = await fetch("/stalls");
+            const response = await fetch("/api/stalls");
 
             const stalls = await response.json();
 

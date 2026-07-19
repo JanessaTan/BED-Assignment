@@ -4,7 +4,15 @@ Student Name -Nicole Agnes Sim Hui En */
 // Auto-apply Promotion - Shows the discount when customer checks out with a promotion selected
 (function() {
   // Fetch the customer's cart items and total price from the cart module
-  const {cart, subtotal} = cartTotals();
+  const store = JSON.parse(localStorage.getItem("store")) || {
+    cart: []
+  };
+
+  const cart = store.cart;
+
+  const subtotal = cart.reduce((total, item) => {
+    return total + (Number(item.price) * item.qty);
+  }, 0);
   
   // Get the promotion that the customer picked earlier
   const picked = getPickedPromo();

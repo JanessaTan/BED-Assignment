@@ -1,7 +1,10 @@
 const checkoutModel = require("../models/checkoutModel");
 
-async function createOrder(req, res){
+async function createOrder(req,res){
     try{
+        console.log("Incoming order data:");
+        console.log(req.body);
+
         const orderID = await checkoutModel.createOrder(req.body);
 
         res.status(201).json({
@@ -11,10 +14,12 @@ async function createOrder(req, res){
 
     }catch(error){
 
-        console.error(error);
+    console.error("CREATE ORDER ERROR:");
+    console.error(error);
 
-        res.status(500).json({
-            message:"Failed to create order"
+    res.status(500).json({
+        message:"Failed to create order",
+        error:error.message
         });
     }
 }

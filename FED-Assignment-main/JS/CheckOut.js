@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     Items: store.cart.map(item => ({
         StallID: item.stallId,
-        ItemCode: item.itemCode,
+        ItemCode: item.itemId,
         Quantity: item.qty,
         UnitPrice: item.price
     }))
