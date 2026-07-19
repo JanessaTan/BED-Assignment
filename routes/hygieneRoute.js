@@ -12,7 +12,7 @@ router.get(
 
 // CREATE hygiene
 router.post(
-    "/:id",
+    "/",
     hygieneController.createHygiene
 );
 
