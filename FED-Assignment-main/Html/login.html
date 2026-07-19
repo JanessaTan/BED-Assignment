@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset = "UTF-8">
+        <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
+        <title>Login - Hawker Center Management System</title>
+        <link rel ="stylesheet" href ="../css/login.css">
+    </head>
+    <body>
+        
+        <div class = "login-page">
+            <div class = "login-card">
+
+                <div class = "login-brand">
+                    <h1>Hawker<span>Hub</span></h1>
+                    <p class = "login-subtitle"> Sign in to order, review, and manage your stall</p>
+                </div>
+
+                <!-- Role tabs -->
+                <div class = "role-tabs">
+                    <button type = "button" class = "role-tab active" data-role="customer">Customer</button>
+                    <button type = "button" class = "role-tab" data-role="vendor">Vendor</button>
+                </div>
+
+                <!-- Customer login form -->
+                <form id ="customerForm" class= "login-form active">
+                    <label for = "customerEmail">Email</label>
+                    <input type = "email" id="customerEmail" placeholder="you@example.com" required>
+                    
+                    <label for = "customerPassword">Password</label>
+                    <input type = "password" id="customerPassword" placeholder="Enter your password" required>
+
+                    <p class = "form-error" id = "customerError"> </p>
+                    <button type="submit" class="btn primary full-width"> Log In</button>
+                    <p class = "form-footer">
+                        New here? <a href ="register.html"> Create an account</a>
+                    </p>
+                </form>
+
+                <!-- Vendor login form -->
+                 <form id ="vendorForm" class = "login-form">
+                    <label for = "vendorEmail">Vendor Email</label>
+                    <input type = "email" id="vendorEmail" placeholder="you@stalls.com" required>
+
+                    <label for = "vendorPassword">Password</label>
+                    <input type = "password" id="vendorPassword" placeholder="Enter your password" required>
+
+                    <p class = "form-error" id = "vendorError"> </p>
+                    <button type="submit" class="btn primary full-width"> Log In as Vendor</button>
+
+                    <p class = "form-error" id="vendorError"></p>
+                    <button type="submit" class="btn primary full-width"> Log In as Vendor</button>
+
+                    <p class = "form-footer vendor-note">
+                        Vendor accounts are provisioned by the Operator. <br>
+                        Contact your Operator if you need access.
+                    </p>
+                </form>
+                <div class="divider"><span>or </span></div>
+                <button type="button" id="guestBtn" class="btn muted full-width">Continue as Guest</button>
+                <p class="guest-note">Browsing as a guest? Your order history won't be saved to an account</p>
+
+            </div>
+        </div>
+
+        <script src="js/login.js"></script>
+    </body>
+</html>
