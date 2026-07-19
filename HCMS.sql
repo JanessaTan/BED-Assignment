@@ -235,7 +235,9 @@ GO
 CREATE TABLE dbo.Likes
 (
     CustomerID varchar(10) NOT NULL,
+    StallID varchar(4) NOT NULL,
     ItemCode varchar(10) NOT NULL,
+
 
     CONSTRAINT PK_Likes 
         PRIMARY KEY (CustomerID, ItemCode),
@@ -243,9 +245,9 @@ CREATE TABLE dbo.Likes
     CONSTRAINT FK_Likes_CustomerID 
         FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
 
-    /*CONSTRAINT FK_Likes_MenuItem 
+    CONSTRAINT FK_Likes_MenuItem 
         FOREIGN KEY (StallID, ItemCode) 
-        REFERENCES MenuItem(StallID, ItemCode)*/
+        REFERENCES MenuItem(StallID, ItemCode)
 );
 GO
 
@@ -876,18 +878,11 @@ INSERT INTO MenuItemCuisine values
 
 
 insert into Likes values
-/*('CU001','S001','I001'),
+('CU001','S001','I001'),
 ('CU002','S002','I002'),  
 ('CU003','S003','I003'), 
 ('CU004','S004','I004'), 
-('CU005','S005','I005'),  
-('CU006','S006','I006'),  
-('CU007','S007','I007'),  
-('CU008','S008','I008'),  
-('CU009','S009','I009'),*/
-('CU002','I010'),  
-('CU010','I011'),
-('CU023','I012');
+('CU005','S005','I005');
 
 
 insert into OrderItem values
