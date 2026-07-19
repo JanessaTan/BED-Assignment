@@ -6,19 +6,19 @@ require("../controllers/hygieneController");
 
 // GET current hygiene
 router.get(
-    "/:id/hygiene",
+    "/:id",
     hygieneController.getCurrentHygiene
 );
 
 // CREATE hygiene
 router.post(
-    "/:id/hygiene",
+    "/:id",
     hygieneController.createHygiene
 );
 
 // UPDATE hygiene
 router.put(
-    "inspection/:id/hygiene",
+    "/inspection/:id",
     hygieneController.updateHygiene
 );
 

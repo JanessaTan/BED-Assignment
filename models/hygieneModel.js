@@ -35,6 +35,7 @@ async function updateHygiene(inspectionId, data){
     request.input("HygieneGrade", data.HygieneGrade);
     request.input("GradeExpiry", data.GradeExpiry);
     request.input("OfficerID", data.OfficerID);
+    request.input("InspectionRemark", data.InspectionRemark);
 
     const result = await request.query(`
         UPDATE Inspection
@@ -44,6 +45,17 @@ async function updateHygiene(inspectionId, data){
             GradeExpiry = @GradeExpiry,
             OfficerID = @OfficerID
         WHERE InspectionID = @InspectionID
+    `);
+
+    const remarkRequest = connection.request();
+
+    remarkRequest.input("InspectionID", inspectionId);
+    remarkRequest.input("InspectionRemark", data.InspectionRemark);
+
+    await remarkRequest.query(`
+    UPDATE InspectionRemark
+    SET InspectionRemark = @InspectionRemark
+    WHERE InspectionID = @InspectionID
     `);
     return result.rowsAffected[0];
 }

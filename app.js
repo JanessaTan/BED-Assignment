@@ -23,7 +23,7 @@ const checkoutRoutes = require('./routes/checkoutRoute');
 app.use('/api/checkout', checkoutRoutes);
 
 const hygieneRoutes = require('./routes/hygieneRoute');
-app.use('/api/stalls', hygieneRoutes);
+app.use('/api/hygiene', hygieneRoutes);
 
 const orderRoutes = require('./routes/orderRoute');
 app.use('/api/orders', orderRoutes);
