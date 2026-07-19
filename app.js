@@ -25,6 +25,9 @@ app.use('/api/checkout', checkoutRoutes);
 const hygieneRoutes = require('./routes/hygieneRoute');
 app.use('/api/stalls', hygieneRoutes);
 
+const orderRoutes = require('./routes/orderRoutes');
+app.use('/api/orders', orderRoutes);
+
 
 // Home page
 app.get('/', (req, res) => {
