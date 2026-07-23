@@ -31,6 +31,9 @@ app.use('/api/orders', orderRoutes);
 const likeRoutes = require('./routes/likeRoutes');
 app.use('/api/likes', likeRoutes);
 
+const hawkercentreRoutes = require('./routes/hawkercentreRoutes');
+app.use('/api/hawkercentres', hawkercentreRoutes);
+
 
 // Home page
 app.get('/', (req, res) => {

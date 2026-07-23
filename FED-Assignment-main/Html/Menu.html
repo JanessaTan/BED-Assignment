@@ -1,38 +1,22 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Menu – HawkerHub</title>
+<main class="menu-wrapper">
 
-  <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/menu.css">
-</head>
+  <a class="back-btn" href="Stalls.html">
+    <span aria-hidden="true">←</span>
+    Back to Stalls
+  </a>
 
-<body>
+  <header class="menu-header">
+    <p class="menu-eyebrow">HAWKERHUB MENU</p>
+    <h1 class="menu-title">Choose Your Meal</h1>
+    <p class="menu-subtitle">
+      Discover delicious local favourites prepared by our hawker stalls.
+    </p>
+  </header>
 
-<script src="../JS/shared.js"></script>
-<script src="../JS/Auth.js"></script>
-<script src="../JS/Order.js"></script>
-<script src="../js/card-and-orders.js"></script>
-<script src="../JS/CheckOut.js"></script>
+  <section
+    class="menu-list"
+    id="menuList"
+    aria-label="Available menu items">
+  </section>
 
-<script>
-  renderHeader('menu');
-</script>
-
-<div class="menu-wrapper">
-
-  <!-- BACK BUTTON -->
-  <a class="back-btn" href="Stalls.html">← Back to Stalls</a>
-
-  <h2 class="menu-title">Menu</h2>
-
-  <div class="menu-list" id="menuList"></div>
-
-</div>
-
-<script src="../JS/Menu.js"></script>
-
-</body>
-</html>
+</main>
