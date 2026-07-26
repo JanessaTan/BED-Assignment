@@ -32,7 +32,6 @@ const likeRoutes = require('./routes/likeRoutes');
 app.use('/api/likes', likeRoutes);
 
 const salesRoutes = require("./routes/salesRoutes");
-
 app.use("/api/sales", salesRoutes);
 
 // Home page

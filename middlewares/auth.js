@@ -22,6 +22,16 @@ function verifyJWT(req, res, next) {
         // "POST /orders": ["customer"],
         // "PUT /orders/[0-9]+": ["customer"],
         // "GET /stalls": ["customer", "vendor"],
+
+        // ===== Than Thar's Menu Management routes (US-SO2) =====
+        "POST (/api/stalls)?/[A-Za-z0-9]+/menu": ["vendor"],
+        "PUT (/api/stalls)?/[A-Za-z0-9]+/menu/[A-Za-z0-9]+": ["vendor"],
+        "DELETE (/api/stalls)?/[A-Za-z0-9]+/menu/[A-Za-z0-9]+": ["vendor"],
+
+        // ===== Than Thar's Promotion Running routes (US-SO3) =====
+        "POST (/api/stalls)?/[A-Za-z0-9]+/promotions": ["vendor"],
+        "PUT (/api/stalls)?/[A-Za-z0-9]+/promotions/[A-Za-z0-9]+": ["vendor"],
+        "DELETE (/api/stalls)?/[A-Za-z0-9]+/promotions/[A-Za-z0-9]+": ["vendor"],
     };
 
     const requestedEndpoint = `${req.method} ${req.url}`; // Include method in endpointl;

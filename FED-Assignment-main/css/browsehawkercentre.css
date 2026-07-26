@@ -1,0 +1,61 @@
+body {
+  font-family: Arial, sans-serif;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.search-panel {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.search-panel input {
+  flex: 1;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.search-panel button {
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+#statusMessage {
+  color: #555;
+  font-size: 14px;
+}
+
+#resultsList {
+  list-style: none;
+  padding: 0;
+}
+
+#resultsList li {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+#resultsList li a {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+#resultsList h3 {
+  margin: 0 0 4px 0;
+}
+
+#resultsList .address {
+  color: #666;
+  font-size: 13px;
+}
+
+#resultsList .distance {
+  color: #0a7d3e;
+  font-size: 13px;
+  font-weight: bold;
+}

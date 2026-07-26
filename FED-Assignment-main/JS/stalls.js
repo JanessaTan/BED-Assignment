@@ -1,128 +1,161 @@
-// (function () {
-
-//   const stallsEl = document.getElementById('stallList');
-
-
-//   function loadStalls() {
-
-//     stallsEl.innerHTML = '';
-
-//     LOCAL_STALLS.forEach(s => {
-
-//       const card = document.createElement('div');
-//       card.className = 'stall-card';
-
-//       card.innerHTML = `
-//         <div class="stall-top">
-//           <h3>${s.name}</h3>
-//           <span class="stall-hours">
-//             Operating hours: ${s.hours}
-//           </span>
-//         </div>
-
-//         <div class="stall-desc">
-//           ${s.name} specialises in ${s.cuisine}. 
-//           Rated ⭐ ${s.rating}.
-//         </div>
-
-//         <div class="stall-actions">
-//           <a class="btn primary" href="Menu.html?stall=${s.id}">
-//             View Menu
-//           </a>
-
-//           <a class="btn secondary" href="rating.html?stall=${s.id}">
-//             Ratings
-//           </a>
-
-//           <a class="btn muted" href="Hygiene.html?stall=${s.id}">
-//             Hygiene
-//           </a>
-//         </div>
-//       `;
-
-//       stallsEl.appendChild(card);
-
-//     });
-//   }
-
-//   loadStalls();
-
-// })();
-
 (function () {
+  "use strict";
 
-    const stallsEl = document.getElementById('stallList');
+  const stallList = document.getElementById("stallList");
+  const stallStatus = document.getElementById("stallStatus");
 
+  function getStallInitial(stallName) {
+    const name = String(stallName ?? "").trim();
+    return name ? name.charAt(0).toUpperCase() : "H";
+  }
 
-    async function loadStalls() {
+  function createActionLink(label, href, variant, accessibleLabel) {
+    const link = document.createElement("a");
 
-        try {
+    link.className = variant ? `btn ${variant}` : "btn";
+    link.href = href;
+    link.textContent = label;
+    link.setAttribute("aria-label", accessibleLabel);
 
-            const response = await fetch("/api/stalls");
+    return link;
+  }
 
-            const stalls = await response.json();
+  function createStallCard(stall = {}) {
+    const stallId = encodeURIComponent(String(stall.StallID ?? "").trim());
+    const stallName = String(stall.StallName ?? "").trim() || "Unnamed Stall";
+    const stallDescription =
+      String(stall.StallDesc ?? "").trim() ||
+      "More information about this stall is coming soon.";
 
-            stallsEl.innerHTML = "";
+    const card = document.createElement("article");
+    card.className = "card card--accent card--interactive stall-card";
 
+    const top = document.createElement("div");
+    top.className = "stall-top";
 
-            stalls.forEach(s => {
+    const icon = document.createElement("div");
+    icon.className = "stall-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = getStallInitial(stallName);
 
-                const card = document.createElement('div');
+    const heading = document.createElement("div");
+    heading.className = "stall-heading";
 
-                card.className = 'stall-card';
+    const label = document.createElement("span");
+    label.className = "stall-label";
+    label.textContent = "HAWKER STALL";
 
+    const title = document.createElement("h2");
+    title.className = "card-title stall-name";
+    title.textContent = stallName;
 
-                card.innerHTML = `
-                    <div class="stall-top">
-                        <h3>${s.StallName}</h3>
-                    </div>
+    heading.append(label, title);
+    top.append(icon, heading);
 
-                    <div class="stall-desc">
-                        ${s.StallDesc}
-                    </div>
+    const description = document.createElement("p");
+    description.className = "soft-panel stall-desc";
+    description.textContent = stallDescription;
 
+    const actions = document.createElement("div");
+    actions.className = "actions stack-mobile stall-actions";
 
-                    <div class="stall-actions">
+    actions.append(
+      createActionLink(
+        "View Menu",
+        `Menu.html?stall=${stallId}`,
+        "",
+        `View menu for ${stallName}`
+      ),
+      createActionLink(
+        "Ratings",
+        `rating.html?stall=${stallId}`,
+        "secondary",
+        `View ratings for ${stallName}`
+      ),
+      createActionLink(
+        "Hygiene",
+        `Hygiene.html?stall=${stallId}`,
+        "muted",
+        `View hygiene information for ${stallName}`
+      )
+    );
 
-                        <a class="btn primary"
-                           href="Menu.html?stall=${s.StallID}">
-                           View Menu
-                        </a>
+    card.append(top, description, actions);
+    return card;
+  }
 
+  function showStatus(message, type = "") {
+    stallStatus.hidden = false;
+    stallStatus.className = type ? `status ${type}` : "status";
+    stallStatus.textContent = message;
+  }
 
-                        <a class="btn secondary"
-                           href="rating.html?stall=${s.StallID}">
-                           Ratings
-                        </a>
+  function hideStatus() {
+    stallStatus.hidden = true;
+  }
 
+  function showLoadError() {
+    stallStatus.hidden = false;
+    stallStatus.className = "status error";
+    stallStatus.replaceChildren();
 
-                        <a class="btn muted"
-                           href="Hygiene.html?stall=${s.StallID}">
-                           Hygiene
-                        </a>
+    const heading = document.createElement("strong");
+    heading.textContent = "Unable to load the food stalls.";
 
-                    </div>
-                `;
+    const message = document.createElement("p");
+    message.className = "mb-0";
+    message.textContent = "Please check your connection and try again.";
 
+    const retryButton = document.createElement("button");
+    retryButton.className = "btn stall-retry";
+    retryButton.type = "button";
+    retryButton.textContent = "Try Again";
+    retryButton.addEventListener("click", loadStalls);
 
-                stallsEl.appendChild(card);
+    stallStatus.append(heading, message, retryButton);
+  }
 
-            });
+  async function loadStalls() {
+    showStatus("Loading food stalls...");
+    stallList.replaceChildren();
 
-
-        } catch(error) {
-
-            console.error(error);
-
-            stallsEl.innerHTML =
-            "<p>Unable to load stalls.</p>";
-
+    try {
+      const response = await fetch("/api/stalls", {
+        headers: {
+          Accept: "application/json"
         }
+      });
 
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}`);
+      }
+
+      const stalls = await response.json();
+
+      if (!Array.isArray(stalls)) {
+        throw new Error("The server returned an invalid stalls response.");
+      }
+
+      if (stalls.length === 0) {
+        showStatus(
+          "No food stalls are available at the moment. Please check again later."
+        );
+        return;
+      }
+
+      const cards = document.createDocumentFragment();
+
+      stalls.forEach(function (stall) {
+        cards.appendChild(createStallCard(stall));
+      });
+
+      stallList.appendChild(cards);
+      hideStatus();
+    } catch (error) {
+      console.error("Unable to load stalls:", error);
+      showLoadError();
     }
+  }
 
-
-    loadStalls();
-
-
+  loadStalls();
 })();
