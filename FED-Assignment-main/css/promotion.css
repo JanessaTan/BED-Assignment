@@ -1,13 +1,7 @@
-/* =========================================================
-   HawkerHub Promotion page
-   Shared page, grid, card, button and status styles are
-   provided by base.css.
-   ========================================================= */
-
 .promotion-card {
   display: flex;
   flex-direction: column;
-  min-height: 360px;
+  min-height: 300px;
 }
 
 .promotion-top {
@@ -22,8 +16,8 @@
   width: 56px;
   height: 56px;
   place-items: center;
-  color: #ffffff;
-  background: linear-gradient(135deg, var(--primary), #e99052);
+  color: var(--surface);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   border-radius: 16px;
   font-size: 1.35rem;
   font-weight: 850;
@@ -85,26 +79,12 @@
   text-align: right;
 }
 
-.promotion-code {
-  padding: 4px 9px;
-  color: var(--primary-dark);
-  background: var(--soft-orange);
-  border: 1px dashed rgba(200, 76, 47, 0.45);
-  border-radius: 7px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  letter-spacing: 0.06em;
-}
-
 .promotion-actions {
   margin-top: auto;
 }
 
 .promotion-retry {
   margin-top: 16px;
-}
-
-.promotion-card.is-ended {
-  opacity: 0.72;
 }
 
 @media (max-width: 700px) {

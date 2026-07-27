@@ -2,26 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Browse Hawker Centres</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browse Hawker Centres – HawkerHub</title>
+  <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/browse-hawkercentre.css" />
 </head>
 <body>
-  <header>
-    <h1>Browse Hawker Centres</h1>
-  </header>
 
-  <main>
-    <section class="search-panel">
-      <input type="text" id="searchInput" placeholder="e.g. Hawker centre in Clement" />
-      <button id="searchBtn">Search</button>
-      <button id="nearMeBtn">Near Me</button>
-    </section>
+  <!-- If you have a shared nav (like Promotion.html's shared.js), use it here instead: -->
+  <!-- <script src="JS/shared.js"></script><script>renderHeader("browse");</script> -->
 
-    <p id="statusMessage"></p>
+  <main class="page-shell">
+    <header class="page-header">
+      <div class="page-header__content">
+        <p class="eyebrow">Find a hawker centre</p>
+        <h1 class="page-title">Browse hawker centres</h1>
+        <p class="page-subtitle">Search by area name, or find the centres closest to you.</p>
+      </div>
+    </header>
 
-    <ul id="resultsList"></ul>
+    <div class="card search-panel">
+      <div class="row">
+        <input type="text" id="searchInput" placeholder="e.g. Clementi" />
+        <button id="searchBtn" class="btn">Search</button>
+        <button id="nearMeBtn" class="btn secondary">Near me</button>
+      </div>
+    </div>
+
+    <p id="statusMessage" class="status mt-24"></p>
+
+    <section id="resultsList" class="grid-cards mt-24" aria-label="Hawker centre results"></section>
   </main>
 
-  <script src="js/browse-hawkercentre.js"></script>
 </body>
 </html>

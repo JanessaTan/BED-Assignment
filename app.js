@@ -34,6 +34,18 @@ app.use('/api/likes', likeRoutes);
 const salesRoutes = require("./routes/salesRoutes");
 app.use("/api/sales", salesRoutes);
 
+const menuRoutes = require('./routes/menuRoutes');
+app.use('/api/stalls', menuRoutes);
+
+const promotionRoutes = require('./routes/promotionRoutes');
+app.use('/api/stalls', promotionRoutes);
+
+const promotionController = require('./controllers/promotionController');
+app.get('/api/promotions', promotionController.listAllActivePromotions);
+
+const hawkerCentreRoutes = require('./routes/browsehawkercentre');
+app.use('/api/hawkercentres', hawkerCentreRoutes);
+
 // Home page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'FED-Assignment-main', 'index.html'));

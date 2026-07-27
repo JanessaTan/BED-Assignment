@@ -1,8 +1,4 @@
 const API_BASE = '/api/hawkercentres';
-
-// Adjust this to whatever your existing stalls listing page is actually
-// called — per the "point to the same stalls" simplification, every
-// hawker centre result links to the SAME stalls page, not a filtered one.
 const STALLS_PAGE = 'stalls.html';
 
 const searchInput = document.getElementById('searchInput');
@@ -14,25 +10,28 @@ const resultsList = document.getElementById('resultsList');
 function renderResults(centres, distanceKey) {
   resultsList.innerHTML = '';
   centres.forEach((centre) => {
-    const li = document.createElement('li');
+    const card = document.createElement('a');
+    card.className = 'card card--interactive centre-card';
+    card.href = `${STALLS_PAGE}?hc=${encodeURIComponent(centre.HawkerCentreID)}`;
+
     const distanceHtml = distanceKey && centre[distanceKey] !== undefined
-      ? `<div class="distance">${centre[distanceKey].toFixed(2)} km away</div>`
+      ? `<div class="centre-distance">${centre[distanceKey].toFixed(2)} km away</div>`
       : '';
-    li.innerHTML = `
-      <a href="${STALLS_PAGE}">
-        <h3>${centre.HCName}</h3>
-        <div class="address">${centre.HCAddress}</div>
-        ${distanceHtml}
-      </a>
+
+    card.innerHTML = `
+      <div class="centre-icon" aria-hidden="true">${(centre.HCName || 'H').charAt(0)}</div>
+      <h2 class="card-title">${centre.HCName}</h2>
+      <p class="centre-address">${centre.HCAddress}</p>
+      ${distanceHtml}
     `;
-    resultsList.appendChild(li);
+    resultsList.appendChild(card);
   });
 }
 
 async function handleSearch() {
   const query = searchInput.value.trim();
   if (!query) {
-    statusMessage.textContent = 'Type an area name to search, e.g. "Clement".';
+    statusMessage.textContent = 'Type an area name to search, e.g. "Clementi".';
     return;
   }
 

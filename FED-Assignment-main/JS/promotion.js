@@ -6,18 +6,6 @@
   const promotionList = document.getElementById("promotionList");
   const promotionStatus = document.getElementById("promotionStatus");
 
-  function firstValue(object, keys) {
-    for (const key of keys) {
-      const value = object?.[key];
-
-      if (value !== undefined && value !== null && String(value).trim() !== "") {
-        return value;
-      }
-    }
-
-    return "";
-  }
-
   function textValue(value, fallback = "") {
     const text = String(value ?? "").trim();
     return text || fallback;
@@ -25,80 +13,12 @@
 
   function normalisePromotion(promotion = {}) {
     return {
-      id: textValue(
-        firstValue(promotion, [
-          "PromotionID",
-          "PromoID",
-          "promotionId",
-          "id"
-        ])
-      ),
-      title: textValue(
-        firstValue(promotion, [
-          "PromotionTitle",
-          "PromotionName",
-          "PromoTitle",
-          "PromoName",
-          "Title",
-          "name"
-        ]),
-        "Special HawkerHub Offer"
-      ),
-      description: textValue(
-        firstValue(promotion, [
-          "PromotionDesc",
-          "PromoDesc",
-          "Description",
-          "description"
-        ]),
-        "More information about this promotion is coming soon."
-      ),
-      stallId: textValue(
-        firstValue(promotion, [
-          "StallID",
-          "stallId",
-          "stall_id"
-        ])
-      ),
-      stallName: textValue(
-        firstValue(promotion, [
-          "StallName",
-          "stallName",
-          "stall_name"
-        ])
-      ),
-      startDate: firstValue(promotion, [
-        "StartDate",
-        "ValidFrom",
-        "startDate",
-        "validFrom"
-      ]),
-      endDate: firstValue(promotion, [
-        "EndDate",
-        "ValidUntil",
-        "ValidTo",
-        "endDate",
-        "validUntil"
-      ]),
-      code: textValue(
-        firstValue(promotion, [
-          "PromotionCode",
-          "PromoCode",
-          "Code",
-          "code"
-        ])
-      ),
-      discount: firstValue(promotion, [
-        "DiscountPercent",
-        "Discount",
-        "Offer",
-        "discount"
-      ]),
-      isActive: firstValue(promotion, [
-        "IsActive",
-        "Active",
-        "isActive"
-      ])
+      id: textValue(promotion.PromoID),
+      description: textValue(promotion.PromoDesc, "More information coming soon."),
+      stallId: textValue(promotion.StallID),
+      stallName: textValue(promotion.StallName),
+      startDate: promotion.PromoStartDate,
+      endDate: promotion.PromoEndDate
     };
   }
 
@@ -128,51 +48,6 @@
     }).format(date);
   }
 
-  function isFalseValue(value) {
-    return value === false || value === 0 ||
-      ["false", "0", "inactive"].includes(String(value).toLowerCase());
-  }
-
-  function getPromotionState(promotion) {
-    if (isFalseValue(promotion.isActive)) {
-      return { label: "Ended", className: "orange", ended: true };
-    }
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const startsOn = parseDate(promotion.startDate);
-    const endsOn = parseDate(promotion.endDate);
-
-    if (startsOn && startsOn > today) {
-      return { label: "Upcoming", className: "orange", ended: false };
-    }
-
-    if (endsOn) {
-      endsOn.setHours(23, 59, 59, 999);
-
-      if (endsOn < today) {
-        return { label: "Ended", className: "orange", ended: true };
-      }
-    }
-
-    return { label: "Available Now", className: "", ended: false };
-  }
-
-  function formatDiscount(value) {
-    const discount = textValue(value);
-
-    if (!discount) {
-      return "DEAL";
-    }
-
-    if (/^\d+(\.\d+)?$/.test(discount)) {
-      return `${discount}%`;
-    }
-
-    return discount;
-  }
-
   function addDetail(container, labelText, value, valueClass = "") {
     if (!value) {
       return;
@@ -197,14 +72,9 @@
 
   function createPromotionCard(rawPromotion = {}) {
     const promotion = normalisePromotion(rawPromotion);
-    const state = getPromotionState(promotion);
 
     const card = document.createElement("article");
     card.className = "card card--accent card--interactive promotion-card";
-
-    if (state.ended) {
-      card.classList.add("is-ended");
-    }
 
     const top = document.createElement("div");
     top.className = "promotion-top";
@@ -212,7 +82,7 @@
     const icon = document.createElement("div");
     icon.className = "promotion-icon";
     icon.setAttribute("aria-hidden", "true");
-    icon.textContent = formatDiscount(promotion.discount);
+    icon.textContent = "DEAL";
 
     const heading = document.createElement("div");
     heading.className = "promotion-heading";
@@ -221,11 +91,7 @@
     label.className = "promotion-label";
     label.textContent = "SPECIAL PROMOTION";
 
-    const title = document.createElement("h2");
-    title.className = "card-title promotion-title";
-    title.textContent = promotion.title;
-
-    heading.append(label, title);
+    heading.appendChild(label);
     top.append(icon, heading);
 
     const description = document.createElement("p");
@@ -235,16 +101,9 @@
     const details = document.createElement("div");
     details.className = "promotion-details";
 
-    addDetail(
-      details,
-      "Status",
-      state.label,
-      state.className ? `badge ${state.className}` : "badge"
-    );
     addDetail(details, "Stall", promotion.stallName);
     addDetail(details, "Starts", formatDate(promotion.startDate));
     addDetail(details, "Valid until", formatDate(promotion.endDate));
-    addDetail(details, "Promo code", promotion.code, "promotion-code");
 
     const actions = document.createElement("div");
     actions.className = "actions stack-mobile promotion-actions";
@@ -253,7 +112,7 @@
       const menuLink = document.createElement("a");
       const stallId = encodeURIComponent(promotion.stallId);
 
-      menuLink.className = state.ended ? "btn muted" : "btn";
+      menuLink.className = "btn";
       menuLink.href = `Menu.html?stall=${stallId}`;
       menuLink.textContent = "View Stall Menu";
       menuLink.setAttribute(
@@ -325,10 +184,7 @@
         throw new Error(`Server responded with status ${response.status}`);
       }
 
-      const responseBody = await response.json();
-      const promotions = Array.isArray(responseBody)
-        ? responseBody
-        : responseBody?.promotions;
+      const promotions = await response.json();
 
       if (!Array.isArray(promotions)) {
         throw new Error("The server returned an invalid promotions response.");

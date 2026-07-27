@@ -116,46 +116,43 @@
   }
 
   async function loadStalls() {
-    showStatus("Loading food stalls...");
-    stallList.replaceChildren();
+  showStatus("Loading food stalls...");
+  stallList.replaceChildren();
 
-    try {
-      const response = await fetch("/api/stalls", {
-        headers: {
-          Accept: "application/json"
-        }
-      });
+  const hawkerCentreId = new URLSearchParams(window.location.search).get("hc");
+  const url = hawkerCentreId
+    ? `/api/stalls?hc=${encodeURIComponent(hawkerCentreId)}`
+    : "/api/stalls";
 
-      if (!response.ok) {
-        throw new Error(`Server responded with status ${response.status}`);
-      }
+  try {
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" }
+    });
 
-      const stalls = await response.json();
-
-      if (!Array.isArray(stalls)) {
-        throw new Error("The server returned an invalid stalls response.");
-      }
-
-      if (stalls.length === 0) {
-        showStatus(
-          "No food stalls are available at the moment. Please check again later."
-        );
-        return;
-      }
-
-      const cards = document.createDocumentFragment();
-
-      stalls.forEach(function (stall) {
-        cards.appendChild(createStallCard(stall));
-      });
-
-      stallList.appendChild(cards);
-      hideStatus();
-    } catch (error) {
-      console.error("Unable to load stalls:", error);
-      showLoadError();
+    if (!response.ok) {
+      throw new Error(`Server responded with status ${response.status}`);
     }
+
+    const stalls = await response.json();
+
+    if (!Array.isArray(stalls)) {
+      throw new Error("The server returned an invalid stalls response.");
+    }
+
+    if (stalls.length === 0) {
+      showStatus("No food stalls are available at the moment. Please check again later.");
+      return;
+    }
+
+    const cards = document.createDocumentFragment();
+    stalls.forEach((stall) => cards.appendChild(createStallCard(stall)));
+    stallList.appendChild(cards);
+    hideStatus();
+  } catch (error) {
+    console.error("Unable to load stalls:", error);
+    showLoadError();
   }
+}
 
   loadStalls();
 })();

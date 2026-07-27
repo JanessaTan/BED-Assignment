@@ -17,6 +17,22 @@ async function getStallById(id) {
     return result.recordset[0];
 }
 
+// GET all stalls, optionally filtered by hawker centre
+async function getAllStalls(hawkerCentreId) {
+    const pool = await poolPromise;
+    const request = pool.request();
+
+    if (hawkerCentreId) {
+        request.input('hawkerCentreId', sql.VarChar, hawkerCentreId);
+        const result = await request
+            .query('SELECT * FROM FoodStall WHERE HawkerCentreID = @hawkerCentreId');
+        return result.recordset;
+    }
+
+    const result = await request.query('SELECT * FROM FoodStall');
+    return result.recordset;
+}
+
 // GET all menu items for a specific stall (US-C1: Browse Food Stalls & Menus)
 async function getMenuByStallId(stallId) {
     const pool = await poolPromise;

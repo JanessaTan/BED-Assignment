@@ -41,6 +41,18 @@ async function getPromotionById(promoId) {
   return result.recordset[0];
 }
 
+async function getAllActivePromotions() {
+  const pool = await poolPromise;
+  const result = await pool.request().query(`
+    SELECT p.*, s.StallName
+    FROM Promotion p
+    JOIN FoodStall s ON p.StallID = s.StallID
+    WHERE GETDATE() BETWEEN p.PromoStartDate AND p.PromoEndDate
+    ORDER BY p.PromoEndDate ASC
+  `);
+  return result.recordset;
+}
+
 async function createPromotion({ stallId, promoDesc, promoStartDate, promoEndDate }) {
   const pool = await poolPromise;
   const promoId = await generateNextPromoId();

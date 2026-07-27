@@ -1,15 +1,31 @@
-<p class="eyebrow">Discover HawkerHub</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Stalls – HawkerHub</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/stall.css" />
+</head>
+<body>
 
-<h1 class="page-title">Explore Our Food Stalls</h1>
+  <!-- <script src="JS/shared.js"></script><script>renderHeader("stalls");</script> -->
 
-<p class="page-subtitle">
-  Browse our local hawker stalls and discover your next favourite meal.
-</p>
+  <main class="page-shell">
+    <header class="page-header">
+      <div class="page-header__content">
+        <p class="eyebrow">Discover HawkerHub</p>
+        <h1 class="page-title">Explore our food stalls</h1>
+        <p class="page-subtitle">Browse our local hawker stalls and discover your next favourite meal.</p>
+      </div>
+      <a href="About.html" class="btn outline mobile-full">About us</a>
+    </header>
 
-<a href="About.html" class="btn outline mobile-full">
-  About Us
-</a>
+    <div id="stallStatus" class="status" role="status" aria-live="polite">Loading food stalls...</div>
 
-<div id="stallStatus" class="status">
-  Loading food stalls...
-</div>
+    <section id="stallList" class="grid grid-2" aria-label="Food stalls"></section>
+  </main>
+
+  <script src="js/stall.js"></script>
+</body>
+</html>
