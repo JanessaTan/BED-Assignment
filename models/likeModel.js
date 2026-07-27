@@ -4,13 +4,13 @@ const { sql, poolPromise } = require('../dbConfig');
 async function getLikes() {
   try{
     const connection = await poolPromise;
-    const query = `SELECT MenuItem.*, COUNT(Likes.CustomerID) AS "Likes"
-    FROM MenuItem LEFT JOIN Likes
-    ON (MenuItem.StallID = Likes.StallID AND MenuItem.ItemCode = Likes.ItemCode)
-    GROUP BY MenuItem.ItemCategory, MenuItem.ItemCode, MenuItem.ItemDesc, MenuItem.ItemPrice, MenuItem.StallID`;
+    const query = `SELECT m.*, COUNT(l.CustomerID) AS "Likes"
+    FROM MenuItem m LEFT JOIN Likes l
+    ON (m.StallID = l.StallID AND m.ItemCode = l.ItemCode)
+    GROUP BY m.ItemCategory, m.ItemCode, m.ItemDesc, m.ItemPrice, m.StallID`;
     const request = connection.request()
     const result = await request.query(query);
-    return result;
+    return result.recordset;
   } catch (error) {
     console.error("Database error:", error);
     throw error;
@@ -21,10 +21,10 @@ async function getLikes() {
 async function getLikesByCustomerId(customerId) {
   try{
     const connection = await poolPromise;
-    const query = `SELECT MenuItem.StallID, MenuItem.ItemCode, MenuItem.ItemDesc, MenuItem.ItemPrice, MenuItem.ItemCategory
-    FROM MenuItem LEFT JOIN Likes
-    ON (MenuItem.StallID = Likes.StallID AND MenuItem.ItemCode = Likes.ItemCode)
-    WHERE Likes.CustomerID = @customerId`;
+    const query = `SELECT m.StallID, m.ItemCode, m.ItemDesc, m.ItemPrice, m.ItemCategory
+    FROM MenuItem m LEFT JOIN Likes l
+    ON (m.StallID = l.StallID AND m.ItemCode = l.ItemCode)
+    WHERE l.CustomerID = @customerId`;
     const request = connection.request();
     request.input("customerId", customerId);
     const result = await request.query(query);
