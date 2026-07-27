@@ -1,5 +1,5 @@
 const sql = require('mssql');
-const poolPromise = require('../config/db');
+const poolPromise = require('../dbConfig');
 
 async function generateNextPromoId() {
   const pool = await poolPromise;

@@ -1,5 +1,5 @@
 const sql = require('mssql');
-const poolPromise = require('../config/db'); // adjust path to match your project
+const poolPromise = require('../dbConfig'); // adjust path to match your project
 
 /**
  * MenuItem PK is (StallID, ItemCode) — ItemCode is only unique WITHIN a stall

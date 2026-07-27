@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const salesDashboardController =
+const salesController =
 require("../controllers/salesController");
 
 // GET sales dashboard
