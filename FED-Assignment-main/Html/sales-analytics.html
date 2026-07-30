@@ -96,22 +96,17 @@
 
           <article class="summary-tile">
             <div class="label">Total Revenue</div>
-            <div class="value">$1,250.00</div>
+            <div class="value" id="revenue">$0.00</div>
           </article>
 
           <article class="summary-tile">
             <div class="label">Total Orders</div>
-            <div class="value">184</div>
+            <div class="value" id="orders">0</div>
           </article>
 
           <article class="summary-tile">
             <div class="label">Avg. Order Value</div>
-            <div class="value">$6.79</div>
-          </article>
-
-          <article class="summary-tile">
-            <div class="label">Peak Hour</div>
-            <div class="value">12 PM – 1 PM</div>
+            <div class="value" id="average">$0.00</div>
           </article>
 
         </div>
@@ -334,6 +329,28 @@
       chart.options.elements.line.borderColor = grads.gradientStroke;
       chart.update('none');
     });
+
+    async function loadDashboard() {
+    try {
+        const response = await fetch("/api/sales");
+
+        const data = await response.json();
+
+        document.getElementById("revenue").textContent =
+            `$${Number(data.summary.TotalRevenue).toFixed(2)}`;
+
+        document.getElementById("orders").textContent =
+            data.summary.TotalOrders;
+
+        document.getElementById("average").textContent =
+            `$${Number(data.summary.AverageOrderValue).toFixed(2)}`;
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+loadDashboard();
 
   
   </script>
