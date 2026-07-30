@@ -9,7 +9,9 @@ async function getDashboard(req, res) {
 
         const summary = await salesDashboardModel.getSalesSummary(startDate, endDate);
 
-        res.json(summary);
+        res.json({
+            summary
+        });
 
     } catch (error) {
         console.error(error);

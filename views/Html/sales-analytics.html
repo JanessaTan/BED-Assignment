@@ -332,9 +332,10 @@
 
     async function loadDashboard() {
     try {
-        const response = await fetch("/api/sales");
+        const response = await fetch("http://localhost:3000/api/sales");
 
         const data = await response.json();
+        console.log(data);
 
         document.getElementById("revenue").textContent =
             `$${Number(data.summary.TotalRevenue).toFixed(2)}`;
