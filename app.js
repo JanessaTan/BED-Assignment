@@ -41,10 +41,10 @@ const promotionRoutes = require('./routes/promotionRoutes');
 app.use('/api/stalls', promotionRoutes);
 
 const promotionController = require('./controllers/promotionController');
-app.get('/api/promotions', promotionController.listAllActivePromotions);
+app.get('/api/promotions', promotionController.listActivePromotions);
 
-const hawkerCentreRoutes = require('./routes/browsehawkercentre');
-app.use('/api/hawkercentres', hawkerCentreRoutes);
+const browseHawkerCentreRoutes = require('./routes/browseHawkerCentreRoutes');
+app.use('/api/hawkercentres', browseHawkerCentreRoutes);
 
 // Home page
 app.get('/', (req, res) => {
