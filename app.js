@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'FED-Assignment-main')));
+app.use(express.static(path.join(__dirname, 'views')));
 
 const { verifyJWT } = require("./middlewares/auth");
 
