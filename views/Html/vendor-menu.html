@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Management – HawkerHub</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/vendor-menu.css">
+</head>
+<body>
+
+  <main class="page-shell">
+    <header class="page-header">
+      <div class="page-header__content">
+        <p class="eyebrow">Vendor tools</p>
+        <h1 class="page-title">Menu management</h1>
+        <p class="page-subtitle">Add, edit, or remove menu items for your stall.</p>
+      </div>
+    </header>
+
+    <div class="card mb-24">
+      <label for="stallSelect">Select your stall</label>
+      <select id="stallSelect"></select>
+    </div>
+
+    <div id="menuStatus" class="status" role="status" aria-live="polite"></div>
+
+    <section class="card mb-24" id="itemFormSection" hidden>
+      <h2 class="section-title" id="formTitle">Add a menu item</h2>
+      <form id="itemForm">
+        <input type="hidden" id="editItemCode">
+
+        <div class="form-group">
+          <label for="itemDesc">Item name</label>
+          <input type="text" id="itemDesc" required maxlength="100">
+        </div>
+
+        <div class="form-group">
+          <label for="itemPrice">Price ($)</label>
+          <input type="number" id="itemPrice" step="0.01" min="0" required>
+        </div>
+
+        <div class="form-group">
+          <label for="itemCategory">Category</label>
+          <select id="itemCategory" required>
+            <option value="Main">Main</option>
+            <option value="Side">Side</option>
+            <option value="Set">Set</option>
+            <option value="Dessert">Dessert</option>
+            <option value="Drink">Drink</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Cuisines</label>
+          <div id="cuisineOptions" class="row"></div>
+        </div>
+
+        <p class="form-error" id="formError"></p>
+
+        <div class="actions">
+          <button type="submit" class="btn" id="submitBtn">Add item</button>
+          <button type="button" class="btn muted" id="cancelEditBtn" hidden>Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="grid-cards" id="itemList" aria-label="Menu items"></section>
+  </main>
+
+  <script src="js/vendor-menu.js"></script>
+</body>
+</html>

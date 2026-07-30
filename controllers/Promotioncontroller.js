@@ -112,6 +112,16 @@ async function deletePromotion(req, res) {
   }
 }
 
+async function listAllActivePromotions(req, res) {
+  try {
+    const promotions = await promotionModel.getAllActivePromotions();
+    res.status(200).json(promotions);
+  } catch (err) {
+    console.error('listAllActivePromotions error:', err);
+    res.status(500).json({ message: 'Unable to retrieve promotions. Please try again later.' });
+  }
+}
+
 module.exports = {
   listPromotions,
   listActivePromotions,

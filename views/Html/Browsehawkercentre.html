@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browse Hawker Centres – HawkerHub</title>
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/browsehawkercentre.css" />
+</head>
+<body>
+
+  <!-- If you have a shared nav (like Promotion.html's shared.js), use it here instead: -->
+  <!-- <script src="JS/shared.js"></script><script>renderHeader("browse");</script> -->
+
+  <main class="page-shell">
+    <header class="page-header">
+      <div class="page-header__content">
+        <p class="eyebrow">Find a hawker centre</p>
+        <h1 class="page-title">Browse hawker centres</h1>
+        <p class="page-subtitle">Search by area name, or find the centres closest to you.</p>
+      </div>
+    </header>
+
+    <div class="card search-panel">
+      <div class="row">
+        <input type="text" id="searchInput" placeholder="e.g. Clementi" />
+        <button id="searchBtn" class="btn">Search</button>
+        <button id="nearMeBtn" class="btn secondary">Near me</button>
+      </div>
+    </div>
+
+    <p id="statusMessage" class="status mt-24"></p>
+
+    <section id="resultsList" class="grid-cards mt-24" aria-label="Hawker centre results"></section>
+  </main>
+
+</body>
+</html>

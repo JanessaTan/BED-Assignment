@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promotions Running – HawkerHub</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/vendor-promotions.css">
+</head>
+<body>
+
+  <main class="page-shell">
+    <header class="page-header">
+      <div class="page-header__content">
+        <p class="eyebrow">Vendor tools</p>
+        <h1 class="page-title">Promotions running</h1>
+        <p class="page-subtitle">Add, edit, or remove promotions for your stall.</p>
+      </div>
+    </header>
+
+    <div class="card mb-24">
+      <label for="stallSelect">Select your stall</label>
+      <select id="stallSelect"></select>
+    </div>
+
+    <div id="promoStatus" class="status" role="status" aria-live="polite"></div>
+
+    <section class="card mb-24" id="promoFormSection" hidden>
+      <h2 class="section-title" id="formTitle">Add a promotion</h2>
+      <form id="promoForm">
+        <input type="hidden" id="editPromoId">
+
+        <div class="form-group">
+          <label for="promoDesc">Description</label>
+          <input type="text" id="promoDesc" required maxlength="50" placeholder="e.g. 10% off main dishes">
+        </div>
+
+        <div class="form-group">
+          <label for="promoStartDate">Start date</label>
+          <input type="date" id="promoStartDate" required>
+        </div>
+
+        <div class="form-group">
+          <label for="promoEndDate">End date</label>
+          <input type="date" id="promoEndDate" required>
+        </div>
+
+        <p class="form-error" id="formError"></p>
+
+        <div class="actions">
+          <button type="submit" class="btn" id="submitBtn">Add promotion</button>
+          <button type="button" class="btn muted" id="cancelEditBtn" hidden>Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="grid-cards" id="promoList" aria-label="Promotions"></section>
+  </main>
+
+  <script src="js/vendor-promotions.js"></script>
+</body>
+</html>

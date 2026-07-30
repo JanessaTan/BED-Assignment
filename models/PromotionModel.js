@@ -1,5 +1,5 @@
 const sql = require('mssql');
-const poolPromise = require('../config/db');
+const poolPromise = require('../dbConfig');
 
 async function generateNextPromoId() {
   const pool = await poolPromise;
@@ -39,6 +39,18 @@ async function getPromotionById(promoId) {
     .input('promoId', sql.VarChar(4), promoId)
     .query(`SELECT * FROM Promotion WHERE PromoID = @promoId`);
   return result.recordset[0];
+}
+
+async function getAllActivePromotions() {
+  const pool = await poolPromise;
+  const result = await pool.request().query(`
+    SELECT p.*, s.StallName
+    FROM Promotion p
+    JOIN FoodStall s ON p.StallID = s.StallID
+    WHERE GETDATE() BETWEEN p.PromoStartDate AND p.PromoEndDate
+    ORDER BY p.PromoEndDate ASC
+  `);
+  return result.recordset;
 }
 
 async function createPromotion({ stallId, promoDesc, promoStartDate, promoEndDate }) {

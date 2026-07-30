@@ -1,0 +1,45 @@
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.item-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-title {
+  margin: 0 0 4px;
+}
+
+.item-meta {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0 0 12px;
+}
+
+.item-price {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0 0 16px;
+}
+
+.item-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 8px;
+}
+
+#cuisineOptions label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 400;
+  margin-right: 4px;
+}
+
+#cuisineOptions input {
+  width: auto;
+}

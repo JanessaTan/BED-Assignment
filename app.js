@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'FED-Assignment-main')));
+app.use(express.static(path.join(__dirname, 'views')));
 
 const { verifyJWT } = require("./middlewares/auth");
 
@@ -33,6 +33,18 @@ app.use('/api/likes', likeRoutes);
 
 const salesRoutes = require("./routes/salesRoutes");
 app.use("/api/sales", salesRoutes);
+
+const menuRoutes = require('./routes/menuRoutes');
+app.use('/api/stalls', menuRoutes);
+
+const promotionRoutes = require('./routes/promotionRoutes');
+app.use('/api/stalls', promotionRoutes);
+
+const promotionController = require('./controllers/promotionController');
+app.get('/api/promotions', promotionController.listActivePromotions);
+
+const browseHawkerCentreRoutes = require('./routes/browseHawkerCentreRoutes');
+app.use('/api/hawkercentres', browseHawkerCentreRoutes);
 
 // Home page
 app.get('/', (req, res) => {
