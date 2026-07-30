@@ -1,105 +1,54 @@
 const jwt = require("jsonwebtoken");
+const userModel = require("../models/userModel");
+const AppError = require("../utils/AppError");
 
-function verifyJWT(req, res, next) {
-  const token =
-    req.headers.authorization && req.headers.authorization.split(" ")[1];
-
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ message: "Forbidden" });
+async function authenticate(req, res, next) {
+  try {
+    const header = req.get("authorization");
+    if (!header || !header.startsWith("Bearer ")) {
+      throw new AppError(401, "Authentication is required");
     }
 
-    // Roles that may access each protected endpoint.
-    // Both customers and vendors can be added to any route as needed.
-    // Path segments support regex, e.g. [0-9]+ for a numeric ID.
-    const authorizedRoles = {
-        // ===== Put routes that require a login here, e.g. =====
-        // "GET /orders": ["customer", "vendor"],
-        // "POST /orders": ["customer"],
-        // "PUT /orders/[0-9]+": ["customer"],
-        // "GET /stalls": ["customer", "vendor"],
+    const token = header.slice(7).trim();
+    if (!token) throw new AppError(401, "Authentication is required");
 
-        // ===== Than Thar's Menu Management routes (US-SO2) =====
-        "POST (/api/stalls)?/[A-Za-z0-9]+/menu": ["vendor"],
-        "PUT (/api/stalls)?/[A-Za-z0-9]+/menu/[A-Za-z0-9]+": ["vendor"],
-        "DELETE (/api/stalls)?/[A-Za-z0-9]+/menu/[A-Za-z0-9]+": ["vendor"],
-
-        // ===== Than Thar's Promotion Running routes (US-SO3) =====
-        "POST (/api/stalls)?/[A-Za-z0-9]+/promotions": ["vendor"],
-        "PUT (/api/stalls)?/[A-Za-z0-9]+/promotions/[A-Za-z0-9]+": ["vendor"],
-        "DELETE (/api/stalls)?/[A-Za-z0-9]+/promotions/[A-Za-z0-9]+": ["vendor"],
-    };
-
-    const requestedEndpoint = `${req.method} ${req.url}`; // Include method in endpointl;
-    const userRole = decoded.role;
-
-    const authorizedRole = Object.entries(authorizedRoles).find(
-      ([endpoint, roles]) => {
-        const regex = new RegExp(`^${endpoint}$`); // Create RegExp from endpoint
-        return regex.test(requestedEndpoint) && roles.includes(userRole);
-      }
-    );
-
-    if (!authorizedRole) {
-      return res.status(403).json({ message: "Forbidden" });
+    let payload;
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      const message =
+        error.name === "TokenExpiredError"
+          ? "Your session has expired. Please log in again."
+          : "Invalid authentication token";
+      throw new AppError(401, message);
     }
 
-    req.user = decoded; // Attach decoded user information to the request object
+    const user = await userModel.findActiveIdentityById(payload.userId);
+    if (!user) {
+      throw new AppError(401, "This account is unavailable or deactivated");
+    }
+
+    req.user = user;
     next();
-  });
+  } catch (error) {
+    next(error);
+  }
+}
+
+function authorize(...allowedRoles) {
+  return function authorizeRole(req, res, next) {
+    if (!req.user) return next(new AppError(401, "Authentication is required"));
+    if (!allowedRoles.includes(req.user.role)) {
+      return next(
+        new AppError(403, "You do not have permission to perform this action")
+      );
+    }
+    next();
+  };
 }
 
 module.exports = {
-  verifyJWT
-}
-
-
-// old version (just in case):
-
-// const jwt = require("jsonwebtoken");
-
-// function verifyJWT(req, res, next) {
-//   const token =
-//     req.headers.authorization && req.headers.authorization.split(" ")[1];
-
-//   if (!token) {
-//     return res.status(401).json({ message: "Unauthorized" });
-//   }
-
-//   jwt.verify(token, "your_secret_key", (err, decoded) => {
-//     if (err) {
-//       return res.status(403).json({ message: "Forbidden" });
-//     }
-
-//     // Check user role for authorization (replace with your logic)
-//     const authorizedRoles = {
-//         // ===== Put routes that require a login here, e.g. =====
-//         // "GET /endpoint": ["role1", "role2"], // (role1 & role2 can view "endpoint".)
-//     };
-
-//     const requestedEndpoint = `${req.method} ${req.url}`; // Include method in endpointl;
-//     const userRole = decoded.role;
-
-//     const authorizedRole = Object.entries(authorizedRoles).find(
-//       ([endpoint, roles]) => {
-//         const regex = new RegExp(`^${endpoint}$`); // Create RegExp from endpoint
-//         return regex.test(requestedEndpoint) && roles.includes(userRole);
-//       }
-//     );
-
-//     if (!authorizedRole) {
-//       return res.status(403).json({ message: "Forbidden" });
-//     }
-
-//     req.user = decoded; // Attach decoded user information to the request object
-//     next();
-//   });
-// }
-
-// module.exports = {
-//   verifyJWT
-// }
+  authenticate,
+  authorize,
+  verifyJWT: authenticate
+};

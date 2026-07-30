@@ -1,13 +1,5 @@
 const { sql, poolPromise } = require('../dbConfig');
 
-// GET all stalls
-async function getAllStalls() {
-    const pool = await poolPromise;
-    const result = await pool.request()
-        .query('SELECT * FROM FoodStall');
-    return result.recordset;
-}
-
 // GET stall by ID
 async function getStallById(id) {
     const pool = await poolPromise;

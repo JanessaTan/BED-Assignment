@@ -1,117 +1,259 @@
-const sql = require('mssql');
-const poolPromise = require('../dbConfig');
+const { sql, getPool } = require("../config/database");
 
-async function generateNextPromoId() {
-  const pool = await poolPromise;
-  const result = await pool.request().query(`
-    SELECT MAX(CAST(SUBSTRING(PromoID, 2, LEN(PromoID)-1) AS INT)) AS maxNum
-    FROM Promotion
+const PROMOTION_SELECT = `
+  p.PromotionID AS promotionId,
+  p.PromoID AS promotionCode,
+  p.PromotionName AS promotionName,
+  p.PromoDesc AS description,
+  p.PromoStartDate AS startDate,
+  p.PromoEndDate AS endDate,
+  p.StallID AS stallId,
+  fs.StallName AS stallName,
+  p.ItemCode AS itemCode,
+  m.MenuItemID AS itemId,
+  m.ItemDesc AS itemName,
+  CAST(m.ItemPrice AS DECIMAL(10, 2)) AS originalPrice,
+  p.DiscountType AS discountType,
+  CAST(p.DiscountValue AS DECIMAL(10, 2)) AS discountValue,
+  p.IsActive AS isActive,
+  p.CreatedAt AS createdAt,
+  p.UpdatedAt AS updatedAt
+`;
+
+function normalizePromotion(row) {
+  if (!row) return null;
+  const { totalCount, ...promotion } = row;
+  return {
+    ...promotion,
+    originalPrice:
+      promotion.originalPrice === null ? null : Number(promotion.originalPrice),
+    discountValue:
+      promotion.discountValue === null ? null : Number(promotion.discountValue)
+  };
+}
+
+const joins = `
+  INNER JOIN dbo.FoodStall fs ON fs.StallID = p.StallID
+  LEFT JOIN dbo.MenuItem m
+    ON m.StallID = p.StallID AND m.ItemCode = p.ItemCode
+`;
+
+async function listActive(filters = {}) {
+  const pool = await getPool();
+  const request = pool.request();
+  const where = [
+    "p.IsActive = 1",
+    "p.PromoStartDate <= SYSUTCDATETIME()",
+    "p.PromoEndDate >= SYSUTCDATETIME()"
+  ];
+
+  if (filters.stallId) {
+    request.input("stallId", sql.VarChar(4), filters.stallId);
+    where.push("p.StallID = @stallId");
+  }
+  if (filters.itemId) {
+    request.input("itemId", sql.Int, filters.itemId);
+    where.push("m.MenuItemID = @itemId");
+  }
+
+  const page = filters.page || 1;
+  const limit = filters.limit || 12;
+  request.input("offset", sql.Int, (page - 1) * limit);
+  request.input("limit", sql.Int, limit);
+
+  const result = await request.query(`
+    SELECT ${PROMOTION_SELECT}, COUNT(*) OVER() AS totalCount
+    FROM dbo.Promotion p
+    ${joins}
+    WHERE ${where.join(" AND ")}
+    ORDER BY p.PromoEndDate, p.PromotionID
+    OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
   `);
-  const maxNum = result.recordset[0].maxNum || 0;
-  return 'P' + String(maxNum + 1).padStart(3, '0');
+
+  const total = result.recordset[0]?.totalCount || 0;
+  return {
+    promotions: result.recordset.map(normalizePromotion),
+    pagination: {
+      page,
+      limit,
+      total,
+      pages: Math.ceil(total / limit)
+    }
+  };
 }
 
-async function getPromotionsByStall(stallId) {
-  const pool = await poolPromise;
-  const result = await pool.request()
-    .input('stallId', sql.VarChar(4), stallId)
-    .query(`SELECT * FROM Promotion WHERE StallID = @stallId ORDER BY PromoStartDate DESC`);
-  return result.recordset;
-}
+async function listMine(ownerId, filters = {}) {
+  const pool = await getPool();
+  const request = pool
+    .request()
+    .input("ownerId", sql.VarChar(5), ownerId);
+  const where = [`
+    EXISTS (
+      SELECT 1
+      FROM dbo.RentalAgreement ra
+      WHERE ra.StallID = p.StallID
+        AND ra.OwnerID = @ownerId
+        AND (ra.AgrStartDate IS NULL OR ra.AgrStartDate <= GETDATE())
+        AND (ra.AgrEndDate IS NULL OR ra.AgrEndDate >= GETDATE())
+    )
+  `];
+  if (filters.stallId) {
+    request.input("stallId", sql.VarChar(4), filters.stallId);
+    where.push("p.StallID = @stallId");
+  }
 
-// US-C8 support — only promotions currently running for this stall.
-async function getActivePromotionsByStall(stallId) {
-  const pool = await poolPromise;
-  const result = await pool.request()
-    .input('stallId', sql.VarChar(4), stallId)
-    .query(`
-      SELECT * FROM Promotion
-      WHERE StallID = @stallId
-        AND GETDATE() BETWEEN PromoStartDate AND PromoEndDate
-      ORDER BY PromoEndDate ASC
-    `);
-  return result.recordset;
-}
+  const page = filters.page || 1;
+  const limit = filters.limit || 50;
+  request.input("offset", sql.Int, (page - 1) * limit);
+  request.input("limit", sql.Int, limit);
 
-async function getPromotionById(promoId) {
-  const pool = await poolPromise;
-  const result = await pool.request()
-    .input('promoId', sql.VarChar(4), promoId)
-    .query(`SELECT * FROM Promotion WHERE PromoID = @promoId`);
-  return result.recordset[0];
-}
-
-async function getAllActivePromotions() {
-  const pool = await poolPromise;
-  const result = await pool.request().query(`
-    SELECT p.*, s.StallName
-    FROM Promotion p
-    JOIN FoodStall s ON p.StallID = s.StallID
-    WHERE GETDATE() BETWEEN p.PromoStartDate AND p.PromoEndDate
-    ORDER BY p.PromoEndDate ASC
+  const result = await request.query(`
+    SELECT ${PROMOTION_SELECT}, COUNT(*) OVER() AS totalCount
+    FROM dbo.Promotion p
+    ${joins}
+    WHERE ${where.join(" AND ")}
+    ORDER BY p.IsActive DESC, p.PromoStartDate DESC, p.PromotionID DESC
+    OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
   `);
-  return result.recordset;
+  const total = result.recordset[0]?.totalCount || 0;
+  return {
+    promotions: result.recordset.map(normalizePromotion),
+    pagination: {
+      page,
+      limit,
+      total,
+      pages: Math.ceil(total / limit)
+    }
+  };
 }
 
-async function createPromotion({ stallId, promoDesc, promoStartDate, promoEndDate }) {
-  const pool = await poolPromise;
-  const promoId = await generateNextPromoId();
-  await pool.request()
-    .input('promoId', sql.VarChar(4), promoId)
-    .input('promoDesc', sql.VarChar(50), promoDesc)
-    .input('promoStartDate', sql.SmallDateTime, promoStartDate)
-    .input('promoEndDate', sql.SmallDateTime, promoEndDate)
-    .input('stallId', sql.VarChar(4), stallId)
+async function findById(promotionId, activeOnly = false) {
+  const pool = await getPool();
+  const result = await pool
+    .request()
+    .input("promotionId", sql.Int, promotionId)
     .query(`
-      INSERT INTO Promotion (PromoID, PromoDesc, PromoStartDate, PromoEndDate, StallID)
-      VALUES (@promoId, @promoDesc, @promoStartDate, @promoEndDate, @stallId)
+      SELECT ${PROMOTION_SELECT}
+      FROM dbo.Promotion p
+      ${joins}
+      WHERE p.PromotionID = @promotionId
+        ${
+          activeOnly
+            ? "AND p.IsActive = 1 AND p.PromoStartDate <= SYSUTCDATETIME() AND p.PromoEndDate >= SYSUTCDATETIME()"
+            : ""
+        }
     `);
-  return { promoId, stallId };
+  return normalizePromotion(result.recordset[0]);
 }
 
-async function updatePromotion(promoId, { promoDesc, promoStartDate, promoEndDate }) {
-  const pool = await poolPromise;
-  await pool.request()
-    .input('promoId', sql.VarChar(4), promoId)
-    .input('promoDesc', sql.VarChar(50), promoDesc)
-    .input('promoStartDate', sql.SmallDateTime, promoStartDate)
-    .input('promoEndDate', sql.SmallDateTime, promoEndDate)
+async function activeForStalls(stallIds) {
+  if (!stallIds.length) return [];
+  const pool = await getPool();
+  const request = pool.request();
+  const parameters = stallIds.map((stallId, index) => {
+    request.input(`stall${index}`, sql.VarChar(4), stallId);
+    return `@stall${index}`;
+  });
+  const result = await request.query(`
+    SELECT ${PROMOTION_SELECT}
+    FROM dbo.Promotion p
+    ${joins}
+    WHERE p.IsActive = 1
+      AND p.PromoStartDate <= SYSUTCDATETIME()
+      AND p.PromoEndDate >= SYSUTCDATETIME()
+      AND p.StallID IN (${parameters.join(", ")})
+  `);
+  return result.recordset.map(normalizePromotion);
+}
+
+async function create(data) {
+  const pool = await getPool();
+  const sequenceResult = await pool
+    .request()
+    .query("SELECT NEXT VALUE FOR dbo.PromotionCodeSequence AS nextNumber");
+  const promotionCode = `P${String(
+    sequenceResult.recordset[0].nextNumber
+  ).padStart(3, "0")}`;
+
+  const result = await pool
+    .request()
+    .input("promotionCode", sql.VarChar(4), promotionCode)
+    .input("promotionName", sql.NVarChar(100), data.promotionName)
+    .input("description", sql.NVarChar(500), data.description || null)
+    .input("startDate", sql.DateTime2(0), data.startDate)
+    .input("endDate", sql.DateTime2(0), data.endDate)
+    .input("stallId", sql.VarChar(4), data.stallId)
+    .input("itemCode", sql.VarChar(10), data.itemCode || null)
+    .input("discountType", sql.VarChar(20), data.discountType)
+    .input("discountValue", sql.Decimal(10, 2), data.discountValue)
     .query(`
-      UPDATE Promotion
-      SET PromoDesc = @promoDesc, PromoStartDate = @promoStartDate, PromoEndDate = @promoEndDate
-      WHERE PromoID = @promoId
+      INSERT INTO dbo.Promotion (
+        PromoID, PromotionName, PromoDesc, PromoStartDate, PromoEndDate,
+        StallID, ItemCode, DiscountType, DiscountValue, IsActive
+      )
+      OUTPUT INSERTED.PromotionID
+      VALUES (
+        @promotionCode, @promotionName, @description, @startDate, @endDate,
+        @stallId, @itemCode, @discountType, @discountValue, 1
+      )
     `);
+  return findById(result.recordset[0].PromotionID);
 }
 
-async function deletePromotion(promoId) {
-  const pool = await poolPromise;
-  await pool.request()
-    .input('promoId', sql.VarChar(4), promoId)
-    .query(`DELETE FROM Promotion WHERE PromoID = @promoId`);
-}
-
-// Same ownership check as menuModel.js — duplicated here (rather than
-// imported) so this module stays self-contained like your teammates' files.
-async function isStallOwnedBy(stallId, ownerId) {
-  const pool = await poolPromise;
-  const result = await pool.request()
-    .input('stallId', sql.VarChar(4), stallId)
-    .input('ownerId', sql.VarChar(5), ownerId)
+async function update(promotionId, data) {
+  const pool = await getPool();
+  const result = await pool
+    .request()
+    .input("promotionId", sql.Int, promotionId)
+    .input("promotionName", sql.NVarChar(100), data.promotionName)
+    .input("description", sql.NVarChar(500), data.description || null)
+    .input("startDate", sql.DateTime2(0), data.startDate)
+    .input("endDate", sql.DateTime2(0), data.endDate)
+    .input("itemCode", sql.VarChar(10), data.itemCode || null)
+    .input("discountType", sql.VarChar(20), data.discountType)
+    .input(
+      "discountValue",
+      sql.Decimal(10, 2),
+      data.discountValue === null ? null : data.discountValue
+    )
+    .input("isActive", sql.Bit, data.isActive)
     .query(`
-      SELECT TOP 1 AgreementID FROM RentalAgreement
-      WHERE StallID = @stallId AND OwnerID = @ownerId
-        AND (AgrEndDate IS NULL OR AgrEndDate >= CAST(GETDATE() AS DATE))
-      ORDER BY AgrStartDate DESC
+      UPDATE dbo.Promotion
+      SET PromotionName = @promotionName,
+          PromoDesc = @description,
+          PromoStartDate = @startDate,
+          PromoEndDate = @endDate,
+          ItemCode = @itemCode,
+          DiscountType = @discountType,
+          DiscountValue = @discountValue,
+          IsActive = @isActive,
+          UpdatedAt = SYSUTCDATETIME()
+      WHERE PromotionID = @promotionId
     `);
-  return result.recordset.length > 0;
+  if (!result.rowsAffected[0]) return null;
+  return findById(promotionId);
+}
+
+async function deactivate(promotionId) {
+  const pool = await getPool();
+  const result = await pool
+    .request()
+    .input("promotionId", sql.Int, promotionId)
+    .query(`
+      UPDATE dbo.Promotion
+      SET IsActive = 0, UpdatedAt = SYSUTCDATETIME()
+      WHERE PromotionID = @promotionId AND IsActive = 1
+    `);
+  return result.rowsAffected[0] > 0;
 }
 
 module.exports = {
-  getPromotionsByStall,
-  getActivePromotionsByStall,
-  getPromotionById,
-  createPromotion,
-  updatePromotion,
-  deletePromotion,
-  isStallOwnedBy,
+  listActive,
+  listMine,
+  findById,
+  activeForStalls,
+  create,
+  update,
+  deactivate,
+  normalizePromotion
 };

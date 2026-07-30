@@ -1,16 +1,5 @@
 const stallModel = require('../models/stallModel');
 
-// GET /api/stalls
-async function getStalls(req, res) {
-    try {
-        const stalls = await stallModel.getAllStalls();
-        res.status(200).json(stalls);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Error fetching stalls', error: err.message });
-    }
-}
-
 // GET /api/stalls?hc=HC01
 async function getStalls(req, res) {
     try {
@@ -19,6 +8,20 @@ async function getStalls(req, res) {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Error fetching stalls', error: err.message });
+    }
+}
+
+// GET /api/stalls/:id
+async function getStall(req, res) {
+    try {
+        const stall = await stallModel.getStallById(req.params.id);
+        if (!stall) {
+            return res.status(404).json({ message: 'Stall not found' });
+        }
+        res.status(200).json(stall);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error fetching stall' });
     }
 }
 

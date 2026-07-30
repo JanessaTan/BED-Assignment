@@ -1,73 +1,102 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menu Management – HawkerHub</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manage menu | HawkerHub</title>
   <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/vendor-menu.css">
+  <link rel="stylesheet" href="../css/scope.css">
+  <script src="../JS/api.js" defer></script>
+  <script src="../JS/shared.js" defer></script>
+  <script src="../JS/vendor-menu.js" defer></script>
 </head>
-<body>
-
-  <main class="page-shell">
-    <header class="page-header">
-      <div class="page-header__content">
-        <p class="eyebrow">Vendor tools</p>
-        <h1 class="page-title">Menu management</h1>
-        <p class="page-subtitle">Add, edit, or remove menu items for your stall.</p>
+<body class="scope-page">
+  <main class="scope-main">
+    <header class="scope-hero">
+      <div>
+        <p class="scope-kicker">Vendor workspace</p>
+        <h1>Menu management</h1>
+        <p>Items and cuisine relationships are saved in one transaction. Deleting an item deactivates it.</p>
       </div>
+      <button id="newItemButton" class="scope-btn" type="button">Add menu item</button>
     </header>
-
-    <div class="card mb-24">
-      <label for="stallSelect">Select your stall</label>
-      <select id="stallSelect"></select>
-    </div>
-
-    <div id="menuStatus" class="status" role="status" aria-live="polite"></div>
-
-    <section class="card mb-24" id="itemFormSection" hidden>
-      <h2 class="section-title" id="formTitle">Add a menu item</h2>
-      <form id="itemForm">
-        <input type="hidden" id="editItemCode">
-
-        <div class="form-group">
-          <label for="itemDesc">Item name</label>
-          <input type="text" id="itemDesc" required maxlength="100">
+    <div id="vendorMenuStatus" class="status-box" role="status">Loading your menu...</div>
+    <section class="scope-card full">
+      <div class="scope-toolbar">
+        <div class="field">
+          <label for="stallFilter">Stall</label>
+          <select id="stallFilter"></select>
         </div>
-
-        <div class="form-group">
-          <label for="itemPrice">Price ($)</label>
-          <input type="number" id="itemPrice" step="0.01" min="0" required>
-        </div>
-
-        <div class="form-group">
-          <label for="itemCategory">Category</label>
-          <select id="itemCategory" required>
-            <option value="Main">Main</option>
-            <option value="Side">Side</option>
-            <option value="Set">Set</option>
-            <option value="Dessert">Dessert</option>
-            <option value="Drink">Drink</option>
+        <div class="field">
+          <label for="availabilityFilter">Availability</label>
+          <select id="availabilityFilter">
+            <option value="all">All items</option>
+            <option value="available">Available</option>
+            <option value="unavailable">Unavailable</option>
           </select>
         </div>
-
-        <div class="form-group">
-          <label>Cuisines</label>
-          <div id="cuisineOptions" class="row"></div>
+      </div>
+      <div class="scope-table-wrap">
+        <table class="scope-table">
+          <thead><tr><th>Item</th><th>Cuisines</th><th>Price</th><th>Availability</th><th>Actions</th></tr></thead>
+          <tbody id="vendorMenuRows"></tbody>
+        </table>
+      </div>
+    </section>
+    <section id="menuEditor" class="scope-card full" hidden>
+      <h2 id="menuEditorTitle">Add menu item</h2>
+      <div id="menuFormStatus" class="status-box" hidden role="alert"></div>
+      <form id="menuForm" class="scope-form">
+        <input id="editItemId" type="hidden">
+        <div class="form-grid">
+          <div class="field">
+            <label for="stallId">Stall</label>
+            <select id="stallId" name="stallId" required></select>
+          </div>
+          <div class="field">
+            <label for="itemName">Item name</label>
+            <input id="itemName" name="itemName" minlength="2" maxlength="100" required>
+          </div>
+          <div class="field">
+            <label for="price">Price (SGD)</label>
+            <input id="price" name="price" type="number" min="0.01" step="0.01" required>
+          </div>
+          <div class="field">
+            <label for="category">Category</label>
+            <select id="category" name="category" required>
+              <option>Main</option><option>Side</option><option>Drink</option>
+              <option>Dessert</option><option>Set</option><option>Add-on</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" maxlength="500"></textarea>
+          </div>
+          <div class="field full">
+            <label for="imageUrl">Image URL</label>
+            <input id="imageUrl" name="imageUrl" type="url" maxlength="500" placeholder="https://...">
+          </div>
+          <fieldset class="field full">
+            <legend>Cuisines</legend>
+            <div id="cuisineOptions" class="checkbox-grid"></div>
+          </fieldset>
+          <div class="field">
+            <label class="check-option"><input id="isAvailable" name="isAvailable" type="checkbox" checked> Available to customers</label>
+          </div>
+          <div class="field">
+            <label class="check-option"><input id="isVegetarian" name="isVegetarian" type="checkbox"> Vegetarian</label>
+          </div>
+          <div class="field full">
+            <label for="dietaryInfo">Dietary information</label>
+            <input id="dietaryInfo" name="dietaryInfo" maxlength="200" placeholder="e.g. Contains peanuts">
+          </div>
         </div>
-
-        <p class="form-error" id="formError"></p>
-
-        <div class="actions">
-          <button type="submit" class="btn" id="submitBtn">Add item</button>
-          <button type="button" class="btn muted" id="cancelEditBtn" hidden>Cancel</button>
+        <div class="scope-actions">
+          <button id="saveMenuItem" class="scope-btn" type="submit">Save item</button>
+          <button id="cancelMenuItem" class="scope-btn ghost" type="button">Cancel</button>
         </div>
       </form>
     </section>
-
-    <section class="grid-cards" id="itemList" aria-label="Menu items"></section>
   </main>
-
-  <script src="js/vendor-menu.js"></script>
 </body>
 </html>

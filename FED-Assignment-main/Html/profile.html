@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My profile | HawkerHub</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/scope.css">
+  <script src="../JS/api.js" defer></script>
+  <script src="../JS/shared.js" defer></script>
+  <script src="../JS/profile.js" defer></script>
+</head>
+<body class="scope-page">
+  <main class="scope-main">
+    <header class="scope-hero">
+      <div>
+        <p class="scope-kicker">Account centre</p>
+        <h1>My profile</h1>
+        <p>Update approved personal details. Your role and account status can only be changed by an Administrator.</p>
+      </div>
+    </header>
+    <div class="scope-grid">
+      <section class="scope-card wide">
+        <h2>Personal details</h2>
+        <div id="profileStatus" class="status-box" hidden role="alert"></div>
+        <form id="profileForm" class="scope-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="fullName">Full name</label>
+              <input id="fullName" name="fullName" minlength="2" maxlength="100" required>
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" required>
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel">
+            </div>
+            <div class="field">
+              <label for="role">Role</label>
+              <input id="role" name="role" disabled>
+            </div>
+          </div>
+          <button id="saveProfile" class="scope-btn" type="submit">Save profile</button>
+        </form>
+      </section>
+      <aside class="scope-card">
+        <h2>Change password</h2>
+        <form id="passwordForm" class="scope-form">
+          <div class="field">
+            <label for="currentPassword">Current password</label>
+            <input id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required>
+          </div>
+          <div class="field">
+            <label for="newPassword">New password</label>
+            <input id="newPassword" name="newPassword" type="password" autocomplete="new-password" minlength="8" required>
+            <small>8+ characters with uppercase, lowercase, number and symbol.</small>
+          </div>
+          <button id="savePassword" class="scope-btn secondary" type="submit">Change password</button>
+        </form>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>

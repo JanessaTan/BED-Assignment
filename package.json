@@ -1,11 +1,15 @@
 {
   "name": "bed-assignment",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "description": "HawkerHub backend and frontend for account, menu and promotion management.",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "devStart": "nodemon app.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "devStart": "nodemon server.js",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
+    "check": "node scripts/check-project.js"
   },
   "repository": {
     "type": "git",
@@ -20,14 +24,30 @@
   },
   "homepage": "https://github.com/JanessaTan/BED-Assignment#readme",
   "dependencies": {
-    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "js-yaml": "^4.1.0",
     "joi": "^18.2.3",
-    "mssql": "^12.7.0"
+    "jsonwebtoken": "^9.0.2",
+    "mssql": "^12.7.0",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "jest": "^30.2.0",
     "nodemon": "^3.1.14"
+    ,"supertest": "^7.1.4"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "clearMocks": true,
+    "collectCoverageFrom": [
+      "controllers/**/*.js",
+      "middlewares/**/*.js",
+      "services/**/*.js"
+    ]
+  },
+  "overrides": {
+    "brace-expansion": "5.0.8"
   }
 }

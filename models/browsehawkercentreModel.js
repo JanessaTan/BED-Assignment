@@ -1,8 +1,7 @@
-const sql = require('mssql');
-const poolPromise = require('../config/db');
+const { sql, getPool } = require('../config/database');
 
 async function getAllHawkerCentres() {
-  const pool = await poolPromise;
+  const pool = await getPool();
   const result = await pool.request().query(`SELECT * FROM HawkerCentre`);
   return result.recordset;
 }
@@ -10,7 +9,7 @@ async function getAllHawkerCentres() {
 // GET /api/hawkercentres/search?q=clement
 // Matches against name OR address (case-insensitive, partial match).
 async function searchHawkerCentres(query) {
-  const pool = await poolPromise;
+  const pool = await getPool();
   const result = await pool.request()
     .input('query', sql.VarChar(100), `%${query}%`)
     .query(`
@@ -24,7 +23,7 @@ async function searchHawkerCentres(query) {
 // Haversine formula computed directly in SQL — returns distance in km,
 // sorted nearest first, filtered to within radiusKm.
 async function getNearbyHawkerCentres(lat, lng, radiusKm) {
-  const pool = await poolPromise;
+  const pool = await getPool();
   const result = await pool.request()
     .input('lat', sql.Decimal(9, 6), lat)
     .input('lng', sql.Decimal(9, 6), lng)

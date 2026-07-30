@@ -1,15 +1,55 @@
-const express = require('express');
+const express = require("express");
+const promotionController = require("../controllers/promotionController");
+const { authenticate, authorize } = require("../middlewares/auth");
+const validate = require("../middlewares/validate");
+const asyncHandler = require("../utils/asyncHandler");
+const schemas = require("../validators/promotionSchemas");
+
 const router = express.Router();
-const promotionController = require('../controllers/promotionController');
-const { verifyJWT } = require('../middlewares/auth');
 
-// Public — anyone can browse a stall's promotions
-router.get('/:id/promotions', promotionController.listPromotions);
-router.get('/:id/promotions/active', promotionController.listActivePromotions);
-
-// Vendor-only — ownership is checked inside the controller via req.user.ownerId
-router.post('/:id/promotions', verifyJWT, promotionController.createPromotion);
-router.put('/:id/promotions/:promoId', verifyJWT, promotionController.updatePromotion);
-router.delete('/:id/promotions/:promoId', verifyJWT, promotionController.deletePromotion);
+router.get(
+  "/",
+  validate(schemas.listQuery, "query"),
+  asyncHandler(promotionController.listActivePromotions)
+);
+router.get(
+  "/active",
+  validate(schemas.listQuery, "query"),
+  asyncHandler(promotionController.listActivePromotions)
+);
+router.get(
+  "/mine",
+  authenticate,
+  authorize("vendor"),
+  validate(schemas.listQuery, "query"),
+  asyncHandler(promotionController.listMyPromotions)
+);
+router.post(
+  "/",
+  authenticate,
+  authorize("vendor"),
+  validate(schemas.create),
+  asyncHandler(promotionController.createPromotion)
+);
+router.get(
+  "/:promotionId",
+  validate(schemas.promotionParams, "params"),
+  asyncHandler(promotionController.getPromotion)
+);
+router.patch(
+  "/:promotionId",
+  authenticate,
+  authorize("vendor"),
+  validate(schemas.promotionParams, "params"),
+  validate(schemas.update),
+  asyncHandler(promotionController.updatePromotion)
+);
+router.delete(
+  "/:promotionId",
+  authenticate,
+  authorize("vendor"),
+  validate(schemas.promotionParams, "params"),
+  asyncHandler(promotionController.deletePromotion)
+);
 
 module.exports = router;
