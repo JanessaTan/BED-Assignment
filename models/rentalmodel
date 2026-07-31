@@ -1,0 +1,105 @@
+const { sql, poolPromise } = require('../dbConfig');
+
+// GET all rental agreements (US-O1: Operator views all recorded agreements)
+async function getAllAgreements() {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .query('SELECT * FROM RentalAgreement');
+    return result.recordset;
+}
+
+// GET a single agreement by ID
+async function getAgreementById(id) {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('id', sql.VarChar, id)
+        .query('SELECT * FROM RentalAgreement WHERE AgreementID = @id');
+    return result.recordset[0];
+}
+
+// GET all agreements for a specific stall owner (US-SO1: owner views their own agreements)
+async function getAgreementsByOwner(ownerId) {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('ownerId', sql.VarChar, ownerId)
+        .query('SELECT * FROM RentalAgreement WHERE OwnerID = @ownerId ORDER BY AgrStartDate DESC');
+    return result.recordset;
+}
+
+// GET all agreements for a specific stall (US-O1: operator checks a stall's rental history)
+async function getAgreementsByStall(stallId) {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .input('stallId', sql.VarChar, stallId)
+        .query('SELECT * FROM RentalAgreement WHERE StallID = @stallId ORDER BY AgrStartDate DESC');
+    return result.recordset;
+}
+
+// Generate the next AgreementID in sequence, e.g. A012 -> A013
+async function getNextAgreementId() {
+    const pool = await poolPromise;
+    const result = await pool.request()
+        .query('SELECT TOP 1 AgreementID FROM RentalAgreement ORDER BY AgreementID DESC');
+    const last = result.recordset[0]?.AgreementID; // e.g. 'A012'
+    const nextNum = last ? parseInt(last.substring(1)) + 1 : 1;
+    return 'A' + String(nextNum).padStart(3, '0');
+}
+
+// CREATE (sign) a new rental agreement
+async function createAgreement(agreement) {
+    const pool = await poolPromise;
+    const newId = await getNextAgreementId();
+
+    await pool.request()
+        .input('AgreementID', sql.VarChar, newId)
+        .input('AgrStartDate', sql.SmallDateTime, agreement.startDate)
+        .input('AgrEndDate', sql.SmallDateTime, agreement.endDate)
+        .input('AgrTermCondition', sql.VarChar, agreement.termCondition)
+        .input('RentalPrice', sql.Money, agreement.rentalPrice)
+        .input('OwnerID', sql.VarChar, agreement.ownerId)
+        .input('StallID', sql.VarChar, agreement.stallId)
+        .query(`INSERT INTO RentalAgreement
+                (AgreementID, AgrStartDate, AgrEndDate, AgrTermCondition, RentalPrice, OwnerID, StallID)
+                VALUES
+                (@AgreementID, @AgrStartDate, @AgrEndDate, @AgrTermCondition, @RentalPrice, @OwnerID, @StallID)`);
+
+    return getAgreementById(newId);
+}
+
+// UPDATE an existing agreement (e.g. renewal - new end date / price)
+async function updateAgreement(id, agreement) {
+    const pool = await poolPromise;
+    await pool.request()
+        .input('id', sql.VarChar, id)
+        .input('AgrStartDate', sql.SmallDateTime, agreement.startDate)
+        .input('AgrEndDate', sql.SmallDateTime, agreement.endDate)
+        .input('AgrTermCondition', sql.VarChar, agreement.termCondition)
+        .input('RentalPrice', sql.Money, agreement.rentalPrice)
+        .query(`UPDATE RentalAgreement
+                SET AgrStartDate = @AgrStartDate,
+                    AgrEndDate = @AgrEndDate,
+                    AgrTermCondition = @AgrTermCondition,
+                    RentalPrice = @RentalPrice
+                WHERE AgreementID = @id`);
+
+    return getAgreementById(id);
+}
+
+// DELETE an agreement
+async function deleteAgreement(id) {
+    const pool = await poolPromise;
+    await pool.request()
+        .input('id', sql.VarChar, id)
+        .query('DELETE FROM RentalAgreement WHERE AgreementID = @id');
+    return true;
+}
+
+module.exports = {
+    getAllAgreements,
+    getAgreementById,
+    getAgreementsByOwner,
+    getAgreementsByStall,
+    createAgreement,
+    updateAgreement,
+    deleteAgreement
+};
