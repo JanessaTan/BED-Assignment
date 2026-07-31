@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Submit stall feedback">
+  <title>Feedback | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/feedback.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/feedback.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <div class="page-heading"><div><span class="eyebrow">Help vendors improve</span><h1>Share feedback</h1><p>Rate food quality and service, then leave a useful comment.</p></div></div>
+    <div class="engagement-layout">
+      <form class="card form-grid" id="feedbackForm" novalidate>
+        <div class="field field-full"><label for="stallId">Food stall</label><select id="stallId" required><option value="">Select a stall</option></select><p class="field-error" id="stallIdError"></p></div>
+        <div class="field"><label for="foodRating">Food-quality rating</label><select id="foodRating" required><option value="">Select 1-5</option><option value="5">5 - Excellent</option><option value="4">4 - Very good</option><option value="3">3 - Good</option><option value="2">2 - Fair</option><option value="1">1 - Poor</option></select><p class="field-error" id="foodRatingError"></p></div>
+        <div class="field"><label for="serviceRating">Service rating</label><select id="serviceRating" required><option value="">Select 1-5</option><option value="5">5 - Excellent</option><option value="4">4 - Very good</option><option value="3">3 - Good</option><option value="2">2 - Fair</option><option value="1">1 - Poor</option></select><p class="field-error" id="serviceRatingError"></p></div>
+        <div class="field field-full"><label for="comments">Comments</label><textarea id="comments" maxlength="400" required></textarea><div class="row-between"><p class="field-error" id="commentsError"></p><span class="muted" id="characterCount">0 / 400</span></div></div>
+        <div class="field field-full"><button class="btn btn-primary" type="submit">Submit feedback</button><a class="btn btn-muted" href="rating.html">View ratings</a></div>
+        <p class="notice notice-info field-full" id="feedbackMessage" role="status" hidden></p>
+      </form>
+      <aside class="card"><h2>Helpful feedback</h2><p>Describe what you experienced. Avoid personal details and focus on food quality, service and cleanliness.</p></aside>
+    </div>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

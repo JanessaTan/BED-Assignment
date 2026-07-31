@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="View local HawkerHub order history">
+  <title>Order History | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/order-history.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/order-history.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <div class="page-heading"><div><span class="eyebrow">Saved in this browser</span><h1>Order history</h1><p>Search, filter, reorder or view the details of past demonstration orders.</p></div></div>
+    <section class="toolbar" aria-label="Order filters">
+      <div class="field field-third"><label for="orderSearch">Order ID</label><input id="orderSearch" placeholder="Example: HC-"></div>
+      <div class="field field-third"><label for="statusFilter">Status</label><select id="statusFilter"><option value="">All statuses</option><option>Order received</option><option>Preparing</option><option>Ready for collection</option><option>Completed</option></select></div>
+      <div class="field field-third"><label for="dateFilter">Order date</label><input id="dateFilter" type="date"></div>
+    </section>
+    <p class="result-summary" id="historyCount"></p>
+    <div class="stack" id="historyResults"></div>
+    <div class="empty-state" id="historyEmpty" hidden><h2>No orders found</h2><p>Adjust your filters or place a demonstration order.</p></div>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

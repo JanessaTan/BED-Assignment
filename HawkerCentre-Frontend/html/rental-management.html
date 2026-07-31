@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Operator stall rental management">
+  <title>Rental Management | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/rental-management.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/rental-management.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <div class="page-heading"><div><span class="eyebrow">Operator responsibility</span><h1>Rental management</h1><p>Create, update and renew stall rental agreements for the managed hawker centre.</p></div></div>
+    <section class="rental-layout">
+      <form class="card form-grid" id="rentalForm" novalidate>
+        <input id="agreementId" type="hidden">
+        <h2 class="field-full" id="rentalFormTitle">Create rental agreement</h2>
+        <div class="field"><label for="rentalStall">Food stall</label><select id="rentalStall" required><option value="">Select a stall</option></select></div>
+        <div class="field"><label for="stallUnit">Stall unit</label><input id="stallUnit" placeholder="#01-20" required></div>
+        <div class="field"><label for="rentalStart">Start date</label><input id="rentalStart" type="date" required></div>
+        <div class="field"><label for="rentalEnd">End date</label><input id="rentalEnd" type="date" required></div>
+        <div class="field"><label for="monthlyRent">Monthly rental (S$)</label><input id="monthlyRent" type="number" min="1" step="10" required></div>
+        <div class="field"><label for="agreementStatus">Agreement status</label><select id="agreementStatus" required><option>Active</option><option>Renewal Due</option><option>Expired</option><option>Terminated</option></select></div>
+        <div class="field field-full"><label for="rentalTerms">Terms summary</label><textarea id="rentalTerms" maxlength="500" required></textarea></div>
+        <p class="field-error field-full" id="rentalError"></p>
+        <div class="field field-full"><button class="btn btn-primary" type="submit">Save agreement</button><button class="btn btn-muted" id="clearRentalForm" type="button">Clear form</button></div>
+      </form>
+      <aside class="card"><h2>Rental workflow</h2><ol><li>Select the stall and unit.</li><li>Record the lease period and rent.</li><li>Set the agreement status.</li><li>Update the record during renewal or changes in terms.</li></ol></aside>
+    </section>
+    <section class="section"><div class="section-heading"><div><h2>Rental agreements</h2><p>Current and historical records for the managed centre.</p></div></div><div class="table-wrap"><table><thead><tr><th>Agreement</th><th>Stall / Unit</th><th>Period</th><th>Monthly rent</th><th>Status</th><th>Action</th></tr></thead><tbody id="rentalTableBody"></tbody></table></div></section>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

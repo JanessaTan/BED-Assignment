@@ -1,0 +1,22 @@
+.managed-complaint {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+}
+
+.complaint-status-control {
+  display: grid;
+  min-width: 180px;
+  gap: 0.5rem;
+}
+
+.complaint-status-control select {
+  padding: 0.62rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+@media (max-width: 650px) {
+  .managed-complaint { grid-template-columns: 1fr; }
+}

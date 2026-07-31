@@ -1,0 +1,16 @@
+#operationsTableBody textarea {
+  min-width: 260px;
+  min-height: 78px;
+  padding: 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  resize: vertical;
+}
+
+#operationsTableBody select {
+  min-width: 150px;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+}

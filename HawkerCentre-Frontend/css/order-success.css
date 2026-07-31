@@ -1,0 +1,22 @@
+.success-shell {
+  display: grid;
+  place-items: center;
+}
+
+.success-card {
+  width: min(680px, 100%);
+  padding: clamp(1.5rem, 5vw, 3rem);
+  text-align: center;
+}
+
+.success-icon {
+  display: grid;
+  width: 74px;
+  height: 74px;
+  margin: 0 auto 1rem;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--success);
+  font-size: 2rem;
+}

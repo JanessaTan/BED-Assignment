@@ -1,0 +1,7 @@
+.credit-grid .card {
+  border-top: 5px solid var(--accent);
+}
+
+.credit-grid a {
+  font-weight: 750;
+}

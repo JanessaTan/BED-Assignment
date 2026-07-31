@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Vendor rental agreement tracking">
+  <title>Rental Agreement | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/rental-agreement.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/rental-agreement.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <div class="page-heading"><div><span class="eyebrow">Vendor records</span><h1>Rental agreement</h1><p>Track the current lease, renewal history and important dates.</p></div><button class="btn btn-outline" id="downloadAgreement" type="button">Download summary</button></div>
+    <p class="notice" id="renewalReminder"></p>
+    <section class="grid grid-3 agreement-summary" id="agreementSummary"></section>
+    <section class="section card"><h2>Terms summary</h2><ul id="termsSummary"></ul></section>
+    <section class="section"><div class="section-heading"><div><h2>Renewal history</h2></div></div><div class="table-wrap"><table><thead><tr><th>Period</th><th>Monthly rental</th><th>Status</th></tr></thead><tbody id="renewalHistory"></tbody></table></div></section>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

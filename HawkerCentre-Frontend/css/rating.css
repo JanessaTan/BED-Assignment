@@ -1,0 +1,31 @@
+.rating-overview {
+  margin-bottom: 1.2rem;
+}
+
+.rating-layout {
+  grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.6fr);
+  align-items: start;
+}
+
+.rating-breakdown {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.breakdown-row {
+  display: grid;
+  grid-template-columns: 58px 1fr 40px;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.review-card blockquote {
+  margin: 0.7rem 0 0;
+  color: var(--text);
+}
+
+@media (max-width: 760px) {
+  .rating-layout {
+    grid-template-columns: 1fr;
+  }
+}

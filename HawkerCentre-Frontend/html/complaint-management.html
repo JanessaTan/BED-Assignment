@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Operator complaint monitoring">
+  <title>Complaint Management | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/complaint-management.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/complaint-management.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <div class="page-heading"><div><span class="eyebrow">Customer satisfaction</span><h1>Complaint management</h1><p>Review complaints linked to stalls in the managed centre and update their status.</p></div></div>
+    <section class="toolbar"><div class="field"><label for="complaintStatusFilter">Status</label><select id="complaintStatusFilter"><option value="">All statuses</option><option>Submitted</option><option>Under Review</option><option>Resolved</option><option>Rejected</option></select></div><div class="field"><label for="complaintSearch">Search</label><input id="complaintSearch" placeholder="Complaint ID, stall or category"></div></section>
+    <p class="result-summary" id="complaintManagementCount"></p>
+    <div class="stack" id="managedComplaints"></div>
+    <div class="empty-state" id="managedComplaintsEmpty" hidden><h2>No complaints found</h2><p>There are no records matching the selected filters.</p></div>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

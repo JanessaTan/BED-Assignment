@@ -1,0 +1,14 @@
+.rental-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(250px, 0.6fr);
+  align-items: start;
+  gap: 1.2rem;
+}
+
+.rental-layout ol {
+  padding-left: 1.2rem;
+}
+
+@media (max-width: 760px) {
+  .rental-layout { grid-template-columns: 1fr; }
+}

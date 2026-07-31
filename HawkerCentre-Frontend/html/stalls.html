@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="View stalls in a selected hawker centre">
+  <title>Stalls | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/stalls.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/stalls.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <a class="back-link" href="browse-hawker-centres.html">← Back to centre search</a>
+    <div class="page-heading"><div><span class="eyebrow">Selected hawker centre</span><h1 id="centreName">Stalls</h1><p id="centreAddress"></p></div><span class="badge badge-info" id="centreCrowd"></span></div>
+    <section class="toolbar" aria-label="Stall filters">
+      <div class="field field-third"><label for="stallSearch">Search stalls</label><input id="stallSearch" placeholder="Stall name or cuisine"></div>
+      <div class="field field-quarter"><label for="cuisineFilter">Cuisine</label><select id="cuisineFilter"><option value="">All cuisines</option></select></div>
+      <div class="field field-quarter"><label for="hygieneFilter">Hygiene grade</label><select id="hygieneFilter"><option value="">All grades</option><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+      <div class="field field-quarter"><label for="stallSort">Sort</label><select id="stallSort"><option value="rating">Highest rating</option><option value="popularity">Most popular</option><option value="name">Name</option></select></div>
+    </section>
+    <p class="result-summary" id="stallResultCount"></p>
+    <div class="grid grid-3" id="stallResults"></div>
+    <div class="empty-state" id="stallEmpty" hidden><h2>No stalls match</h2><p>Clear a filter or try another search term.</p></div>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

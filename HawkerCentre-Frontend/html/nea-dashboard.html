@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="NEA officer inspection and hygiene dashboard">
+  <title>NEA Officer Dashboard | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/nea-dashboard.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/nea-dashboard.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <section class="role-hero nea-hero"><div><span class="eyebrow">Regulatory and compliance</span><h1 id="neaWelcome">NEA Officer Dashboard</h1><p>Schedule inspections, record scores and remarks, issue hygiene grades, and monitor grade validity.</p></div><a class="btn btn-accent" href="nea-inspections.html">Record inspection</a></section>
+    <section class="section"><div class="grid grid-4" id="neaStats"></div></section>
+    <section class="section dashboard-grid">
+      <article class="card"><div class="section-heading"><div><h2>Recent inspections</h2><p>Latest completed hygiene assessments.</p></div><a href="nea-inspections.html">View all</a></div><div class="stack" id="recentInspections"></div></article>
+      <article class="card"><div class="section-heading"><div><h2>Attention required</h2><p>Lower grades and upcoming inspections.</p></div></div><div class="stack" id="neaAlerts"></div></article>
+    </section>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

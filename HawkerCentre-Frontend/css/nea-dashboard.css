@@ -1,0 +1,36 @@
+.role-hero {
+  display: flex;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+  border-radius: 24px;
+  color: #fff;
+}
+
+.nea-hero {
+  background: linear-gradient(120deg, #0b5f59, var(--secondary));
+}
+
+.role-hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.3rem);
+}
+
+.role-hero p {
+  max-width: 720px;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.role-hero .eyebrow { color: #ffd76b; }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 1.2rem;
+}
+
+@media (max-width: 760px) {
+  .role-hero { align-items: flex-start; flex-direction: column; }
+  .dashboard-grid { grid-template-columns: 1fr; }
+}

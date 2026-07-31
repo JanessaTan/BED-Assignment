@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="HawkerHub customer home">
+  <title>Home | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/home.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/home.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <section class="hero">
+      <span class="eyebrow">Eat local, choose confidently</span>
+      <h1 id="welcomeHeading">Find your next hawker favourite.</h1>
+      <p>Search by neighbourhood, view estimated crowd levels, check hygiene grades and order from one convenient demonstration website.</p>
+      <form class="hero-search" id="homeSearchForm">
+        <label class="sr-only" for="homeSearch">Town, MRT or hawker centre</label>
+        <input class="input" id="homeSearch" placeholder="Try Clementi or Bedok">
+        <button class="btn btn-accent" type="submit">Search centres</button>
+      </form>
+    </section>
+    <section class="section" aria-labelledby="quickTitle">
+      <div class="section-heading"><div><h2 id="quickTitle">Quick actions</h2><p>Everything you need before your next meal.</p></div></div>
+      <div class="grid grid-4" id="quickActions"></div>
+    </section>
+    <section class="section" aria-labelledby="featuredTitle">
+      <div class="section-heading"><div><h2 id="featuredTitle">Featured hawker centres</h2><p>Demo locations across Singapore.</p></div><a href="browse-hawker-centres.html">Browse all</a></div>
+      <!-- Replace placeholder panels with your own credited images if desired. -->
+      <div class="grid grid-3" id="featuredCentres"></div>
+    </section>
+    <section class="section split-home" aria-label="Popular food and promotions">
+      <div>
+        <div class="section-heading"><div><h2>Recommended dishes</h2></div></div>
+        <div class="stack" id="recommendedItems"></div>
+      </div>
+      <div>
+        <div class="section-heading"><div><h2>Current promotions</h2></div></div>
+        <div class="stack" id="homePromotions"></div>
+      </div>
+    </section>
+    <section class="section" aria-labelledby="crowdOverviewTitle">
+      <div class="section-heading"><div><h2 id="crowdOverviewTitle">Crowd overview</h2><p>Estimated demo information based on time of day.</p></div><a href="crowd-level.html">Full crowd page</a></div>
+      <div class="grid grid-3" id="crowdOverview"></div>
+    </section>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

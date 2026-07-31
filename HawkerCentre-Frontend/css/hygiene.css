@@ -1,0 +1,31 @@
+.current-inspection {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 1.4rem;
+}
+
+.grade-display {
+  display: grid;
+  width: 120px;
+  height: 120px;
+  place-items: center;
+  border-radius: 24px;
+  color: #fff;
+  background: var(--secondary);
+  font-size: 3.4rem;
+  font-weight: 900;
+}
+
+.history-record {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .current-inspection {
+    grid-template-columns: 1fr;
+  }
+}

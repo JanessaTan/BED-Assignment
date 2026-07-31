@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Vendor sales analytics">
+  <title>Sales Analytics | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/sales-analytics.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/sales-analytics.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <div class="page-heading"><div><span class="eyebrow">Vendor reporting</span><h1>Sales analytics</h1><p>Understand orders, popular items and peak ordering hours.</p></div><div class="field analytics-filter"><label for="analyticsPeriod">Period</label><select id="analyticsPeriod"><option value="daily">Daily view</option><option value="monthly">Monthly view</option></select></div></div>
+    <section class="grid grid-3" id="analyticsStats"></section>
+    <section class="section analytics-grid">
+      <article class="card"><h2>Sales trend</h2><canvas id="salesChart" width="680" height="330" aria-label="Bar chart of sales trend" role="img"></canvas></article>
+      <article class="card"><h2>Peak order hours</h2><canvas id="hoursChart" width="680" height="330" aria-label="Bar chart of peak order hours" role="img"></canvas></article>
+    </section>
+    <section class="section card"><h2>Popular menu items</h2><div class="stack" id="analyticsPopularItems"></div></section>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>
