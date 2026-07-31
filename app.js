@@ -43,7 +43,7 @@ const {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const frontendPath = path.join(__dirname, "views");
+const frontendPath = path.join(__dirname, "HawkerCentre-Frontend");
 
 // =========================================================
 // General Middleware
