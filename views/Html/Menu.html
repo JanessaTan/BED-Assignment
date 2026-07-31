@@ -3,41 +3,67 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Browse menu | HawkerHub</title>
+
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/scope.css">
+  <link rel="stylesheet" href="../css/menu.css">
+
   <script src="../JS/api.js" defer></script>
   <script src="../JS/shared.js" defer></script>
   <script src="../JS/Menu.js" defer></script>
 </head>
+
 <body class="scope-page">
   <main class="scope-main">
     <header class="scope-hero">
       <div>
         <p class="scope-kicker">Singapore favourites</p>
         <h1>Find your next meal</h1>
-        <p>Search active menu items, filter by cuisine or category, and see server-calculated promotion prices.</p>
+        <p>
+          Search active menu items, filter by cuisine or category,
+          and see server-calculated promotion prices.
+        </p>
       </div>
-      <a class="scope-btn secondary" href="Promotion.html">View active promotions</a>
+
+      <a class="scope-btn secondary" href="Promotion.html">
+        View active promotions
+      </a>
     </header>
+
     <section class="scope-card full">
       <form id="menuFilters" class="scope-toolbar">
         <div class="field">
           <label for="search">Search dishes</label>
-          <input id="search" name="search" type="search" placeholder="e.g. chicken rice">
+          <input
+            id="search"
+            name="search"
+            type="search"
+            placeholder="e.g. chicken rice"
+          >
         </div>
+
         <div class="field">
           <label for="category">Category</label>
           <select id="category" name="category">
             <option value="">All categories</option>
-            <option>Main</option><option>Side</option><option>Drink</option>
-            <option>Dessert</option><option>Set</option><option>Add-on</option>
+            <option>Main</option>
+            <option>Side</option>
+            <option>Drink</option>
+            <option>Dessert</option>
+            <option>Set</option>
+            <option>Add-on</option>
           </select>
         </div>
+
         <div class="field">
           <label for="cuisineId">Cuisine</label>
-          <select id="cuisineId" name="cuisineId"><option value="">All cuisines</option></select>
+          <select id="cuisineId" name="cuisineId">
+            <option value="">All cuisines</option>
+          </select>
         </div>
+
         <div class="field">
           <label for="sort">Sort</label>
           <select id="sort" name="sort">
@@ -46,15 +72,41 @@
             <option value="price:desc">Highest price</option>
           </select>
         </div>
-        <button class="scope-btn" type="submit">Search menu</button>
+
+        <button class="scope-btn" type="submit">
+          Search menu
+        </button>
       </form>
     </section>
-    <div id="menuStatus" class="status-box" role="status">Loading menu items...</div>
-    <section id="menuList" class="scope-list" aria-live="polite"></section>
+
+    <div id="menuStatus" class="status-box" role="status">
+      Loading menu items...
+    </div>
+
+    <section
+      id="menuList"
+      class="scope-list"
+      aria-live="polite"
+    ></section>
+
     <nav class="pagination" aria-label="Menu pages">
-      <button id="previousPage" class="scope-btn ghost" type="button">Previous</button>
+      <button
+        id="previousPage"
+        class="scope-btn ghost"
+        type="button"
+      >
+        Previous
+      </button>
+
       <span id="pageLabel">Page 1</span>
-      <button id="nextPage" class="scope-btn ghost" type="button">Next</button>
+
+      <button
+        id="nextPage"
+        class="scope-btn ghost"
+        type="button"
+      >
+        Next
+      </button>
     </nav>
   </main>
 </body>

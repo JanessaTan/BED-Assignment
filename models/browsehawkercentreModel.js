@@ -1,4 +1,5 @@
-const { sql, getPool } = require('../config/database');
+const sql = require('mssql');
+const poolPromise = require('../dbConfig');
 
 async function getAllHawkerCentres() {
   const pool = await getPool();

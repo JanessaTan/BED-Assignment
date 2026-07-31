@@ -1,7 +1,7 @@
 const stallModel = require('../models/stallModel');
 
 // GET /api/stalls?hc=HC01
-async function getStalls(req, res) {
+async function getStall(req, res) {
     try {
         const stalls = await stallModel.getAllStalls(req.query.hc);
         res.status(200).json(stalls);

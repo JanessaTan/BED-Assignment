@@ -3,30 +3,49 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Menu item | HawkerHub</title>
+
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/scope.css">
+
   <script src="../JS/api.js" defer></script>
   <script src="../JS/shared.js" defer></script>
   <script src="../JS/menu-item.js" defer></script>
 </head>
+
 <body class="scope-page">
   <main class="scope-main">
+
     <a href="Menu.html">← Back to menu</a>
-    <div id="itemStatus" class="status-box" role="status">Loading item...</div>
+
+    <div id="itemStatus" class="status-box" role="status">
+      Loading item...
+    </div>
+
     <article id="itemDetails" class="scope-card full" hidden>
       <div class="scope-hero">
+
         <div>
           <p id="itemStall" class="scope-kicker"></p>
           <h1 id="itemName"></h1>
           <p id="itemDescription"></p>
         </div>
+
         <div id="itemPrice" class="price"></div>
       </div>
+
       <div id="itemCuisines" class="chip-row"></div>
+
       <p id="itemDietary"></p>
-      <div id="itemPromotion" class="status-box success" hidden></div>
+
+      <div
+        id="itemPromotion"
+        class="status-box success"
+        hidden
+      ></div>
     </article>
+
   </main>
 </body>
 </html>

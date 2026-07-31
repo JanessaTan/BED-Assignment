@@ -1,5 +1,5 @@
 
-const hawkercentreModel = require('../models/browsehawkercentreModel');
+const hawkercentreModel = require('../models/hawkercentreModel');
  
 // GET /api/hawkercentres
 async function listHawkerCentres(req, res) {

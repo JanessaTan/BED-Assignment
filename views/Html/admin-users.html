@@ -3,30 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>User administration | HawkerHub</title>
+
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/scope.css">
+
   <script src="../JS/api.js" defer></script>
   <script src="../JS/shared.js" defer></script>
   <script src="../JS/admin-users.js" defer></script>
 </head>
+
 <body class="scope-page">
   <main class="scope-main">
+
     <header class="scope-hero">
       <div>
         <p class="scope-kicker">Administrator</p>
         <h1>User management</h1>
-        <p>Create authorized accounts, search users, update roles or status, and safely deactivate accounts.</p>
+        <p>
+          Create authorized accounts, search users, update roles or status,
+          and safely deactivate accounts.
+        </p>
       </div>
-      <button id="newUserButton" class="scope-btn" type="button">Add user</button>
+
+      <button id="newUserButton" class="scope-btn" type="button">
+        Add user
+      </button>
     </header>
+
     <div id="adminStatus" class="status-box" hidden role="alert"></div>
+
     <section class="scope-card full">
       <form id="userFilters" class="scope-toolbar">
+
         <div class="field">
           <label for="search">Search</label>
-          <input id="search" name="search" placeholder="Name or email">
+          <input
+            id="search"
+            name="search"
+            type="search"
+            placeholder="Name or email"
+          >
         </div>
+
         <div class="field">
           <label for="roleFilter">Role</label>
           <select id="roleFilter" name="role">
@@ -38,6 +58,7 @@
             <option value="administrator">Administrator</option>
           </select>
         </div>
+
         <div class="field">
           <label for="statusFilter">Status</label>
           <select id="statusFilter" name="status">
@@ -46,37 +67,87 @@
             <option value="inactive">Inactive</option>
           </select>
         </div>
-        <button class="scope-btn secondary" type="submit">Apply filters</button>
+
+        <button class="scope-btn secondary" type="submit">
+          Apply filters
+        </button>
       </form>
+
       <div class="scope-table-wrap">
         <table class="scope-table">
-          <thead><tr><th>User</th><th>Role</th><th>Status</th><th>Linked profile</th><th>Actions</th></tr></thead>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Linked profile</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
           <tbody id="userRows"></tbody>
         </table>
       </div>
+
       <div class="pagination">
-        <button id="previousPage" class="scope-btn ghost" type="button">Previous</button>
+        <button
+          id="previousPage"
+          class="scope-btn ghost"
+          type="button"
+        >
+          Previous
+        </button>
+
         <span id="pageLabel">Page 1</span>
-        <button id="nextPage" class="scope-btn ghost" type="button">Next</button>
+
+        <button
+          id="nextPage"
+          class="scope-btn ghost"
+          type="button"
+        >
+          Next
+        </button>
       </div>
     </section>
+
     <section id="userEditor" class="scope-card full" hidden>
       <h2 id="editorTitle">Add user</h2>
+
       <form id="userForm" class="scope-form">
         <input id="editUserId" type="hidden">
+
         <div class="form-grid">
+
           <div class="field">
             <label for="userFullName">Full name</label>
-            <input id="userFullName" name="fullName" minlength="2" maxlength="100" required>
+            <input
+              id="userFullName"
+              name="fullName"
+              minlength="2"
+              maxlength="100"
+              required
+            >
           </div>
+
           <div class="field">
             <label for="userEmail">Email</label>
-            <input id="userEmail" name="email" type="email" required>
+            <input
+              id="userEmail"
+              name="email"
+              type="email"
+              required
+            >
           </div>
+
           <div class="field">
             <label for="userPhone">Phone</label>
-            <input id="userPhone" name="phone" type="tel">
+            <input
+              id="userPhone"
+              name="phone"
+              type="tel"
+            >
           </div>
+
           <div class="field">
             <label for="userRole">Role</label>
             <select id="userRole" name="role" required>
@@ -87,29 +158,61 @@
               <option value="administrator">Administrator</option>
             </select>
           </div>
+
           <div class="field" id="profileField">
-            <label for="profileId">Existing profile ID <span>(optional)</span></label>
-            <input id="profileId" name="profileId" maxlength="10" placeholder="e.g. SO013">
-            <small>Used only when linking a new account to an existing profile.</small>
+            <label for="profileId">
+              Existing profile ID <span>(optional)</span>
+            </label>
+
+            <input
+              id="profileId"
+              name="profileId"
+              maxlength="10"
+              placeholder="e.g. SO013"
+            >
+
+            <small>
+              Used only when linking a new account to an existing profile.
+            </small>
           </div>
+
           <div class="field">
-            <label for="userPassword">Password <span id="passwordHint"></span></label>
-            <input id="userPassword" name="password" type="password" autocomplete="new-password" minlength="8">
+            <label for="userPassword">
+              Password <span id="passwordHint"></span>
+            </label>
+
+            <input
+              id="userPassword"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+            >
           </div>
+
           <div class="field" id="activeField" hidden>
             <label for="userActive">Account status</label>
+
             <select id="userActive" name="isActive">
               <option value="true">Active</option>
               <option value="false">Inactive</option>
             </select>
           </div>
+
         </div>
+
         <div class="scope-actions">
-          <button id="saveUser" class="scope-btn" type="submit">Save user</button>
-          <button id="cancelUser" class="scope-btn ghost" type="button">Cancel</button>
+          <button id="saveUser" class="scope-btn" type="submit">
+            Save user
+          </button>
+
+          <button id="cancelUser" class="scope-btn ghost" type="button">
+            Cancel
+          </button>
         </div>
       </form>
     </section>
+
   </main>
 </body>
 </html>
