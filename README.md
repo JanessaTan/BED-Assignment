@@ -1,6 +1,6 @@
 # BED-Assignment
 
-# HawkerHub — Member 1 Complete Project
+# HawkerHub – Singapore Hawker Centre Management System
 
 HawkerHub is a Node.js, Express and Microsoft SQL Server application for a
 Singapore hawker-centre system. This submission completes the individual scope
@@ -104,7 +104,7 @@ inspection and stall CRUD remain teammate-owned.
   Development with automatic restart:
 
   ```bash
-  npm run devStart
+  npm run dev
   ```
 
   Open:
