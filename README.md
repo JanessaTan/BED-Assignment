@@ -78,8 +78,8 @@ inspection and stall CRUD remain teammate-owned.
 
   ```env
   PORT=3000
-  DB_USER=HCMS_user
-  DB_PASSWORD=123456
+  DB_USER=YOUR_SQL_SERVER_USERNAME
+  DB_PASSWORD=YOUR_SQL_SERVER_PASSWORD
   DB_SERVER=localhost
   DB_DATABASE=HawkerCentreManagementSystem
   DB_PORT=1433
