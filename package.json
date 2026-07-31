@@ -28,16 +28,17 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "js-yaml": "^4.1.0",
     "joi": "^18.2.3",
+    "js-yaml": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
     "mssql": "^12.7.0",
+    "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "jest": "^30.2.0",
-    "nodemon": "^3.1.14"
-    ,"supertest": "^7.1.4"
+    "nodemon": "^3.1.14",
+    "supertest": "^7.1.4"
   },
   "jest": {
     "testEnvironment": "node",
