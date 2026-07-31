@@ -14,7 +14,7 @@ async function start() {
 
   const status = await testConnection();
   console.log(
-    `Connected to verified database: ${status.DatabaseName} (Stage 1 ready)`
+    `Connected to verified database: ${status.DatabaseName}`
   );
 
   app.listen(port, () => {
