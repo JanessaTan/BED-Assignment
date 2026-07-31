@@ -30,6 +30,12 @@ async function getLikesByCustomerId(req, res) {
 // Like a menu item
 async function submitLike(req, res) {
   try {
+    const { CustomerID, StallID, ItemCode } = req.body;
+    
+    if (!CustomerID || !StallID || !ItemCode) {
+      return res.status(400).json({ message: "Customer ID, stall ID and item code are required" });
+    }
+
     const newlike = await likeModel.submitLike(req.body);
     res.status(201).json(newlike);
   } catch (error) {

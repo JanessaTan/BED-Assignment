@@ -21,16 +21,6 @@
         }
       }
     },
-    "/api-docs.json": {
-      "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/": {
       "get": {
         "description": "",
@@ -524,9 +514,41 @@
       },
       "post": {
         "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "Category": {
+                  "example": "any"
+                },
+                "Subcategory": {
+                  "example": "any"
+                },
+                "FbkComment": {
+                  "example": "any"
+                },
+                "FbkRating": {
+                  "example": "any"
+                },
+                "CustomerID": {
+                  "example": "any"
+                },
+                "StallID": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
           },
           "500": {
             "description": "Internal Server Error"

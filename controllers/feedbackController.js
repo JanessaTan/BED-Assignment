@@ -78,6 +78,12 @@ async function getFeedbackById(req, res) {
 // Submit new feedback
 async function submitFeedback(req, res) {
   try {
+    const { Category, Subcategory, FbkComment, FbkRating, CustomerID, StallID } = req.body;
+    
+    if (!Category || !Subcategory || !FbkComment || !FbkRating || !CustomerID || !StallID) {
+      return res.status(400).json({ message: "Please fill in all fields" });
+    }
+    
     const newfeedback = await feedbackModel.submitFeedback(req.body);
     res.status(201).json(newfeedback);
   } catch (error) {
