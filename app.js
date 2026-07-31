@@ -1,12 +1,16 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 const yaml = require("js-yaml");
 
 require("dotenv").config();
 
-// Route imports
+// =========================================================
+// Route Imports
+// =========================================================
+
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const menuItemRoutes = require("./routes/menuItemRoutes");
@@ -23,17 +27,22 @@ const browseHawkerCentreRoutes = require(
     "./routes/browseHawkerCentreRoutes"
 );
 
-// Error-handling middleware
+// =========================================================
+// Error-Handling Middleware Imports
+// =========================================================
+
 const {
     notFound,
     errorHandler
 } = require("./middlewares/errorHandler");
 
+// =========================================================
+// Application Configuration
+// =========================================================
+
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// Change this to "views" if your frontend files are inside the views folder.
-const frontendPath = path.join(__dirname, "FED-Assignment-main");
+const frontendPath = path.join(__dirname, "views");
 
 // =========================================================
 // General Middleware
@@ -41,6 +50,7 @@ const frontendPath = path.join(__dirname, "FED-Assignment-main");
 
 app.disable("x-powered-by");
 
+app.use(cors());
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(frontendPath));
@@ -118,16 +128,16 @@ app.use("/api/feedback", feedbackRoutes);
 // Checkout
 app.use("/api/checkout", checkoutRoutes);
 
-// Hygiene
+// Hygiene Management
 app.use("/api/hygiene", hygieneRoutes);
 
-// Orders
+// Order Management
 app.use("/api/orders", orderRoutes);
 
-// Likes
+// Like Management
 app.use("/api/likes", likeRoutes);
 
-// Sales
+// Sales Management
 app.use("/api/sales", salesRoutes);
 
 // Hawker Centre Browsing
@@ -154,8 +164,8 @@ app.use(errorHandler);
 // Start Server
 // =========================================================
 
-// Prevents the server from starting automatically when app.js
-// is imported by Jest or Supertest.
+// Prevents Jest or Supertest from starting another server
+// when importing app.js.
 if (require.main === module) {
     app.listen(PORT, () => {
         console.log(
