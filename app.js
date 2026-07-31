@@ -3,7 +3,8 @@ const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
-const yaml = require("js-yaml");
+const swaggerDocument = require("./swagger-output.json");
+// const yaml = require("js-yaml");
 
 require("dotenv").config();
 
@@ -76,29 +77,31 @@ app.get("/api/health", (req, res) => {
 const openApiPath = path.join(
     __dirname,
     "docs",
-    "openapi.yaml"
+    // "openapi.yaml"
 );
 
-if (fs.existsSync(openApiPath)) {
-    const openApiDocument = yaml.load(
-        fs.readFileSync(openApiPath, "utf8")
-    );
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-    app.use(
-        "/api-docs",
-        swaggerUi.serve,
-        swaggerUi.setup(openApiDocument)
-    );
+// if (fs.existsSync(openApiPath)) {
+//     const openApiDocument = yaml.load(
+//         fs.readFileSync(openApiPath, "utf8")
+//     );
 
-    app.get("/api-docs.json", (req, res) => {
-        res.json(openApiDocument);
-    });
-} else {
-    console.warn(
-        "Swagger documentation was not loaded because " +
-        "docs/openapi.yaml was not found."
-    );
-}
+//     app.use(
+//         "/api-docs",
+//         swaggerUi.serve,
+//         swaggerUi.setup(openApiDocument)
+//     );
+
+//     app.get("/api-docs.json", (req, res) => {
+//         res.json(openApiDocument);
+//     });
+// } else {
+//     console.warn(
+//         "Swagger documentation was not loaded because " +
+//         "docs/openapi.yaml was not found."
+//     );
+// }
 
 // =========================================================
 // API Routes

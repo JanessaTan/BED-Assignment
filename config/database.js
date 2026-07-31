@@ -77,11 +77,10 @@ async function testConnection() {
 
   const status = result.recordset[0];
   if (
-    status.DatabaseName !== "HawkerCentreManagementSystem" ||
-    status.Stage1Ready !== 1
+    status.DatabaseName !== "HawkerCentreManagementSystem"
   ) {
     const error = new Error(
-      "The configured database is not the verified Stage 1 HawkerCentreManagementSystem database."
+      "The configured database is not the verified HawkerCentreManagementSystem database."
     );
     error.code = "SCHEMA_ERROR";
     throw error;

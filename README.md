@@ -77,17 +77,18 @@ inspection and stall CRUD remain teammate-owned.
   Never commit `.env`.
 
   ```env
+  PORT=3000
+  DB_USER=HCMS_user
+  DB_PASSWORD=123456
   DB_SERVER=localhost
-  DB_PORT=1433
   DB_DATABASE=HawkerCentreManagementSystem
-  DB_USER=YOUR_SQL_SERVER_USERNAME
-  DB_PASSWORD=YOUR_SQL_SERVER_PASSWORD
+  DB_PORT=1433
+
   DB_ENCRYPT=false
   DB_TRUST_SERVER_CERTIFICATE=true
 
   JWT_SECRET=use-a-random-value-of-at-least-32-characters
   JWT_EXPIRES_IN=2h
-  PORT=3000
   NODE_ENV=development
   ```
 
@@ -97,13 +98,13 @@ inspection and stall CRUD remain teammate-owned.
   ## Run commands
 
   ```bash
-  npm start
+  node app.js
   ```
 
   Development with automatic restart:
 
   ```bash
-  npm run dev
+  npm run devStart
   ```
 
   Open:
