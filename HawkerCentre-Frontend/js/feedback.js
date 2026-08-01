@@ -6,6 +6,10 @@ document.addEventListener("DOMContentLoaded", function initialiseFeedback() {
   const selectedStall = HC.getQueryParameter("stall");
   if (selectedStall) stallSelect.value = selectedStall;
 
+  const categorySelect = document.getElementById("category");
+
+  const subcategorySelect = document.getElementById("subcategory");
+
   const comments = document.getElementById("comments");
   comments.addEventListener("input", function updateCharacterCount() {
     document.getElementById("characterCount").textContent = `${comments.value.length} / 400`;
@@ -17,10 +21,11 @@ document.addEventListener("DOMContentLoaded", function initialiseFeedback() {
 
   document.getElementById("feedbackForm").addEventListener("submit", function submitFeedback(event) {
     event.preventDefault();
-    ["stallIdError", "foodRatingError", "serviceRatingError", "commentsError"].forEach((id) => setError(id, ""));
+    ["stallIdError", "ratingError", "categoryError", "subcategoryError",  "commentsError"].forEach((id) => setError(id, ""));
     const stallId = stallSelect.value;
-    const food = Number(document.getElementById("foodRating").value);
-    const service = Number(document.getElementById("serviceRating").value);
+    const category = categorySelect.value;
+    const subcategory = subcategorySelect.value;
+    const rating = Number(document.getElementById("rating").value);
     const comment = comments.value.trim();
     let valid = true;
 
@@ -28,12 +33,16 @@ document.addEventListener("DOMContentLoaded", function initialiseFeedback() {
       setError("stallIdError", "Select the stall you visited.");
       valid = false;
     }
-    if (!food) {
-      setError("foodRatingError", "Rate the food quality.");
+    if (!rating) {
+      setError("categoryError", "Give a rating.");
       valid = false;
     }
-    if (!service) {
-      setError("serviceRatingError", "Rate the service.");
+    if (!category) {
+      setError("subcategoryError", "Select the stall you visited.");
+      valid = false;
+    }
+    if (!subcategory) {
+      setError("stallIdError", "Select the stall you visited.");
       valid = false;
     }
     if (comment.length < 10) {
@@ -48,9 +57,9 @@ document.addEventListener("DOMContentLoaded", function initialiseFeedback() {
       id: `review-${Date.now()}`,
       stallId,
       user: user?.name || "Guest",
-      rating: Math.round((food + service) / 2),
-      food,
-      service,
+      rating,
+      category,
+      subcategory,
       comment,
       date: new Date().toISOString().slice(0, 10)
     });

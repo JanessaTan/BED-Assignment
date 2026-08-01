@@ -14,7 +14,37 @@
   <div id="siteHeader"></div>
   <main class="page-shell" id="mainContent">
     <div class="page-heading"><div><span class="eyebrow">Customer voices</span><h1>Ratings and reviews</h1><p>Explore local demonstration reviews and add your own.</p></div></div>
-    <section class="toolbar"><div class="field"><label for="ratingStall">Food stall</label><select id="ratingStall"></select></div><div class="field"><label for="reviewSort">Sort reviews</label><select id="reviewSort"><option value="newest">Newest first</option><option value="highest">Highest rating</option><option value="lowest">Lowest rating</option></select></div></section>
+    <section class="toolbar"><div class="field"><label for="ratingStall">Food stall</label><select id="ratingStall"></select></div>
+      <div class="field"><label for="reviewSort">Sort reviews</label>
+        <select id="reviewSort">
+          <option value="newest">Newest first</option>
+          <option value="highest">Highest rating</option>
+          <option value="lowest">Lowest rating</option>
+        </select>
+      </div>
+      <div class="field"><label for="reviewSort">Filter by Category</label>
+        <select id="reviewSort">
+          <option value="1">All</option>
+          <option value="General">General</option>
+          <option value="Compliment">Compliment</option>
+          <option value="Complaint">Complaint</option>
+          <option value="Suggestion">Suggestion</option>
+        </select>
+      </div>
+      <div class="field"><label for="reviewSort">Filter by Subcategory</label>
+        <select id="reviewSort">
+          <option value="All">All</option>
+          <option value="Misc.">Misc.</option>
+          <option value="Hygiene">Hygiene</option>
+          <option value="Environment">Environment</option>
+          <option value="Food Quality">Food Quality</option>
+          <option value="Portion Size">Portion Size</option>
+          <option value="Price">Price</option>
+          <option value="Service">Service</option>
+          <option value="Wait Time">Wait Time</option>
+        </select>
+      </div>
+  </section>
     <section class="rating-overview card" id="ratingOverview"></section>
     <div class="grid rating-layout">
       <section><div class="stack" id="reviewList"></div><div class="empty-state" id="reviewEmpty" hidden><h2>No reviews yet</h2><p>Be the first to leave a rating.</p></div></section>
