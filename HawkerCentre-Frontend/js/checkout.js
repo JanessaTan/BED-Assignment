@@ -9,6 +9,26 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
     if (currentUser?.name !== "Guest") {
         document.getElementById("customerName").value = currentUser.name;
     }
+
+    // Add pickup time show/hide logic here
+    const collectionMethodInput = document.getElementById("collectionMethod");
+    const pickupTimeGroup = document.getElementById("pickupTimeGroup");
+    const pickupTimeInput = document.getElementById("pickupTime");
+    
+    if (collectionMethodInput && pickupTimeGroup && pickupTimeInput) {
+    pickupTimeGroup.style.display = "none";
+    
+    collectionMethodInput.addEventListener("change", function () {
+    if (collectionMethodInput.value === "Self collection") {
+    pickupTimeGroup.style.display = "block";
+    } else {
+    pickupTimeGroup.style.display = "none";
+    pickupTimeInput.value = "";
+    setError("pickupTimeError", "");
+    }
+    });
+    }
+
     function renderSummary() {
         const summary = HC.getCartSummary(cart);
         document.getElementById("checkoutSummary").innerHTML = `
@@ -44,10 +64,21 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
         event.preventDefault();
         const paymentMethod =
             document.querySelector('input[name="paymentMethod"]:checked')?.value;
+            
+        const pickupTimeInput = document.getElementById("pickupTime");
+        const pickupTime = pickupTimeInput ? pickupTimeInput.value : null;
+        
+        if (collectionMethod === "Self collection" && !pickupTime) {
+        alert("Please select a pickup time for self-collection.");
+        return;
+        }
+
         const orderData = {
             orderDate: new Date(),
             pmtType: paymentMethod,
             customerID: currentUser?.id || null,
+            collectionMethod: collectionMethod,
+            pickupTime: pickupTimeInput ? pickupTimeInput.value : null,
             items: cart
         };
         try {

@@ -35,6 +35,7 @@ async function createOrder(data) {
     orderRequest.input("OrderDate", data.orderDate);
     orderRequest.input("PmtType", data.pmtType);
     orderRequest.input("CustomerID", data.customerID);
+    orderRequest.input("PickupTime", sql.DateTime, checkoutData.pickupTime);
 
     await orderRequest.query(`
         INSERT INTO CustOrder
@@ -42,14 +43,16 @@ async function createOrder(data) {
             OrderID,
             OrderDate,
             PmtType,
-            CustomerID
+            CustomerID,
+            PickupTime
         )
         VALUES
         (
             @OrderID,
             @OrderDate,
             @PmtType,
-            @CustomerID
+            @CustomerID,
+            @PickupTime
         )
     `);
 
