@@ -46,6 +46,7 @@ async function createOrder(data) {
     orderRequest.input("OrderDate", data.orderDate);
     orderRequest.input("PmtType", data.pmtType);
     orderRequest.input("CustomerID", data.customerID);
+    orderRequest.input("PickupTime", sql.DateTime, checkoutData.pickupTime);
 
     console.log("CustomerID being inserted:", data.customerID);
     await orderRequest.query(`
@@ -54,14 +55,16 @@ async function createOrder(data) {
             OrderID,
             OrderDate,
             PmtType,
-            CustomerID
+            CustomerID,
+            PickupTime
         )
         VALUES
         (
             @OrderID,
             @OrderDate,
             @PmtType,
-            @CustomerID
+            @CustomerID,
+            @PickupTime
         )
     `);
 
