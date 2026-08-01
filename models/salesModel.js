@@ -23,14 +23,14 @@ async function getSalesSummary(startDate, endDate) {
         `;
 
         const request = connection.request();
-        request.input("startDate", startDate);
-        request.input("endDate", endDate);
+        request.input("startDate",sql.Date, startDate);
+        request.input("endDate",sql.Date, endDate);
 
         const result = await request.query(query);
         return result.recordset[0];
 
     } catch (error) {
-        console.error("Database error:", error);
+        console.error("Summary error:", error);
         throw error;
     }
 }
@@ -56,14 +56,14 @@ async function getTopItemsByQuantity(startDate, endDate) {
         `;
 
         const request = connection.request();
-        request.input("startDate", startDate);
-        request.input("endDate", endDate);
+        request.input("startDate",sql.Date, startDate);
+        request.input("endDate",sql.Date, endDate);
 
         const result = await request.query(query);
         return result.recordset;
 
     } catch (error) {
-        console.error("Database error:", error);
+        console.error("Top selling items error:", error);
         throw error;
     }
 }
@@ -89,14 +89,53 @@ async function getTopItemsByRevenue(startDate, endDate) {
         `;
 
         const request = connection.request();
-        request.input("startDate", startDate);
-        request.input("endDate", endDate);
+        request.input("startDate",sql.Date, startDate);
+        request.input("endDate",sql.Date, endDate);
 
         const result = await request.query(query);
         return result.recordset;
 
     } catch (error) {
-        console.error("Database error:", error);
+        console.error("Top 5 items error:", error);
+        throw error;
+    }
+}
+
+async function getSalesTrend(startDate, endDate){
+    try{
+        const connection = await poolPromise;
+
+        const query = `
+
+        SELECT
+            CustOrder.OrderDate
+            AS SaleDate,
+            SUM(OrderItem.Quantity * OrderItem.UnitPrice)
+            AS Revenue
+        FROM CustOrder
+
+        INNER JOIN OrderItem
+        ON CustOrder.OrderID = OrderItem.OrderID
+        WHERE CustOrder.OrderDate
+        BETWEEN @startDate
+        AND @endDate
+        GROUP BY
+            CustOrder.OrderDate
+        ORDER BY
+            CustOrder.OrderDate ASC
+        `;
+
+        const request = connection.request();
+        request.input("startDate",sql.Date, startDate);
+        request.input("endDate",sql.Date, endDate);
+
+        const result =
+        await request.query(query);
+        return result.recordset;
+    }
+
+    catch(error){
+        console.error("Sales trend error:", error);
         throw error;
     }
 }
@@ -104,5 +143,6 @@ async function getTopItemsByRevenue(startDate, endDate) {
 module.exports = {
     getSalesSummary,
     getTopItemsByQuantity,
-    getTopItemsByRevenue
+    getTopItemsByRevenue,
+    getSalesTrend
 };

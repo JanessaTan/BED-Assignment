@@ -1,20 +1,44 @@
 document.addEventListener("DOMContentLoaded", function initialiseOrderResult() {
   if (!HC.initPage("history", ["customer", "guest"])) return;
-  const orderId = HC.getQueryParameter("order") || sessionStorage.getItem("hc.latestOrder");
-  const order = HC.loadData(HC.KEYS.orders, []).find((candidate) => candidate.id === orderId);
+  const orderId = HC.getQueryParameter("order");
   const target = document.getElementById("successCard");
+  try{
+    const response = await fetch(`/api/checkout/${orderId}`);
+    const orders = await response.json();
+    if(!orders.length){
+      throw new Error("Order not found");
+    }
+    const order = orders[0];
+target.innerHTML = `
+            <div class="success-icon">✓</div>
+            <span class="eyebrow">Order confirmed</span>
+            <h1>Your order has been placed.</h1>
+            <p>The food stalls have received your order.</p>
+            <div class="card"><p><strong>Order ID</strong><br>${HC.escapeHtml(order.OrderID)}</p>
+            <p><strong>Payment</strong><br>${HC.escapeHtml(order.PmtType)}</p>
+            <h3>Items</h3>${orders.map(item => `<p>${item.Quantity}×${HC.escapeHtml(item.ItemCode)}-${HC.formatCurrency(item.UnitPrice)}</p>`).join("")}
+            </div>
 
-  if (!order) {
-    target.innerHTML = `<div class="success-icon" aria-hidden="true">!</div><h1>Order details unavailable</h1><p>We could not find the latest demonstration order in this browser.</p><a class="btn btn-primary" href="order-history.html">View order history</a>`;
-    return;
-  }
+            <div class="hero-actions">
+            <a class="btn btn-primary" href="order.html?order=${order.OrderID}">
+            Track order
+            </a>
+                <a class="btn btn-muted" href="order-history.html">
+                Order history
+                </a>
+            </div>
+        `;
 
-  const successful = order.paymentStatus === "Successful";
-  target.innerHTML = `
-    <div class="success-icon" style="${successful ? "" : "background:var(--danger)"}" aria-hidden="true">${successful ? "✓" : "!"}</div>
-    <span class="eyebrow">${successful ? "Order confirmed" : "Payment unsuccessful"}</span>
-    <h1>${successful ? "Your order has been placed." : "Your order could not be completed."}</h1>
-    <p>${successful ? "The food stalls have received your demonstration order." : "No payment was processed. Return to checkout to try again."}</p>
-    <div class="card"><p><strong>Order ID</strong><br>${HC.escapeHtml(order.id)}</p><p><strong>Total</strong><br>${HC.formatCurrency(order.total)}</p><p><strong>Payment</strong><br>${HC.escapeHtml(order.paymentMethod)} · ${HC.escapeHtml(order.paymentStatus)}</p></div>
-    <div class="hero-actions"><a class="btn btn-primary" href="order.html?order=${encodeURIComponent(order.id)}">Track order</a><a class="btn btn-muted" href="order-history.html">Order history</a></div>`;
+    }catch(error){
+        console.error(error);
+        target.innerHTML = `
+            <h1>
+            Order unavailable
+            </h1>
+
+            <p>
+            Could not retrieve order details.
+            </p>
+        `;
+    }
 });

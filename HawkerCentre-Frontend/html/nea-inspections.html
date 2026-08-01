@@ -3,34 +3,171 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Schedule and record NEA stall inspections">
+  <meta name="description" content="Record NEA stall inspections">
   <title>Inspections and Hygiene Grades | HawkerHub</title>
   <link rel="stylesheet" href="../css/shared.css">
   <link rel="stylesheet" href="../css/nea-inspections.css">
   <script src="../js/shared.js" defer></script>
   <script src="../js/nea-inspections.js" defer></script>
 </head>
+
 <body>
-  <div id="siteHeader"></div>
-  <main class="page-shell" id="mainContent">
-    <div class="page-heading"><div><span class="eyebrow">NEA officer workflow</span><h1>Inspections and hygiene grades</h1><p>Schedule a future visit or complete an inspection with a score, remarks and validity period.</p></div></div>
+<div id="siteHeader"></div>
+<main class="page-shell" id="mainContent">
+    <div class="page-heading">
+        <div>
+            <span class="eyebrow">
+                NEA officer workflow
+            </span>
+            <h1>
+                Record inspection
+            </h1>
+            <p>
+                Assess a stall's hygiene condition and issue a hygiene grade.
+            </p>
+        </div>
+    </div>
     <section class="inspection-layout">
-      <form class="card form-grid" id="inspectionForm" novalidate>
-        <input id="inspectionId" type="hidden">
-        <h2 class="field-full" id="inspectionFormTitle">Create inspection record</h2>
-        <div class="field"><label for="inspectionStall">Food stall</label><select id="inspectionStall" required><option value="">Select a stall</option></select><p class="field-error" id="inspectionStallError"></p></div>
-        <div class="field"><label for="inspectionStatus">Record type</label><select id="inspectionStatus" required><option value="Scheduled">Schedule inspection</option><option value="Completed">Complete and grade inspection</option></select></div>
-        <div class="field"><label for="inspectionDate">Inspection date</label><input id="inspectionDate" type="date" required><p class="field-error" id="inspectionDateError"></p></div>
-        <div class="field completed-field"><label for="inspectionScore">Inspection score (0-100)</label><input id="inspectionScore" type="number" min="0" max="100"><p class="field-help">90-100: A, 80-89: B, 70-79: C, below 70: D.</p><p class="field-error" id="inspectionScoreError"></p></div>
-        <div class="field completed-field"><label for="validUntil">Grade valid until</label><input id="validUntil" type="date"><p class="field-error" id="validUntilError"></p></div>
-        <div class="field field-full completed-field"><label for="inspectionRemarks">Inspection remarks</label><textarea id="inspectionRemarks" maxlength="500" placeholder="Describe cleanliness, food handling and corrective action."></textarea><p class="field-error" id="inspectionRemarksError"></p></div>
-        <div class="field field-full"><button class="btn btn-primary" type="submit">Save inspection</button><button class="btn btn-muted" id="clearInspectionForm" type="button">Clear form</button></div>
-        <p class="notice notice-info field-full" id="inspectionMessage" role="status" hidden></p>
-      </form>
-      <aside class="card grade-guide"><h2>Officer responsibility</h2><ul><li>Assess stall cleanliness and food handling.</li><li>Record an objective inspection score.</li><li>Write clear remarks and corrective actions.</li><li>Issue Grade A, B, C or D.</li><li>Set the grade validity period.</li></ul><p class="notice">NEA Officers do not manage stall rental agreements. That belongs to the Operator.</p></aside>
+        <form 
+            class="card form-grid" 
+            id="inspectionForm"
+            novalidate
+        >
+            <h2 class="field-full">
+                Create inspection record
+            </h2>
+            <!-- Stall -->
+            <div class="field">
+                <label for="inspectionStall">
+                    Food stall
+                </label>
+                <select id="inspectionStall" required>
+                    <option value="">
+                        Select a stall
+                    </option>
+                </select>
+                <p 
+                    class="field-error"
+                    id="inspectionStallError">
+                </p>
+            </div>
+            <!-- Inspection date -->
+            <div class="field">
+                <label for="inspectionDate">
+                    Inspection date
+                </label>
+                <input 
+                    id="inspectionDate"
+                    type="date"
+                    required
+                >
+                <p 
+                    class="field-error"
+                    id="inspectionDateError">
+                </p>
+            </div>
+            <!-- Score -->
+            <div class="field">
+                <label for="inspectionScore">
+                    Inspection score (0-100)
+                </label>
+                <input 
+                    id="inspectionScore"
+                    type="number"
+                    min="0"
+                    max="100"
+                    required
+                >
+                <p class="field-help">
+                    90-100: A,
+                    80-89: B,
+                    70-79: C,
+                    below 70: D
+                </p>
+                <p 
+                    class="field-error"
+                    id="inspectionScoreError">
+                </p>
+            </div>
+            <!-- Expiry -->
+            <div class="field">
+
+                <label for="validUntil">
+                    Grade valid until
+                </label>
+                <input
+                    id="validUntil"
+                    type="date"
+                    required
+                >
+                <p
+                    class="field-error"
+                    id="validUntilError">
+                </p>
+            </div>
+            <!-- Remark -->
+            <div class="field field-full">
+                <label for="inspectionRemarks">
+                    Inspection remarks
+                </label>
+                <textarea
+                    id="inspectionRemarks"
+                    maxlength="500"
+                    placeholder="Describe cleanliness, food handling and corrective action."
+                    required
+                ></textarea>
+                <p
+                    class="field-error"
+                    id="inspectionRemarksError">
+                </p>
+            </div>
+            <!-- Buttons -->
+            <div class="field field-full">
+                <button 
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    Save inspection
+                </button>
+                <button
+                    class="btn btn-muted"
+                    id="clearInspectionForm"
+                    type="button"
+                >
+                    Clear form
+                </button>
+            </div>
+            <p
+                class="notice notice-info field-full"
+                id="inspectionMessage"
+                role="status"
+                hidden
+            ></p>
+        </form>
+        <aside class="card grade-guide">
+            <h2>
+                Officer responsibility
+            </h2>
+            <ul>
+                <li>
+                    Inspect stall cleanliness.
+                </li>
+                <li>
+                    Assess food handling practices.
+                </li>
+                <li>
+                    Assign hygiene grade.
+                </li>
+                <li>
+                    Record inspection remarks.
+                </li>
+                <li>
+                    Set grade expiry date.
+                </li>
+            </ul>
+        </aside>
     </section>
-    <section class="section"><div class="section-heading"><div><h2>Inspection records</h2><p>Scheduled and completed records saved in this browser.</p></div><div class="field inspection-filter"><label for="inspectionFilter">Filter</label><select id="inspectionFilter"><option value="">All records</option><option value="Scheduled">Scheduled</option><option value="Completed">Completed</option></select></div></div><div class="stack" id="inspectionRecords"></div></section>
-  </main>
-  <div id="siteFooter"></div>
+</main>
+<div id="siteFooter"></div>
 </body>
 </html>

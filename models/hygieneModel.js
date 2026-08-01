@@ -10,16 +10,18 @@ async function getCurrentHygiene(stallId){
 
     const result = await request.query(`
         SELECT TOP 1
-            i.InspectionID,
-            i.InspectionDate,
-            i.GradeExpiry,
-            i.HygieneGrade,
-            r.InspectionRemark
+        i.InspectionID,
+        i.StallID,
+        i.InspectionDate,
+        i.GradeExpiry,
+        i.HygieneGrade,
+        i.OfficerID,
+        r.InspectionRemark
         FROM Inspection i
         LEFT JOIN InspectionRemark r
-            ON i.InspectionID = r.InspectionID
+        ON i.InspectionID = r.InspectionID
         WHERE i.StallID = @StallID
-        ORDER BY i.InspectionDate DESC
+        ORDER BY i.InspectionDate DESC;
     `);
 
     return result.recordset[0];
@@ -60,15 +62,31 @@ async function updateHygiene(inspectionId, data){
     return result.rowsAffected[0];
 }
 
-// POST route for hygiene
-
-async function createHygiene(data){
+async function createHygiene(data) {
     const connection = await poolPromise;
 
-    // Create inspection
+    // Generate new InspectionID
+    const idRequest = connection.request();
+
+    const lastInspection = await idRequest.query(`
+        SELECT TOP 1 InspectionID
+        FROM Inspection
+        ORDER BY InspectionID DESC
+    `);
+
+    let newInspectionID = "IN001";
+
+    if (lastInspection.recordset.length > 0) {
+        const lastID = lastInspection.recordset[0].InspectionID;
+        const number = parseInt(lastID.substring(2));
+
+        newInspectionID = "IN" + String(number + 1).padStart(3, "0");
+    }
+
+    // Create inspection record
     let request = connection.request();
 
-    request.input("InspectionID", data.InspectionID);
+    request.input("InspectionID", newInspectionID);
     request.input("InspectionDate", data.InspectionDate);
     request.input("HygieneGrade", data.HygieneGrade);
     request.input("GradeExpiry", data.GradeExpiry);
@@ -96,11 +114,10 @@ async function createHygiene(data){
         )
     `);
 
-
-    // Create remark
+    // Create remark record
     request = connection.request();
 
-    request.input("InspectionID", data.InspectionID);
+    request.input("InspectionID", newInspectionID);
     request.input("InspectionRemark", data.InspectionRemark);
 
     await request.query(`
@@ -115,6 +132,8 @@ async function createHygiene(data){
             @InspectionRemark
         )
     `);
+
+    return newInspectionID;
 }
 
 
