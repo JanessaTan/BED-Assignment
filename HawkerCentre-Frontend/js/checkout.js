@@ -74,12 +74,16 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
         }
 
         const orderData = {
-            orderDate: new Date(),
-            pmtType: paymentMethod,
-            customerID: currentUser?.id || null,
-            collectionMethod: collectionMethod,
-            pickupTime: pickupTimeInput ? pickupTimeInput.value : null,
-            items: cart
+          orderDate: new Date(),
+          pmtType: paymentMethod,
+          customerID: "CU017", // currentUser?.id || null,
+
+          items: cart.map(item => ({
+            StallID: item.stallId,
+            ItemCode: item.menuItemId,
+            Quantity: item.quantity,
+            UnitPrice: item.price
+          }))
         };
         try {
             const response = await fetch("/api/checkout", {
