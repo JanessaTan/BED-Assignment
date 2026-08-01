@@ -110,6 +110,7 @@ CREATE TABLE dbo.CustOrder
   OrderDate DATE NOT NULL,
   PmtType VARCHAR(20) NOT NULL,
   CustomerID VARCHAR(10) ,
+  PickupTime DATETIME NULL,
   CONSTRAINT PK_CustOrder PRIMARY KEY (OrderID),
   CONSTRAINT FK_Customer_CustomerID FOREIGN KEY (CustomerID) REFERENCES
   dbo.Customer(CustomerID),
