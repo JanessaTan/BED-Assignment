@@ -6,21 +6,25 @@ async function getDashboard(req, res) {
 
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - 365);
+        const stallId = "S001" //hardcode for testing
 
         const summary = await salesModel.getSalesSummary(
             startDate,
-            endDate
+            endDate,
+            stallId
             );
 
         const salesTrend = await salesModel.getSalesTrend(
             startDate,
-            endDate
+            endDate,
+            stallId
             );
 
         const popularItems =
             await salesModel.getTopItemsByQuantity(
                 startDate,
-                endDate
+                endDate,
+                stallId
             );
 
         res.json({

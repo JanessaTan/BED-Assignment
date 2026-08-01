@@ -1,7 +1,7 @@
 const { sql, poolPromise } = require("../dbConfig");
 
 // Total revenue, total orders, average order value
-async function getSalesSummary(startDate, endDate) {
+async function getSalesSummary(startDate, endDate, stallId) {
     try {
         const connection = await poolPromise;
 
@@ -15,9 +15,10 @@ async function getSalesSummary(startDate, endDate) {
                     CustOrder.OrderID,
                     SUM(OrderItem.Quantity * OrderItem.UnitPrice) AS OrderTotal
                 FROM CustOrder
-                JOIN OrderItem
+                INNER JOIN OrderItem
                     ON CustOrder.OrderID = OrderItem.OrderID
                 WHERE CustOrder.OrderDate BETWEEN @startDate AND @endDate
+                AND OrderItem.StallID = @stallId
                 GROUP BY CustOrder.OrderID
             ) AS Sales
         `;
@@ -25,6 +26,7 @@ async function getSalesSummary(startDate, endDate) {
         const request = connection.request();
         request.input("startDate",sql.Date, startDate);
         request.input("endDate",sql.Date, endDate);
+        request.input("stallId", sql.VarChar(4), stallId);
 
         const result = await request.query(query);
         return result.recordset[0];
@@ -36,7 +38,7 @@ async function getSalesSummary(startDate, endDate) {
 }
 
 // Top 5 best-selling items
-async function getTopItemsByQuantity(startDate, endDate) {
+async function getTopItemsByQuantity(startDate, endDate, stallId) {
     try {
         const connection = await poolPromise;
 
@@ -51,6 +53,7 @@ async function getTopItemsByQuantity(startDate, endDate) {
                 ON OrderItem.StallID = MenuItem.StallID
                 AND OrderItem.ItemCode = MenuItem.ItemCode
             WHERE CustOrder.OrderDate BETWEEN @startDate AND @endDate
+            AND OrderItem.StallID = @stallId
             GROUP BY MenuItem.ItemDesc
             ORDER BY QuantitySold DESC
         `;
@@ -58,6 +61,7 @@ async function getTopItemsByQuantity(startDate, endDate) {
         const request = connection.request();
         request.input("startDate",sql.Date, startDate);
         request.input("endDate",sql.Date, endDate);
+        request.input("stallId", sql.VarChar(4), stallId);
 
         const result = await request.query(query);
         return result.recordset;
@@ -69,7 +73,7 @@ async function getTopItemsByQuantity(startDate, endDate) {
 }
 
 // Top 5 items by revenue
-async function getTopItemsByRevenue(startDate, endDate) {
+async function getTopItemsByRevenue(startDate, endDate, stallId) {
     try {
         const connection = await poolPromise;
 
@@ -84,6 +88,7 @@ async function getTopItemsByRevenue(startDate, endDate) {
                 ON OrderItem.StallID = MenuItem.StallID
                 AND OrderItem.ItemCode = MenuItem.ItemCode
             WHERE CustOrder.OrderDate BETWEEN @startDate AND @endDate
+            AND OrderItem.StallID = @stallId
             GROUP BY MenuItem.ItemDesc
             ORDER BY Revenue DESC
         `;
@@ -91,6 +96,7 @@ async function getTopItemsByRevenue(startDate, endDate) {
         const request = connection.request();
         request.input("startDate",sql.Date, startDate);
         request.input("endDate",sql.Date, endDate);
+        request.input("stallId", sql.VarChar(4), stallId);
 
         const result = await request.query(query);
         return result.recordset;
@@ -101,7 +107,7 @@ async function getTopItemsByRevenue(startDate, endDate) {
     }
 }
 
-async function getSalesTrend(startDate, endDate){
+async function getSalesTrend(startDate, endDate, stallId){
     try{
         const connection = await poolPromise;
 
@@ -119,15 +125,15 @@ async function getSalesTrend(startDate, endDate){
         WHERE CustOrder.OrderDate
         BETWEEN @startDate
         AND @endDate
-        GROUP BY
-            CustOrder.OrderDate
-        ORDER BY
-            CustOrder.OrderDate ASC
+        AND OrderItem.StallID = @stallId
+        GROUP BY CustOrder.OrderDate
+        ORDER BY CustOrder.OrderDate ASC
         `;
 
         const request = connection.request();
         request.input("startDate",sql.Date, startDate);
         request.input("endDate",sql.Date, endDate);
+        request.input("stallId", sql.VarChar(4), stallId);
 
         const result =
         await request.query(query);
