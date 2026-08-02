@@ -1,8 +1,13 @@
-jest.mock("../models/browsehawkercentreModel");
+jest.mock("../models/browseHawkerCentreModel", () => ({
+  list: jest.fn(),
+  findById: jest.fn()
+}));
+
 jest.mock("../models/stallModel");
+
 const request = require("supertest");
 const app = require("../app");
-const hawkerCentreModel = require("../models/browsehawkerCentreModel");
+const hawkerCentreModel = require("../models/browseHawkerCentreModel");
 const stallModel = require("../models/stallModel");
 // Test public hawker centre features
 describe("public centre and stall retrieval", () => {

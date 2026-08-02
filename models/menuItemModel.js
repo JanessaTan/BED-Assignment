@@ -3,7 +3,7 @@ const {
   getPool,
   request,
   pageValues
-} = require("./modelHelpers");
+} = require("./modelHelper");
 // Select menu item information
 const columns = `
   mi.menu_item_id AS menuItemId,

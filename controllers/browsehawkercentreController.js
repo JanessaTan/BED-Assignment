@@ -1,4 +1,4 @@
-const hawkerCentreModel = require("../models/browsehawkerCentreModel");
+const hawkerCentreModel = require("../models/browseHawkerCentreModel");
 const stallModel = require("../models/stallModel");
 const {
   success,

@@ -4,7 +4,7 @@ const {
   request,
   pageValues,
   csvToArray
-} = require("./modelHelpers");
+} = require("./modelHelper");
 // Select stall information
 const columns = `
   s.stall_id AS stallId,

@@ -3,7 +3,7 @@ const {
   getPool,
   request,
   pageValues
-} = require("./modelHelpers");
+} = require("./modelHelper");
 // Select safe user information without the password
 const safeUserColumns = `
   u.user_id AS userId,

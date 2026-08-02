@@ -1,4 +1,4 @@
-const { sql, request } = require("./modelHelpers");
+const { sql, request } = require("./modelHelper");
 // Retrieve stalls managed by the operator
 async function list(userId, isAdmin) {
   const req = await request();

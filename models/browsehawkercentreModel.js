@@ -2,7 +2,7 @@ const {
   sql,
   request,
   pageValues
-} = require("./modelHelpers");
+} = require("./modelHelper");
 // Select hawker centre information
 const columns = `
   hc.centre_id AS centreId,

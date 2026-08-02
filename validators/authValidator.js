@@ -36,10 +36,10 @@ const register = [
     .withMessage("Passwords do not match"),
 
   body("role")
-    .isIn(PUBLIC_REGISTRATION_ROLES)
-    .withMessage(
-      "Public registration is available only for Customer or Vendor"
-    ),
+  .isIn(PUBLIC_REGISTRATION_ROLES)
+  .withMessage(
+    "Public registration is available only for Customer, Vendor, NEA Officer or Operator"
+  ),
 
   body("termsAccepted")
     .equals("true")

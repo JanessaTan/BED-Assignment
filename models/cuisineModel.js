@@ -1,7 +1,7 @@
 const {
   sql,
   request
-} = require("./modelHelpers");
+} = require("./modelHelper");
 // Retrieve all cuisines
 async function list() {
   const req = await request();

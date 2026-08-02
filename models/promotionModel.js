@@ -3,7 +3,7 @@ const {
   getPool,
   request,
   pageValues
-} = require("./modelHelpers");
+} = require("./modelHelper");
 // Select promotion information
 const columns = `
   p.promotion_id AS promotionId,
