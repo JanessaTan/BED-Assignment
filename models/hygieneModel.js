@@ -26,7 +26,7 @@ async function getCurrentHygiene(stallId){
 
     return result.recordset[0];
 }
-// PUT route for hygiene
+// PUT route for hygiene 
 
 async function updateHygiene(inspectionId, data){
     const connection = await poolPromise;

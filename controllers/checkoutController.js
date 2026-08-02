@@ -2,10 +2,21 @@ const checkoutModel = require("../models/checkoutModel");
 
 async function createOrder(req,res){
     try{
-        console.log("Incoming order data:");
+        console.log("Incoming order data:"); // for checking
         console.log(req.body);
+        console.log(req.user);
 
-        const orderID = await checkoutModel.createOrder(req.body);
+        const customerId = await checkoutModel.getCustomerId(req.user.userId);
+
+        const data = {
+            customerId,
+            orderDate: req.body.orderDate,
+            pmtType: req.body.pmtType,
+            items: req.body.items,
+            pickupTime: req.body.pickupTime
+        };
+
+        const orderID = await checkoutModel.createOrder(data);
 
         res.status(201).json({
             message:"Order created successfully",

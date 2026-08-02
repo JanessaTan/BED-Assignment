@@ -44,7 +44,9 @@ document.addEventListener("DOMContentLoaded", () => {
       valid = false;
     }
 
-    if (!valid) return;
+    if (!valid) {
+      return;
+    }
 
     try {
       setLoading(true);
@@ -59,40 +61,60 @@ document.addEventListener("DOMContentLoaded", () => {
       const loginUser = response?.data?.user;
 
       if (!token || !loginUser) {
-        throw new Error("The login response did not contain a token and user account.");
+        throw new Error(
+          "The login response did not contain a token and user account."
+        );
       }
 
+      // Save the token before requesting the protected profile endpoint.
       HC.setAuthSession(token, loginUser);
 
-      // Confirm the token and refresh the user from the backend.
-      const profileResponse = await apiGet("/auth/me");
+      // Verify the token and retrieve the latest user information.
+      const profileResponse = await apiGet("/users/me");
       const verifiedUser = profileResponse?.data || loginUser;
+
       HC.setAuthSession(token, verifiedUser);
 
       showMessage(response.message || "Login successful.", "success");
       redirectAfterLogin(verifiedUser);
     } catch (error) {
       console.error("Login failed:", error);
-      showMessage(
-        error.status === 401
-          ? "The email/username or password is incorrect."
-          : error.message || "Unable to log in.",
-        "error"
-      );
+
+      if (error.status === 401) {
+        showMessage(
+          "The email/username, password, or selected role is incorrect.",
+          "error"
+        );
+      } else if (error.status === 403) {
+        showMessage(
+          "Your account does not have permission to log in with this role.",
+          "error"
+        );
+      } else {
+        showMessage(error.message || "Unable to log in.", "error");
+      }
     } finally {
       setLoading(false);
     }
   }
 
   function redirectAfterLogin(user) {
-    const requestedPage = new URLSearchParams(window.location.search).get("next");
+    const requestedPage = new URLSearchParams(
+      window.location.search
+    ).get("next");
 
-    if (requestedPage && requestedPage.startsWith("/") && !requestedPage.startsWith("//")) {
+    // Only permit safe local redirects.
+    if (
+      requestedPage &&
+      requestedPage.startsWith("/") &&
+      !requestedPage.startsWith("//")
+    ) {
       window.location.replace(requestedPage);
       return;
     }
 
-    window.location.replace(HC.getLandingPage(user.roleName || user.role));
+    const userRole = user.roleName || user.role;
+    window.location.replace(HC.getLandingPage(userRole));
   }
 
   function continueAsGuest() {
@@ -102,6 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function togglePasswordVisibility() {
     const reveal = passwordInput.type === "password";
+
     passwordInput.type = reveal ? "text" : "password";
     togglePassword.textContent = reveal ? "Hide" : "Show";
     togglePassword.setAttribute("aria-pressed", String(reveal));
@@ -118,9 +141,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function showMessage(message, type) {
     loginMessage.textContent = message;
     loginMessage.hidden = false;
-    loginMessage.className = type === "success"
-      ? "notice notice-success"
-      : "notice notice-danger";
+    loginMessage.className =
+      type === "success"
+        ? "notice notice-success"
+        : "notice notice-danger";
   }
 
   function setLoading(loading) {

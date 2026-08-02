@@ -37,11 +37,11 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
                 ${cart.map(item => `
                     <div class="row-between">
                         <span>
-                            ${item.Quantity} × ${HC.escapeHtml(item.name)}
+                            ${item.quantity} × ${HC.escapeHtml(item.name)}
                         </span>
                         <strong>
                             ${HC.formatCurrency(
-                                item.Quantity * item.UnitPrice
+                                item.quantity * item.price
                             )}
                         </strong>
                     </div>
@@ -62,13 +62,15 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
     document.getElementById("checkoutForm").addEventListener("submit", async function placeOrder(event){
 
         event.preventDefault();
-        const paymentMethod =
-            document.querySelector('input[name="paymentMethod"]:checked')?.value;
-            
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+        if (!paymentMethod) {
+            alert("Please select a payment method.");
+            return;
+        }
         const pickupTimeInput = document.getElementById("pickupTime");
         const pickupTime = pickupTimeInput ? pickupTimeInput.value : null;
         
-        if (collectionMethod === "Self collection" && !pickupTime) {
+        if (collectionMethodInput.value === "Self collection" && !pickupTime) {
         alert("Please select a pickup time for self-collection.");
         return;
         }
@@ -76,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
         const orderData = {
           orderDate: new Date(),
           pmtType: paymentMethod,
-          customerID: "CU017", // currentUser?.id || null,
+          pickupTime: pickupTime,
 
           items: cart.map(item => ({
             StallID: item.stallId,
@@ -89,7 +91,8 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
             const response = await fetch("/api/checkout", {
                 method:"POST",
                 headers:{
-                    "Content-Type":"application/json"
+                    "Content-Type":"application/json",
+                     "Authorization": `Bearer ${localStorage.getItem("token")}`
                 },
                 body:JSON.stringify(orderData)
             });

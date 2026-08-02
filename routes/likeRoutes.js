@@ -2,8 +2,9 @@ const express = require ('express');
 const router = express.Router();
 const likeController = require('../controllers/likeController');
 
-router.get('/', likeController.getLikes);
-router.get('/:customerId', likeController.getLikesByCustomerId);
-router.post('/', likeController.submitLike);
+router.get("/customer/:customerID",likeController.getLikesByCustomer);
+router.get("/stall/:stallID/counts",likeController.getLikeCountsByStall);
+router.post("/",likeController.addLike);
+router.delete("/:customerID/:stallID/:itemCode",likeController.removeLike);
 
 module.exports = router;

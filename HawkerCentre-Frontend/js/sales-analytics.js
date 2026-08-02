@@ -42,7 +42,11 @@ document.addEventListener("DOMContentLoaded", function initialiseSalesAnalytics(
 
   async function render() {
     const period = document.getElementById("analyticsPeriod").value;
-    const response = await fetch("http://localhost:3000/api/sales");
+    const response = await fetch("http://localhost:3000/api/sales", {
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      }
+  });
     const data = await response.json();
     const summary = data.summary;
     const popularItems = data.popularItems;
