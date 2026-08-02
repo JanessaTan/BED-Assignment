@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
         alert("Please select a pickup time for self-collection.");
         return;
         }
-
+        const currentUser = HC.getCurrentUser();
         const orderData = {
             customerID: currentUser.customerID,
             orderDate: new Date(),
@@ -89,20 +89,19 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
           }))
         };
 
-        const currentUser = HC.getCurrentUser();
         try {
-            // const response = await fetch("/api/checkout", {
-            //     method:"POST",
-            //     headers:{
-            //         "Content-Type":"application/json",
-            //          "Authorization": `Bearer ${localStorage.getItem("token")}`
-            //     },
-            //     body:JSON.stringify(orderData)
-            // });
-            // const result = await response.json();
-            // if(!response.ok){
-            //     throw new Error(result.message);
-            // }
+            const response = await fetch("/api/checkout", {
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                    //  "Authorization": `Bearer ${localStorage.getItem("token")}`
+                },
+                body:JSON.stringify(orderData)
+            });
+            const result = await response.json();
+            if(!response.ok){
+                throw new Error(result.message);
+            }
 
             localStorage.removeItem("cart");
             window.location.href = `order-success.html?order=${result.OrderID}`;
