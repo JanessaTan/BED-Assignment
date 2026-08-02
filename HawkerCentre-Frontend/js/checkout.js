@@ -76,30 +76,33 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
         }
 
         const orderData = {
-          orderDate: new Date(),
-          pmtType: paymentMethod,
-          pickupTime: pickupTime,
+            customerID: currentUser.customerID,
+            orderDate: new Date(),
+            pmtType: paymentMethod,
+            pickupTime: pickupTime,
 
-          items: cart.map(item => ({
+            items: cart.map(item => ({
             StallID: item.stallId,
             ItemCode: item.menuItemId,
             Quantity: item.quantity,
             UnitPrice: item.price
           }))
         };
+
+        const currentUser = HC.getCurrentUser();
         try {
-            const response = await fetch("/api/checkout", {
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json",
-                     "Authorization": `Bearer ${localStorage.getItem("token")}`
-                },
-                body:JSON.stringify(orderData)
-            });
-            const result = await response.json();
-            if(!response.ok){
-                throw new Error(result.message);
-            }
+            // const response = await fetch("/api/checkout", {
+            //     method:"POST",
+            //     headers:{
+            //         "Content-Type":"application/json",
+            //          "Authorization": `Bearer ${localStorage.getItem("token")}`
+            //     },
+            //     body:JSON.stringify(orderData)
+            // });
+            // const result = await response.json();
+            // if(!response.ok){
+            //     throw new Error(result.message);
+            // }
 
             localStorage.removeItem("cart");
             window.location.href = `order-success.html?order=${result.OrderID}`;

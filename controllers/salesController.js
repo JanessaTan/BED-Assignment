@@ -9,7 +9,7 @@ async function getDashboard(req, res) {
         const endDate = LATEST_POSSIBLE_DATE;
         const startDate = EARLIEST_POSSIBLE_DATE;
 
-        const requestingUser = await userModel.findById(req.user.userId);
+        const requestingUser = await userModel.findById(req.body.customerID);//req.user.userId);
         const stallId = requestingUser?.stallId;
         if (!stallId) {
             return res.status(404).json({
