@@ -60,7 +60,15 @@ document.addEventListener("DOMContentLoaded", function initialiseLogin() {
       return;
     }
 
-    const safeUser = { id: user.id, name: user.name, email: user.email, role: user.role, stallId: user.stallId, centreId: user.centreId };
+    const safeUser = {
+    id: user.id,
+    customerID: user.customerID || (user.id === "user-customer-demo" ? "CU000" : null),
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    stallId: user.stallId,
+    centreId: user.centreId
+    };
     HC.setCurrentUser(safeUser);
     const next = HC.getQueryParameter("next");
     const roleLandingPages = {

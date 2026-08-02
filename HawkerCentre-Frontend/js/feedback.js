@@ -15,22 +15,12 @@ document.addEventListener("DOMContentLoaded", function initialiseFeedback() {
   // );
 
   // const selectedStall = HC.getQueryParameter("stall");
-
-  // if (selectedStall) {
-  //   stallSelect.value = selectedStall;
-  //   loadFeedbackByStallId(selectedStall);
-  // }
+  
 
   loadStallsIntoDropdown(stallSelect);
 
   comments.addEventListener("input", function updateCharacterCount() {
     document.getElementById("characterCount").textContent = `${comments.value.length} / 400`;
-  });
-
-  stallSelect.addEventListener("change", function loadSelectedStallFeedback() {
-    if (stallSelect.value) {
-      loadFeedbackByStallId(stallSelect.value);
-    }
   });
 
   feedbackForm.addEventListener("submit", async function submitFeedback(event) {
@@ -113,8 +103,6 @@ document.addEventListener("DOMContentLoaded", function initialiseFeedback() {
       message.textContent = "Thank you. Your feedback was submitted successfully.";
       message.hidden = false;
 
-      loadFeedbackByStallId(stallId);
-
     } catch (error) {
       console.error("Error submitting feedback:", error);
 
@@ -145,10 +133,6 @@ async function loadStallsIntoDropdown(stallSelect) {
 
     if (selectedStall) {
       stallSelect.value = selectedStall;
-
-      if (stallSelect.value) {
-        loadFeedbackByStallId(selectedStall);
-      }
     }
 
   } catch (error) {
@@ -173,57 +157,6 @@ async function submitFeedbackToApi(feedbackData) {
   }
 
   return result;
-}
-
-async function loadFeedbackByStallId(stallId) {
-  const feedbackList = document.getElementById("feedbackList");
-
-  if (!feedbackList) {
-    return;
-  }
-
-  try {
-    const response = await fetch(`/api/feedback/stall_id/${stallId}`);
-    const result = await response.json();
-
-    if (!response.ok) {
-      feedbackList.innerHTML = "<p>No feedback has been submitted for this stall yet.</p>";
-      return;
-    }
-
-    renderFeedback(result);
-
-  } catch (error) {
-    console.error("Error loading feedback:", error);
-    feedbackList.innerHTML = "<p>Unable to load feedback right now.</p>";
-  }
-}
-
-function renderFeedback(feedbackRecords) {
-  const feedbackList = document.getElementById("feedbackList");
-
-  if (!feedbackList) {
-    return;
-  }
-
-  if (!feedbackRecords || feedbackRecords.length === 0) {
-    feedbackList.innerHTML = "<p>No feedback has been submitted for this stall yet.</p>";
-    return;
-  }
-
-  feedbackList.innerHTML = feedbackRecords
-    .map((feedback) => {
-      return `
-        <article class="feedback-card">
-          <h3>${HC.escapeHtml(feedback.Category)} - ${HC.escapeHtml(feedback.Subcategory)}</h3>
-          <p><strong>Rating:</strong> ${feedback.FbkRating}/5</p>
-          <p>${HC.escapeHtml(feedback.FbkComment)}</p>
-          <p><strong>Stall ID:</strong> ${HC.escapeHtml(feedback.StallID)}</p>
-          <p><small>${feedback.FbkDateTime ? HC.escapeHtml(String(feedback.FbkDateTime)) : ""}</small></p>
-        </article>
-      `;
-    })
-    .join("");
 }
 
 function setError(id, text) {
