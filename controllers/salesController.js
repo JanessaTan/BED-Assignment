@@ -1,12 +1,21 @@
 const salesModel = require("../models/salesModel");
+const userModel = require("../models/userModel");
+
+const EARLIEST_POSSIBLE_DATE = new Date("2000-01-01");
+const LATEST_POSSIBLE_DATE = new Date("2100-01-01");
 
 async function getDashboard(req, res) {
     try {
-        const endDate = new Date();
+        const endDate = LATEST_POSSIBLE_DATE;
+        const startDate = EARLIEST_POSSIBLE_DATE;
 
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - 365);
-        const stallId = "S001" //hardcode for testing
+        const requestingUser = await userModel.findById(req.user.userId);
+        const stallId = requestingUser?.stallId;
+        if (!stallId) {
+            return res.status(404).json({
+                message: "No stall is currently associated with this vendor account"
+            });
+        }
 
         const summary = await salesModel.getSalesSummary(
             startDate,
