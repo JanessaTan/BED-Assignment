@@ -3,25 +3,25 @@ const orderModel = require("./orderModel"); // For Ordermodel
 
 // get customer id for mapping
 
-async function getCustomerId(userId){
-    const connection = await poolPromise;
-    const request = connection.request()
-    request.input("userId", sql.Int, userId);
-    const result = await request.query(`
-        SELECT c.CustomerID
-        FROM Customer c
-        INNER JOIN users u
-        ON c.email = u.email
-        WHERE u.user_id = @userId
-        `);
+// async function getCustomerId(userId){
+//     const connection = await poolPromise;
+//     const request = connection.request()
+//     request.input("userId", sql.Int, userId);
+//     const result = await request.query(`
+//         SELECT c.CustomerID
+//         FROM Customer c
+//         INNER JOIN users u
+//         ON c.email = u.email
+//         WHERE u.user_id = @userId
+//         `);
 
 
-    if(result.recordset.length === 0){
-        throw new Error("Customer account not found");
-    }
+//     if(result.recordset.length === 0){
+//         throw new Error("Customer account not found");
+//     }
 
-    return result.recordset[0].CustomerID;
-}
+//     return result.recordset[0].CustomerID;
+// }
 // //Generate OrderID
 // async function generateOrderID(){
 //     const connection = await poolPromise;
@@ -177,6 +177,6 @@ async function getOrder(orderID){
 
 module.exports = {
     createOrder,
-    getOrder,
-    getCustomerId
+    getOrder
+    // getCustomerId
 };

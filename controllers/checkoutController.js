@@ -6,14 +6,15 @@ async function createOrder(req,res){
         console.log(req.body);
         console.log(req.user);
 
-        const customerId = await checkoutModel.getCustomerId(req.user.userId);
+        const customerId = req.body.customerID; // await checkoutModel.getCustomerId(req.user.userId);
 
         const data = {
             customerId,
             orderDate: req.body.orderDate,
             pmtType: req.body.pmtType,
-            items: req.body.items,
-            pickupTime: req.body.pickupTime
+            pickupTime: req.body.pickupTime,
+            items: req.body.items
+            
         };
 
         const orderID = await checkoutModel.createOrder(data);
