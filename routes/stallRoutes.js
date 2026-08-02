@@ -6,13 +6,6 @@ const authorizeRole = require("../middlewares/authorizeRole");
 const asyncHandler = require("../utils/asyncHandler");
 const { ROLES } = require("../config/constants");
 const router = express.Router();
-// Retrieve stalls owned by the signed-in vendor
-router.get(
-  "/mine",
-  authenticateToken,
-  authorizeRole(ROLES.VENDOR),
-  asyncHandler(controller.mine)
-);
 // Retrieve stalls
 router.get(
   "/",

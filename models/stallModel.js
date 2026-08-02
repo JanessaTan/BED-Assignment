@@ -66,11 +66,6 @@ async function list(filters = {}) {
     sql.Char(1),
     filters.hygieneGrade || null
   );
-  req.input(
-    "vendorId",
-    sql.Int,
-    filters.vendorId || null
-  );
   req.input("offset", sql.Int, offset);
   req.input("limit", sql.Int, limit);
   const result = await req.query(`
@@ -110,19 +105,6 @@ async function list(filters = {}) {
           FROM stall_cuisines
           WHERE stall_id = s.stall_id
             AND cuisine_id = @cuisineId
-          )
-      )
-      AND (
-        @vendorId IS NULL
-        OR EXISTS (
-          SELECT 1
-          FROM stall_owners so
-          WHERE so.stall_id = s.stall_id
-            AND so.vendor_id = @vendorId
-            AND (
-              so.end_date IS NULL
-              OR so.end_date >= CAST(GETDATE() AS DATE)
-            )
         )
       )
     ORDER BY s.name
@@ -143,7 +125,7 @@ async function list(filters = {}) {
 // Find a stall by ID
 async function findById(stallId) {
   const req = await request();
-  req.input("stallId", sql.VarChar(10), stallId);
+  req.input("stallId", sql.Int, stallId);
   const result = await req.query(`
     SELECT ${columns}
     FROM stalls s
@@ -212,10 +194,9 @@ async function saveCuisines(
     DELETE FROM stall_cuisines
     WHERE stall_id = @stallId;
   `);
-  const uniqueCuisineIds = [...new Set(cuisineIds || [])];
   for (
     let index = 0;
-    index < uniqueCuisineIds.length;
+    index < (cuisineIds || []).length;
     index += 1
   ) {
     const req = new sql.Request(transaction);
@@ -223,7 +204,7 @@ async function saveCuisines(
     req.input(
       "cuisineId",
       sql.Int,
-      uniqueCuisineIds[index]
+      cuisineIds[index]
     );
     req.input("primary", sql.Bit, index === 0);
     await req.query(`
