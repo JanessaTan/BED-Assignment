@@ -1,14 +1,21 @@
-const swaggerAutogen = require("swagger-autogen")();
+const fs = require("fs");
+const path = require("path");
+const yaml = require("js-yaml");
 
-const outputFile = "./swagger-output.json"; // Output file for the spec
-const routes = ["./app.js"]; // Path to your API route files
+// Validate the same OpenAPI file served by app.js.
+const documentationPath = path.join(
+  __dirname,
+  "docs",
+  "openapi-user-account.yaml"
+);
+const document = yaml.load(
+  fs.readFileSync(documentationPath, "utf8")
+);
 
-const doc = {
-  info: {
-    title: "HawkerHub API",
-    description: "Singapore Hawker Centre Management System",
-  },
-  host: "localhost:3000", // Replace with your actual host if needed
-};
+if (document.openapi !== "3.0.3" || !document.paths) {
+  throw new Error("The OpenAPI document is incomplete.");
+}
 
-swaggerAutogen(outputFile, routes, doc);
+console.log(
+  `OpenAPI validation passed for ${Object.keys(document.paths).length} documented paths.`
+);

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Administrator user management for HawkerHub">
+  <title>User Management | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/admin-users.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/api.js" defer></script>
+  <script src="../js/admin-users.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell admin-users-page" id="mainContent">
+    <section class="page-heading">
+      <span class="eyebrow">Administrator</span>
+      <h1>User account management</h1>
+      <p>Create, retrieve, update, suspend, activate and deactivate user accounts through the REST API.</p>
+    </section>
+
+    <section class="card admin-create-card">
+      <h2>Create a user</h2>
+      <p id="createMessage" class="notice" role="status" hidden></p>
+      <form id="createUserForm" class="admin-form-grid" novalidate>
+        <div class="field"><label for="createFullName">Full name</label><input id="createFullName" maxlength="120" required></div>
+        <div class="field"><label for="createEmail">Email</label><input id="createEmail" type="email" maxlength="254" required></div>
+        <div class="field"><label for="createPhone">Phone</label><input id="createPhone" maxlength="8" inputmode="numeric"></div>
+        <div class="field"><label for="createPassword">Temporary password</label><input id="createPassword" type="password" minlength="8" maxlength="72" required></div>
+        <div class="field"><label for="createRole">Role</label><select id="createRole" required><option value="Customer">Customer</option><option value="Vendor">Vendor</option><option value="NEA Officer">NEA Officer</option><option value="Operator">Operator</option><option value="Administrator">Administrator</option></select></div>
+        <div class="field form-submit"><button class="btn btn-primary" type="submit">Create user</button></div>
+      </form>
+    </section>
+
+    <section class="card user-list-card">
+      <div class="section-heading-row">
+        <div><h2>Existing users</h2><p class="muted">Only administrators can access this endpoint.</p></div>
+        <form id="searchUsersForm" class="search-form">
+          <label class="sr-only" for="userSearch">Search users</label>
+          <input id="userSearch" placeholder="Search name or email">
+          <label class="sr-only" for="roleFilter">Filter by role</label>
+          <select id="roleFilter"><option value="">All roles</option><option value="Customer">Customer</option><option value="Vendor">Vendor</option><option value="NEA Officer">NEA Officer</option><option value="Operator">Operator</option><option value="Administrator">Administrator</option></select>
+          <button class="btn btn-secondary" type="submit">Search</button>
+        </form>
+      </div>
+
+      <p id="listMessage" class="notice" role="status" hidden></p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Phone</th><th>Actions</th></tr></thead>
+          <tbody id="usersTableBody"><tr><td colspan="7">Loading...</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="pagination-controls">
+        <button class="btn btn-secondary" id="previousPageButton" type="button">Previous</button>
+        <span id="pageSummary">Showing 0-0 of 0</span>
+        <button class="btn btn-secondary" id="nextPageButton" type="button">Next</button>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="editUserDialog" class="edit-dialog">
+    <form id="editUserForm" method="dialog" novalidate>
+      <h2>Edit user</h2>
+      <input id="editUserId" type="hidden">
+      <div class="field"><label for="editFullName">Full name</label><input id="editFullName" maxlength="120" required></div>
+      <div class="field"><label for="editEmail">Email</label><input id="editEmail" type="email" maxlength="254" required></div>
+      <div class="field"><label for="editPhone">Phone</label><input id="editPhone" maxlength="8" inputmode="numeric"></div>
+      <div class="field"><label for="editRole">Role</label><select id="editRole"><option value="Customer">Customer</option><option value="Vendor">Vendor</option><option value="NEA Officer">NEA Officer</option><option value="Operator">Operator</option><option value="Administrator">Administrator</option></select></div>
+      <p id="editMessage" class="notice" role="status" hidden></p>
+      <div class="dialog-actions"><button class="btn btn-secondary" id="cancelEditButton" type="button">Cancel</button><button class="btn btn-primary" type="submit">Save changes</button></div>
+    </form>
+  </dialog>
+
+  <div id="siteFooter"></div>
+</body>
+</html>

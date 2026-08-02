@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Vendor stall management">
+  <title>Stall Management | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/menu-management.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/api.js" defer></script>
+  <script src="../js/stall-management.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <div class="page-heading"><div><span class="eyebrow">Vendor tools</span><h1>Stall management</h1><p>Create, retrieve, update and deactivate stalls that belong to your account.</p></div><button class="btn btn-primary" id="addStall" type="button">Add stall</button></div>
+    <p class="notice" id="stallManagementMessage" role="status" hidden></p>
+    <div class="table-wrap"><table><thead><tr><th>Stall</th><th>Centre</th><th>Unit</th><th>Cuisines</th><th>Actions</th></tr></thead><tbody id="stallTableBody"></tbody></table></div>
+    <div class="empty-state" id="stallManagementEmpty" hidden><h2>No owned stalls</h2><p>Create your first stall to start managing menus and promotions.</p></div>
+    <div class="modal" id="stallModal" role="dialog" aria-modal="true" aria-labelledby="stallModalTitle" hidden>
+      <div class="modal-panel">
+        <div class="row-between"><h2 id="stallModalTitle">Add stall</h2><button class="btn btn-muted" id="closeStallModal" type="button">Close</button></div>
+        <form class="form-grid" id="stallForm" novalidate>
+          <input id="editStallId" type="hidden">
+          <div class="field"><label for="stallName">Stall name</label><input id="stallName" maxlength="150" required></div>
+          <div class="field"><label for="stallUnit">Unit number</label><input id="stallUnit" maxlength="20" placeholder="#01-01" required></div>
+          <div class="field field-full"><label for="stallCentre">Hawker centre</label><select id="stallCentre" required></select></div>
+          <div class="field field-full"><label for="stallCuisines">Cuisines</label><select id="stallCuisines" multiple size="5"></select><p class="field-help">Hold Ctrl (Windows) or Command (Mac) to select multiple cuisines.</p></div>
+          <div class="field field-full"><label for="stallHours">Opening hours</label><input id="stallHours" maxlength="120" placeholder="9:00 AM - 8:00 PM"></div>
+          <div class="field field-full"><label for="stallDescription">Description</label><textarea id="stallDescription" maxlength="500"></textarea></div>
+          <p class="field-error field-full" id="stallFormError"></p>
+          <button class="btn btn-primary field-full" type="submit">Save stall</button>
+        </form>
+      </div>
+    </div>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

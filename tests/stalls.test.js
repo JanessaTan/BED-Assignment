@@ -46,7 +46,23 @@ describe("stall CRUD", () => {
       2
     );
   });
+  test("vendor retrieves only owned stalls", async () => {
+    stallModel.list.mockResolvedValue({
+      rows: [{ stallId: 1 }],
+      page: 1,
+      limit: 100,
+      total: 1
+    });
+    const response = await request(app)
+      .get("/api/stalls/mine")
+      .set("Authorization", `Bearer ${token(2, "Vendor")}`);
+    expect(response.status).toBe(200);
+    expect(stallModel.list).toHaveBeenCalledWith(
+      expect.objectContaining({ vendorId: 2 })
+    );
+  });
   test("vendor cannot update another vendor's stall", async () => {
+    stallModel.findById.mockResolvedValue({ stallId: 9 });
     stallModel.vendorOwns.mockResolvedValue(false);
     const response = await request(app)
       .put("/api/stalls/9")

@@ -8,15 +8,34 @@
   <link rel="stylesheet" href="../css/shared.css">
   <link rel="stylesheet" href="../css/promotion.css">
   <script src="../js/shared.js" defer></script>
+  <script src="../js/api.js" defer></script>
   <script src="../js/promotion.js" defer></script>
 </head>
 <body>
   <div id="siteHeader"></div>
   <main class="page-shell" id="mainContent">
-    <div class="page-heading"><div><span class="eyebrow">Local offers</span><h1>Promotions</h1><p>See current and expired demonstration deals from participating stalls.</p></div></div>
+    <div class="page-heading"><div><span class="eyebrow">Local offers</span><h1>Promotions</h1><p>Browse database-backed offers or manage promotions for an owned stall.</p></div><button class="btn btn-primary" id="addPromotion" type="button" hidden>Add promotion</button></div>
     <section class="toolbar"><div class="field"><label for="promotionCentre">Hawker centre</label><select id="promotionCentre"><option value="">All centres</option></select></div><div class="field"><label for="promotionStall">Food stall</label><select id="promotionStall"><option value="">All stalls</option></select></div></section>
+    <p class="notice" id="promotionMessage" role="status" hidden></p>
     <p class="result-summary" id="promotionCount"></p>
     <div class="grid grid-3" id="promotionResults"></div>
+    <div class="modal" id="promotionModal" role="dialog" aria-modal="true" aria-labelledby="promotionModalTitle" hidden>
+      <div class="modal-panel">
+        <div class="row-between"><h2 id="promotionModalTitle">Add promotion</h2><button class="btn btn-muted" id="closePromotionModal" type="button">Close</button></div>
+        <form class="form-grid" id="promotionForm" novalidate>
+          <input id="editPromotionId" type="hidden">
+          <div class="field"><label for="promotionName">Promotion name</label><input id="promotionName" maxlength="150" required></div>
+          <div class="field"><label for="discountType">Discount type</label><select id="discountType"><option value="Fixed">Fixed amount</option><option value="Percentage">Percentage</option></select></div>
+          <div class="field"><label for="discountValue">Discount value</label><input id="discountValue" type="number" min="0.01" step="0.01" required></div>
+          <div class="field"><label for="promotionStart">Start date</label><input id="promotionStart" type="date" required></div>
+          <div class="field"><label for="promotionEnd">End date</label><input id="promotionEnd" type="date" required></div>
+          <div class="field field-full"><label for="promotionItems">Eligible menu items</label><select id="promotionItems" multiple size="5"></select><p class="field-help">Select menu items from the chosen stall.</p></div>
+          <div class="field field-full"><label for="promotionDescription">Description</label><textarea id="promotionDescription" maxlength="500" required></textarea></div>
+          <p class="field-error field-full" id="promotionFormError"></p>
+          <button class="btn btn-primary field-full" type="submit">Save promotion</button>
+        </form>
+      </div>
+    </div>
   </main>
   <div id="siteFooter"></div>
 </body>

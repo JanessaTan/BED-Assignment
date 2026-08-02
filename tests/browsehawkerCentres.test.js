@@ -53,4 +53,29 @@ describe("public centre and stall retrieval", () => {
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(1);
   });
+  test("location search is invoked by the backend", async () => {
+    const originalFetch = global.fetch;
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [{
+        display_name: "Clementi, Singapore",
+        lat: "1.3151",
+        lon: "103.7658",
+        type: "suburb"
+      }]
+    });
+    try {
+      const response = await request(app).get(
+        "/api/hawker-centres/location-search?q=Clementi"
+      );
+      expect(response.status).toBe(200);
+      expect(response.body.data[0].displayName).toContain("Clementi");
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.any(URL),
+        expect.objectContaining({ signal: expect.anything() })
+      );
+    } finally {
+      global.fetch = originalFetch;
+    }
+  });
 });

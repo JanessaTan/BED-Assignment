@@ -11,6 +11,19 @@ async function list(req, res) {
     total: result.total
   });
 }
+// Retrieve stalls owned by the signed-in vendor
+async function mine(req, res) {
+  const result = await stallModel.list({
+    ...req.query,
+    vendorId: req.user.userId,
+    limit: req.query.limit || 100
+  });
+  return success(res, 200, "Owned stalls retrieved", result.rows, {
+    page: result.page,
+    limit: result.limit,
+    total: result.total
+  });
+}
 // Retrieve one stall
 async function getOne(req, res) {
   const stall = await stallModel.findById(req.params.stallId);
@@ -31,16 +44,26 @@ async function ensureOwner(req, stallId) {
 }
 // Create a stall
 async function create(req, res) {
-  const vendorId =
-    req.user.role === ROLES.ADMINISTRATOR
-      ? req.body.vendorId || req.user.userId
-      : req.user.userId;
+  const isAdministrator = req.user.role === ROLES.ADMINISTRATOR;
+  if (isAdministrator && !req.body.vendorId) {
+    throw new AppError(
+      400,
+      "Administrators must select the Vendor who will own the stall"
+    );
+  }
+  const vendorId = isAdministrator
+    ? req.body.vendorId
+    : req.user.userId;
   const stall = await stallModel.create(req.body, vendorId);
   return created(res, "Stall created", stall);
 }
 // Update a stall
 async function update(req, res) {
   const stallId = req.params.stallId;
+  const existingStall = await stallModel.findById(stallId);
+  if (!existingStall) {
+    throw new AppError(404, "Stall was not found");
+  }
   await ensureOwner(req, stallId);
   const updatedStall = await stallModel.update(stallId, req.body);
   return success(res, 200, "Stall updated", updatedStall);
@@ -48,6 +71,10 @@ async function update(req, res) {
 // Deactivate a stall
 async function remove(req, res) {
   const stallId = req.params.stallId;
+  const existingStall = await stallModel.findById(stallId);
+  if (!existingStall) {
+    throw new AppError(404, "Stall was not found");
+  }
   await ensureOwner(req, stallId);
   const removed = await stallModel.remove(stallId);
   if (!removed) {
@@ -57,6 +84,7 @@ async function remove(req, res) {
 }
 module.exports = {
   list,
+  mine,
   getOne,
   create,
   update,
