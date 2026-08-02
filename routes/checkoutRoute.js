@@ -15,7 +15,7 @@ router.post(
 // GET ORDER DETAILS
 router.get(
     "/:id",
-    authenticateToken,
+    // authenticateToken,
     checkoutController.getOrder
 );
 
