@@ -26,33 +26,34 @@ async function getCurrentHygiene(stallId){
 
     return result.recordset[0];
 }
-// PUT route for hygiene
+// PUT route for hygiene 
+// there should be no updating of hygiene record tbh because we want to see the old ones too
 
-async function updateHygiene(inspectionId, data){
-    const connection = await poolPromise;
-    const request = connection.request();
+// async function updateHygiene(inspectionId, data){
+//     const connection = await poolPromise;
+//     const request = connection.request();
 
-    request.input("InspectionID", inspectionId);
-    request.input("InspectionDate", data.InspectionDate);
-    request.input("HygieneGrade", data.HygieneGrade);
-    request.input("GradeExpiry", data.GradeExpiry);
-    request.input("OfficerID", data.OfficerID);
-    request.input("InspectionRemark", data.InspectionRemark);
+//     request.input("InspectionID", inspectionId);
+//     request.input("InspectionDate", data.InspectionDate);
+//     request.input("HygieneGrade", data.HygieneGrade);
+//     request.input("GradeExpiry", data.GradeExpiry);
+//     request.input("OfficerID", data.OfficerID);
+//     request.input("InspectionRemark", data.InspectionRemark);
 
-    const result = await request.query(`
-        UPDATE Inspection
-        SET
-            InspectionDate = @InspectionDate,
-            HygieneGrade = @HygieneGrade,
-            GradeExpiry = @GradeExpiry,
-            OfficerID = @OfficerID
-        WHERE InspectionID = @InspectionID
-    `);
+//     const result = await request.query(`
+//         UPDATE Inspection
+//         SET
+//             InspectionDate = @InspectionDate,
+//             HygieneGrade = @HygieneGrade,
+//             GradeExpiry = @GradeExpiry,
+//             OfficerID = @OfficerID
+//         WHERE InspectionID = @InspectionID
+//     `);
 
-    const remarkRequest = connection.request();
+//     const remarkRequest = connection.request();
 
-    remarkRequest.input("InspectionID", inspectionId);
-    remarkRequest.input("InspectionRemark", data.InspectionRemark);
+//     remarkRequest.input("InspectionID", inspectionId);
+//     remarkRequest.input("InspectionRemark", data.InspectionRemark);
 
     await remarkRequest.query(`
     UPDATE InspectionRemark
