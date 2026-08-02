@@ -37,11 +37,11 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
                 ${cart.map(item => `
                     <div class="row-between">
                         <span>
-                            ${item.Quantity} × ${HC.escapeHtml(item.name)}
+                            ${item.quantity} × ${HC.escapeHtml(item.name)}
                         </span>
                         <strong>
                             ${HC.formatCurrency(
-                                item.Quantity * item.UnitPrice
+                                item.quantity * item.rice
                             )}
                         </strong>
                     </div>
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
             StallID: item.stallId,
             ItemCode: item.menuItemId,
             Quantity: item.quantity,
-            UnitPrice: item.unitPrice
+            UnitPrice: item.price
           }))
         };
         try {

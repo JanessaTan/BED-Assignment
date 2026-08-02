@@ -6,7 +6,7 @@ const orderModel = require("./orderModel"); // For Ordermodel
 async function getCustomerId(userId){
     const connection = await poolPromise;
     const request = connection.request()
-    request.input = ("userId", sql.Int, userId);
+    request.input("userId", sql.Int, userId);
     const result = await request.query(`
         SELECT c.CustomerID
         FROM Customer c

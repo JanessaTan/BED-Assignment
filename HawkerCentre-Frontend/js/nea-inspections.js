@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", async function initialiseNeaInspec
     }
 
     const data = await response.json();
-    stalls = data.rows();
+    stalls = data.data();
     stallInput.insertAdjacentHTML("beforeend", stalls.map(stall =>`<option value="${stall.stallId}">${HC.escapeHtml(stall.name)}</option>`).join(""));
 
     } catch(error){
