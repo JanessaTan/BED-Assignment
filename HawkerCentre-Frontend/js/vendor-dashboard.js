@@ -1,42 +1,60 @@
-document.addEventListener("DOMContentLoaded", function initialiseVendorDashboard() {
+document.addEventListener("DOMContentLoaded", async () => {
+  "use strict";
+
   if (!HC.initPage("dashboard", ["vendor"])) return;
+
   const user = HC.getCurrentUser();
-  const stall = HC.getStallById(user.stallId || "clementi-chicken-rice");
-  const orders = HC.getVisibleOrders();
-  const revenue = orders.reduce((sum, order) => sum + Number(order.total), 0);
-  const feedback = HC.loadData(HC.KEYS.feedback, []).filter((review) => review.stallId === stall.id);
-  const averageRating = feedback.length ? feedback.reduce((sum, review) => sum + review.rating, 0) / feedback.length : stall.rating;
-  const pending = orders.filter((order) => order.status !== "Completed");
-  const promotion = stall.promotionId ? HC.getPromotionById(stall.promotionId) : null;
+  document.getElementById("vendorWelcome").textContent = `Welcome back, ${user.fullName || user.name}.`;
+  document.getElementById("pendingOrders").innerHTML = '<p class="muted">Loading management information...</p>';
 
-  document.getElementById("vendorWelcome").textContent = `Welcome back, ${user.name}.`;
-  const currentGrade = HC.getCurrentHygieneRecord(stall.id)?.grade || stall.hygiene;
-  document.getElementById("dashboardHygiene").textContent = HC.hygieneText(currentGrade);
-  document.getElementById("vendorStats").innerHTML = [
-    ["Total orders", orders.length],
-    ["Revenue", HC.formatCurrency(revenue)],
-    ["Average rating", `${averageRating.toFixed(1)} / 5`],
-    ["Active promotions", promotion && HC.isPromotionActive(promotion) ? 1 : 0]
-  ].map(([label, value]) => `<article class="stat"><span class="stat-value">${value}</span><span class="stat-label">${label}</span></article>`).join("");
+  try {
+    const stallResponse = await apiGet("/stalls/mine");
+    const stalls = stallResponse?.data || [];
+    const selectedStall = stalls[0] || null;
+    let menuItems = [];
+    let promotions = [];
 
-  document.getElementById("pendingOrders").innerHTML = pending.length
-    ? pending.map((order) => `<article class="notice notice-info"><div class="row-between"><strong>${HC.escapeHtml(order.id)}</strong><span>${HC.escapeHtml(order.status)}</span></div><p>${order.items.length} item lines · ${HC.formatCurrency(order.total)}</p><a href="order.html?order=${encodeURIComponent(order.id)}">Manage order</a></article>`).join("")
-    : '<div class="empty-state"><h3>No pending orders</h3><p>New demonstration orders will appear here.</p></div>';
+    if (selectedStall) {
+      const [menuResponse, promotionResponse] = await Promise.all([
+        apiGet(`/menu-items?stallId=${selectedStall.stallId}&limit=100`),
+        apiGet(`/promotions?stallId=${selectedStall.stallId}&limit=100`)
+      ]);
+      menuItems = menuResponse?.data || [];
+      promotions = promotionResponse?.data || [];
+    }
 
-  const counts = {};
-  orders.flatMap((order) => order.items).forEach((item) => {
-    counts[item.name] = (counts[item.name] || 0) + item.quantity;
-  });
-  const popular = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 4);
-  document.getElementById("popularItems").innerHTML = popular.length
-    ? popular.map(([name, count], index) => `<div class="row-between"><span>${index + 1}. ${HC.escapeHtml(name)}</span><strong>${count} sold</strong></div>`).join("")
-    : '<p class="muted">Order data will reveal popular items.</p>';
+    document.getElementById("dashboardHygiene").textContent = selectedStall?.hygieneGrade
+      ? HC.hygieneText(selectedStall.hygieneGrade)
+      : "Hygiene grade unavailable";
+    document.getElementById("vendorStats").innerHTML = [
+      ["Managed stalls", stalls.length],
+      ["Menu items", menuItems.length],
+      ["Available items", menuItems.filter((item) => item.isAvailable).length],
+      ["Active promotions", promotions.filter((promotion) => promotion.currentlyActive).length]
+    ].map(([label, value]) => `<article class="stat"><span class="stat-value">${value}</span><span class="stat-label">${label}</span></article>`).join("");
+
+    document.getElementById("pendingOrders").innerHTML = selectedStall
+      ? `<div class="notice notice-success"><strong>${HC.escapeHtml(selectedStall.name)}</strong><p>Unit ${HC.escapeHtml(selectedStall.unitNumber)} at ${HC.escapeHtml(selectedStall.centreName)} is connected to the backend.</p></div>`
+      : '<div class="empty-state"><h3>No stall yet</h3><p>Create your first stall to begin managing menus and promotions.</p></div>';
+
+    const popular = [...menuItems]
+      .sort((left, right) => Number(right.likeCount) - Number(left.likeCount))
+      .slice(0, 4);
+    document.getElementById("popularItems").innerHTML = popular.length
+      ? popular.map((item, index) => `<div class="row-between"><span>${index + 1}. ${HC.escapeHtml(item.name)}</span><strong>${Number(item.likeCount) || 0} likes</strong></div>`).join("")
+      : '<p class="muted">Menu data will appear after items are created.</p>';
+  } catch (error) {
+    console.error("Vendor dashboard retrieval failed:", error);
+    document.getElementById("pendingOrders").innerHTML = `<p class="notice notice-danger">${HC.escapeHtml(error.message || "Unable to load the dashboard.")}</p>`;
+  }
 
   const actions = [
-    ["Edit menu", "menu-management.html", "Add or update dishes."],
-    ["Manage orders", "order.html", "Move preparation status."],
-    ["Rental agreement", "rental-agreement.html", "Review renewal details."],
-    ["Sales analytics", "sales-analytics.html", "Explore performance trends."]
+    ["Manage stalls", "stall-management.html", "Create or update your owned stalls."],
+    ["Manage menu", "menu-management.html", "Create and update database menu items."],
+    ["Run promotions", "promotion.html", "Create and deactivate stall offers."],
+    ["Manage orders", "order.html", "Review customer orders for your stall."]
   ];
-  document.getElementById("vendorActions").innerHTML = actions.map(([title, href, text]) => `<a class="card quick-card" href="${href}"><h3>${title}</h3><p>${text}</p></a>`).join("");
+  document.getElementById("vendorActions").innerHTML = actions.map(([title, href, text]) =>
+    `<a class="card quick-card" href="${href}"><h3>${title}</h3><p>${text}</p></a>`
+  ).join("");
 });

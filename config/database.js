@@ -67,20 +67,23 @@ async function testConnection() {
     SELECT
       DB_NAME() AS DatabaseName,
       CASE
-        WHEN OBJECT_ID('dbo.UserAccount', 'U') IS NOT NULL
-         AND OBJECT_ID('dbo.UserRole', 'U') IS NOT NULL
-         AND COL_LENGTH('dbo.MenuItem', 'MenuItemID') IS NOT NULL
-         AND COL_LENGTH('dbo.Promotion', 'PromotionID') IS NOT NULL
+        WHEN OBJECT_ID('dbo.users', 'U') IS NOT NULL
+         AND OBJECT_ID('dbo.roles', 'U') IS NOT NULL
+         AND OBJECT_ID('dbo.hawker_centres', 'U') IS NOT NULL
+         AND OBJECT_ID('dbo.stalls', 'U') IS NOT NULL
+         AND OBJECT_ID('dbo.cuisines', 'U') IS NOT NULL
+         AND OBJECT_ID('dbo.menu_items', 'U') IS NOT NULL
+         AND OBJECT_ID('dbo.promotions', 'U') IS NOT NULL
+         AND COL_LENGTH('dbo.users', 'password_hash') IS NOT NULL
+         AND COL_LENGTH('dbo.users', 'account_status') IS NOT NULL
         THEN 1 ELSE 0
-      END AS Stage1Ready
+      END AS SchemaReady
   `);
 
   const status = result.recordset[0];
-  if (
-    status.DatabaseName !== "HawkerCentreManagementSystem"
-  ) {
+  if (!status.SchemaReady) {
     const error = new Error(
-      "The configured database is not the verified HawkerCentreManagementSystem database."
+      "The configured database does not contain the required HawkerHub schema. Run HCMS.sql on a fresh database or select the verified database."
     );
     error.code = "SCHEMA_ERROR";
     throw error;

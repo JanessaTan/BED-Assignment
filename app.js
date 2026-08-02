@@ -1,10 +1,8 @@
 const express = require("express");
-const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("./swagger-output.json");
-// const yaml = require("js-yaml");
+const yaml = require("js-yaml");
 
 require("dotenv").config();
 
@@ -60,7 +58,7 @@ app.get("/api/health", (req, res) => {
         success: true,
         message: "HawkerHub API is running",
         data: {
-            database: "HawkerCentreManagementSystem"
+            database: process.env.DB_DATABASE || "Not configured"
         }
     });
 });
@@ -72,31 +70,14 @@ app.get("/api/health", (req, res) => {
 const openApiPath = path.join(
     __dirname,
     "docs",
-    // "openapi.yaml"
+    "openapi-user-account.yaml"
+);
+const openApiDocument = yaml.load(
+    require("fs").readFileSync(openApiPath, "utf8")
 );
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// if (fs.existsSync(openApiPath)) {
-//     const openApiDocument = yaml.load(
-//         fs.readFileSync(openApiPath, "utf8")
-//     );
-
-//     app.use(
-//         "/api-docs",
-//         swaggerUi.serve,
-//         swaggerUi.setup(openApiDocument)
-//     );
-
-//     app.get("/api-docs.json", (req, res) => {
-//         res.json(openApiDocument);
-//     });
-// } else {
-//     console.warn(
-//         "Swagger documentation was not loaded because " +
-//         "docs/openapi.yaml was not found."
-//     );
-// }
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
+app.get("/api-docs.json", (req, res) => res.json(openApiDocument));
 
 // =========================================================
 // API Routes

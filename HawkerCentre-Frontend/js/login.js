@@ -6,8 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
   const identifierInput = document.getElementById("identifier");
   const passwordInput = document.getElementById("password");
+  const roleInput = document.getElementById("role");
   const identifierError = document.getElementById("identifierError");
   const passwordError = document.getElementById("passwordError");
+  const roleError = document.getElementById("roleError");
   const loginMessage = document.getElementById("loginMessage");
   const submitButton = form.querySelector('button[type="submit"]');
   const togglePassword = document.getElementById("togglePassword");
@@ -23,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const identifier = identifierInput.value.trim();
     const password = passwordInput.value;
+    const role = roleInput.value;
 
     let valid = true;
 
@@ -36,6 +39,11 @@ document.addEventListener("DOMContentLoaded", () => {
       valid = false;
     }
 
+    if (!role) {
+      roleError.textContent = "Select your account role.";
+      valid = false;
+    }
+
     if (!valid) return;
 
     try {
@@ -43,7 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const response = await apiPost("/auth/login", {
         identifier,
-        password
+        password,
+        role
       });
 
       const token = response?.data?.token;
@@ -101,6 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function clearMessages() {
     identifierError.textContent = "";
     passwordError.textContent = "";
+    roleError.textContent = "";
     loginMessage.textContent = "";
     loginMessage.hidden = true;
   }

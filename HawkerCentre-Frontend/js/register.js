@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setFieldError("fullName", "Full name must contain 2 to 120 characters.");
       valid = false;
     }
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
       setFieldError("email", "Enter a valid email address.");
       valid = false;
@@ -78,12 +79,9 @@ document.addEventListener("DOMContentLoaded", () => {
       !/[A-Za-z]/.test(values.password) ||
       !/\d/.test(values.password)
     ) {
-      setFieldError(
-        "password",
-        "Use 8 to 72 characters with at least one letter and one number."
-      );
+      setFieldError("password", "Use 8 to 72 characters with at least one letter and one number.");
       valid = false;
-    }   
+    }
 
     if (values.confirmPassword !== values.password) {
       setFieldError("confirmPassword", "Passwords do not match.");
