@@ -1,18 +1,54 @@
 const express = require("express");
-const stallController = require(
-    "../controllers/stallController"
-);
-
+const controller = require("../controllers/stallController");
+const validator = require("../validators/stallValidator");
+const authenticateToken = require("../middlewares/authenticateToken");
+const authorizeRole = require("../middlewares/authorizeRole");
+const asyncHandler = require("../utils/asyncHandler");
+const { ROLES } = require("../config/constants");
 const router = express.Router();
-
-router.get("/", stallController.getAllStalls);
-
-// Put the more specific route before /:id
-router.get("/:id/menu", stallController.getStallMenu);
-
-router.get("/:id", stallController.getStall);
-router.post("/", stallController.addStall);
-router.put("/:id", stallController.editStall);
-router.delete("/:id", stallController.removeStall);
-
+// Retrieve stalls
+router.get(
+  "/",
+  validator.list,
+  asyncHandler(controller.list)
+);
+// Retrieve one stall
+router.get(
+  "/:stallId",
+  validator.id,
+  asyncHandler(controller.getOne)
+);
+// Create a stall
+router.post(
+  "/",
+  authenticateToken,
+  authorizeRole(
+    ROLES.VENDOR,
+    ROLES.ADMINISTRATOR
+  ),
+  validator.create,
+  asyncHandler(controller.create)
+);
+// Update a stall
+router.put(
+  "/:stallId",
+  authenticateToken,
+  authorizeRole(
+    ROLES.VENDOR,
+    ROLES.ADMINISTRATOR
+  ),
+  validator.update,
+  asyncHandler(controller.update)
+);
+// Deactivate a stall
+router.delete(
+  "/:stallId",
+  authenticateToken,
+  authorizeRole(
+    ROLES.VENDOR,
+    ROLES.ADMINISTRATOR
+  ),
+  validator.id,
+  asyncHandler(controller.remove)
+);
 module.exports = router;

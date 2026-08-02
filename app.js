@@ -24,19 +24,14 @@ const hygieneRoutes = require("./routes/hygieneRoute");
 const orderRoutes = require("./routes/orderRoute");
 const likeRoutes = require("./routes/likeRoutes");
 const salesRoutes = require("./routes/salesRoutes");
-const browseHawkerCentreRoutes = require(
-    "./routes/browseHawkerCentreRoutes"
-);
+const browseHawkerCentreRoutes = require("./routes/browseHawkerCentreRoutes");
 
 // =========================================================
 // Error-Handling Middleware Imports
 // =========================================================
 
-const {
-    notFound,
-    errorHandler
-} = require("./middlewares/errorHandler");
-
+const notFound = require("./middlewares/notFound");
+const errorHandler = require("./middlewares/errorHandler");
 // =========================================================
 // Application Configuration
 // =========================================================
@@ -144,8 +139,7 @@ app.use("/api/likes", likeRoutes);
 app.use("/api/sales", salesRoutes);
 
 // Hawker Centre Browsing
-app.use("/api/hawkercentres", browseHawkerCentreRoutes);
-
+app.use("/api/hawker-centres", browseHawkerCentreRoutes);
 // =========================================================
 // Home Page
 // =========================================================
