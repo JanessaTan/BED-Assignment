@@ -2,67 +2,214 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Create a local HawkerHub demonstration account">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <meta
+    name="description"
+    content="Create a HawkerHub Customer or Vendor account"
+  >
+
   <title>Register | HawkerHub</title>
+
   <link rel="stylesheet" href="../css/shared.css">
   <link rel="stylesheet" href="../css/register.css">
+
   <script src="../js/shared.js" defer></script>
+  <script src="../js/api.js" defer></script>
   <script src="../js/register.js" defer></script>
 </head>
+
 <body>
   <div id="siteHeader"></div>
+
   <main class="page-shell" id="mainContent">
+
+    <!-- Page heading -->
     <div class="page-heading">
-      <div><span class="eyebrow">Local demonstration account</span><h1>Create your account</h1><p>Your information stays in this browser's localStorage.</p></div>
+      <div>
+        <span class="eyebrow">Join HawkerHub</span>
+
+        <h1>Create your account</h1>
+
+        <p>
+          Register as a Customer for personalised features or as a
+          Vendor to access stall-related services.
+        </p>
+      </div>
     </div>
-    <section class="card register-card">
+
+    <!-- Registration card -->
+    <section
+      class="card register-card"
+      aria-labelledby="createAccountHeading"
+    >
+      <h2 id="createAccountHeading">Create account</h2>
+
+      <p class="muted">
+        Public registration is available only for Customer and Vendor accounts.
+      </p>
+
       <form class="form-grid" id="registerForm" novalidate>
+
+        <!-- Full name -->
         <div class="field">
           <label for="fullName">Full name</label>
-          <input id="fullName" name="fullName" autocomplete="name" required>
+
+          <input
+            id="fullName"
+            name="fullName"
+            autocomplete="name"
+            maxlength="120"
+            required
+          >
+
           <p class="field-error" id="fullNameError"></p>
         </div>
+
+        <!-- Email -->
         <div class="field">
           <label for="email">Email</label>
-          <input id="email" name="email" type="email" autocomplete="email" required>
+
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            maxlength="254"
+            required
+          >
+
           <p class="field-error" id="emailError"></p>
         </div>
+
+        <!-- Phone -->
+        <div class="field">
+          <label for="phone">
+            Singapore phone number
+            <span class="muted">(optional)</span>
+          </label>
+
+          <input
+            id="phone"
+            name="phone"
+            inputmode="numeric"
+            autocomplete="tel"
+            maxlength="8"
+          >
+
+          <p class="field-error" id="phoneError"></p>
+        </div>
+
+        <!-- Role -->
+        <div class="field">
+          <label for="role">Account type</label>
+
+          <select id="role" name="role" required>
+            <option value="">Select an account type</option>
+            <option value="Customer">Customer</option>
+            <option value="Vendor">Vendor</option>
+          </select>
+
+          <p class="field-error" id="roleError"></p>
+        </div>
+
+        <!-- Password -->
         <div class="field">
           <label for="password">Password</label>
-          <input id="password" name="password" type="password" autocomplete="new-password" required>
-          <p class="field-help">Use at least 8 characters with a letter and number.</p>
+
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="new-password"
+            minlength="8"
+            maxlength="72"
+            required
+          >
+
+          <p class="field-help">
+            Use 8 to 72 characters with at least one letter and one number.
+          </p>
+
           <p class="field-error" id="passwordError"></p>
         </div>
+
+        <!-- Confirm password -->
         <div class="field">
           <label for="confirmPassword">Confirm password</label>
-          <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required>
+
+          <input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            autocomplete="new-password"
+            minlength="8"
+            maxlength="72"
+            required
+          >
+
           <p class="field-error" id="confirmPasswordError"></p>
         </div>
-        <div class="field field-full">
-          <label for="accountType">Account type</label>
-          <select id="accountType" name="accountType" required>
-            <option value="">Select an account type</option>
-            <option value="customer">Customer</option>
-            <option value="vendor">Vendor</option>
-            <option value="nea_officer">NEA Officer</option>
-            <option value="operator">Operator</option>
 
-          </select>
-          <p class="field-error" id="accountTypeError"></p>
-        </div>
+        <!-- Password visibility -->
         <div class="field field-full">
-          <label class="terms" for="terms"><input id="terms" type="checkbox"> I understand this is a local front-end demonstration and agree to the demo terms.</label>
-          <p class="field-error" id="termsError"></p>
+          <button
+            class="btn btn-muted password-toggle"
+            id="togglePassword"
+            type="button"
+            aria-pressed="false"
+          >
+            Show passwords
+          </button>
         </div>
+
+        <!-- Terms -->
         <div class="field field-full">
-          <button class="btn btn-primary" type="submit">Create account</button>
-          <a class="btn btn-muted" href="login.html">Back to login</a>
+          <label class="terms" for="termsAccepted">
+            <input
+              id="termsAccepted"
+              name="termsAccepted"
+              type="checkbox"
+              required
+            >
+
+            <span>
+              I accept the educational project terms and data notice.
+            </span>
+          </label>
+
+          <p class="field-error" id="termsAcceptedError"></p>
         </div>
+
+        <!-- Message -->
+        <div class="field field-full">
+          <p
+            class="notice notice-danger"
+            id="registerMessage"
+            role="alert"
+            hidden
+          ></p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="field field-full form-actions">
+          <button class="btn btn-primary" type="submit">
+            Create account
+          </button>
+
+          <a class="btn btn-muted" href="login.html">
+            Back to login
+          </a>
+        </div>
+
       </form>
-      <p class="notice notice-info" id="registerMessage" role="status" hidden></p>
     </section>
   </main>
+
   <div id="siteFooter"></div>
 </body>
 </html>

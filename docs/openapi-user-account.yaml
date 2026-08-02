@@ -1,0 +1,371 @@
+openapi: 3.0.3
+info:
+  title: HawkerHub User Account API
+  version: 1.0.0
+  description: User registration, authentication, profile and administrator account-management endpoints matching the current Express routes.
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+
+tags:
+  - name: Authentication
+  - name: Users
+
+paths:
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register a public account
+      description: Creates a Customer or Vendor account, hashes the password and returns a JWT with safe user details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSuccess' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409': { $ref: '#/components/responses/ConflictError' }
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Log in
+      description: Verifies the identifier and password and returns a JWT for an active account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSuccess' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+        '403': { $ref: '#/components/responses/AuthorizationError' }
+
+  /auth/me:
+    get:
+      tags: [Authentication]
+      summary: Retrieve the authenticated account
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Authenticated account returned
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserSuccess' }
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Log out
+      description: Confirms logout. The browser removes the JWT because this implementation uses stateless JWT authentication.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Logout confirmed
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Retrieve the current user's profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Profile returned
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserSuccess' }
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /users:
+    get:
+      tags: [Users]
+      summary: Retrieve user accounts
+      description: Administrator only.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100 }
+        - in: query
+          name: search
+          schema: { type: string, maxLength: 120 }
+        - in: query
+          name: role
+          schema: { $ref: '#/components/schemas/Role' }
+      responses:
+        '200':
+          description: User list returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message: { type: string, example: Users retrieved }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/User' }
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+        '403': { $ref: '#/components/responses/AuthorizationError' }
+    post:
+      tags: [Users]
+      summary: Create a user account
+      description: Administrator only. Supports all configured roles.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AdminCreateUserRequest' }
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserSuccess' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+        '403': { $ref: '#/components/responses/AuthorizationError' }
+        '409': { $ref: '#/components/responses/ConflictError' }
+
+  /users/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    get:
+      tags: [Users]
+      summary: Retrieve one user
+      description: The account owner or an Administrator can retrieve the account.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: User returned
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserSuccess' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+        '403': { $ref: '#/components/responses/AuthorizationError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+    put:
+      tags: [Users]
+      summary: Update a user account
+      description: Users may update their own allowlisted profile fields. Administrators may also change the role.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateUserRequest' }
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserSuccess' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+        '403': { $ref: '#/components/responses/AuthorizationError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/ConflictError' }
+    delete:
+      tags: [Users]
+      summary: Deactivate a user account
+      description: Performs soft deletion by changing the account status to Deactivated.
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Account deactivated
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+        '403': { $ref: '#/components/responses/AuthorizationError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+
+  /users/{userId}/status:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    patch:
+      tags: [Users]
+      summary: Change account status
+      description: Administrator only.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [Active, Deactivated, Suspended]
+      responses:
+        '200':
+          description: Account status updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserSuccess' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/AuthenticationError' }
+        '403': { $ref: '#/components/responses/AuthorizationError' }
+        '404': { $ref: '#/components/responses/NotFoundError' }
+        '409': { $ref: '#/components/responses/ConflictError' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    UserId:
+      in: path
+      name: userId
+      required: true
+      schema: { type: integer, minimum: 1 }
+
+  schemas:
+    Role:
+      type: string
+      enum: [Customer, Vendor, NEA Officer, Operator, Administrator]
+
+    RegisterRequest:
+      type: object
+      required: [fullName, email, password, confirmPassword, role, termsAccepted]
+      properties:
+        fullName: { type: string, minLength: 2, maxLength: 120, example: Alice Tan }
+        email: { type: string, format: email, maxLength: 254, example: alice@example.sg }
+        phone: { type: string, pattern: '^[689]\d{7}$', nullable: true, example: '91234567' }
+        password: { type: string, minLength: 8, maxLength: 72, format: password, example: Secure123 }
+        confirmPassword: { type: string, minLength: 8, maxLength: 72, format: password, example: Secure123 }
+        role: { type: string, enum: [Customer, Vendor] }
+        termsAccepted: { type: string, enum: ['true'], example: 'true' }
+
+    LoginRequest:
+      type: object
+      required: [identifier, password]
+      properties:
+        identifier: { type: string, minLength: 2, maxLength: 254, example: alice@example.sg }
+        password: { type: string, minLength: 1, maxLength: 72, format: password }
+
+    AdminCreateUserRequest:
+      type: object
+      required: [fullName, email, password, role]
+      properties:
+        fullName: { type: string, minLength: 2, maxLength: 120 }
+        email: { type: string, format: email, maxLength: 254 }
+        phone: { type: string, pattern: '^[689]\d{7}$', nullable: true }
+        password: { type: string, minLength: 8, maxLength: 72, format: password }
+        role: { $ref: '#/components/schemas/Role' }
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        fullName: { type: string, minLength: 2, maxLength: 120 }
+        email: { type: string, format: email, maxLength: 254 }
+        phone: { type: string, pattern: '^[689]\d{7}$', nullable: true }
+        role: { $ref: '#/components/schemas/Role' }
+
+    User:
+      type: object
+      properties:
+        userId: { type: integer, example: 12 }
+        fullName: { type: string, example: Alice Tan }
+        email: { type: string, format: email, example: alice@example.sg }
+        phone: { type: string, nullable: true, example: '91234567' }
+        roleName: { $ref: '#/components/schemas/Role' }
+        accountStatus: { type: string, enum: [Active, Deactivated, Suspended] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        stallId: { type: integer, nullable: true }
+        centreId: { type: integer, nullable: true }
+
+    AuthData:
+      type: object
+      required: [token, user]
+      properties:
+        token: { type: string, description: JWT access token }
+        user: { $ref: '#/components/schemas/User' }
+
+    AuthSuccess:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        message: { type: string }
+        data: { $ref: '#/components/schemas/AuthData' }
+
+    UserSuccess:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        message: { type: string }
+        data: { $ref: '#/components/schemas/User' }
+
+    PaginationMeta:
+      type: object
+      properties:
+        page: { type: integer }
+        limit: { type: integer }
+        total: { type: integer }
+
+    Error:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        message: { type: string }
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }
+
+  responses:
+    ValidationError:
+      description: Invalid request data
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    AuthenticationError:
+      description: Authentication is required or the credentials/token are invalid
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    AuthorizationError:
+      description: The authenticated account is not permitted to perform this action
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFoundError:
+      description: The requested account was not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ConflictError:
+      description: Duplicate email or conflicting account state
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }

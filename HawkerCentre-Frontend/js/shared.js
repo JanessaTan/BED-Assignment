@@ -2,9 +2,9 @@
   "use strict";
 
   const KEYS = {
-    users: "hc.users",
+    authToken: "hc.authToken",
     currentUser: "hc.currentUser",
-    role: "hc.role",
+    guestMode: "hc.guestMode",
     selectedCentre: "hc.selectedCentre",
     selectedStall: "hc.selectedStall",
     cart: "hc.cart",
@@ -20,6 +20,13 @@
     rentalAgreements: "hc.rentalAgreements",
     stallOperations: "hc.stallOperations"
   };
+
+  const LEGACY_AUTH_KEYS = [
+    "hc.users",
+    "hc.role",
+    "authToken",
+    "currentUser"
+  ];
 
   const CENTRES = [
     {
@@ -424,7 +431,8 @@
     ["promotion", "Promotions", "promotion.html"],
     ["cart", "Cart", "cart.html"],
     ["history", "Order History", "order-history.html"],
-    ["feedback", "Feedback", "feedback.html"]
+    ["feedback", "Feedback", "feedback.html"],
+    ["profile", "My Profile", "profile.html"]
   ];
 
   const VENDOR_NAV = [
@@ -433,19 +441,27 @@
     ["orders", "Orders", "order.html"],
     ["promotion", "Promotions", "promotion.html"],
     ["rental", "Rental Agreement", "rental-agreement.html"],
-    ["analytics", "Sales Analytics", "sales-analytics.html"]
+    ["analytics", "Sales Analytics", "sales-analytics.html"],
+    ["profile", "My Profile", "profile.html"]
   ];
 
   const NEA_NAV = [
     ["nea-dashboard", "NEA Dashboard", "nea-dashboard.html"],
-    ["inspections", "Inspections & Grades", "nea-inspections.html"]
+    ["inspections", "Inspections & Grades", "nea-inspections.html"],
+    ["profile", "My Profile", "profile.html"]
   ];
 
   const OPERATOR_NAV = [
     ["operator-dashboard", "Operator Dashboard", "operator-dashboard.html"],
     ["centre-operations", "Centre Operations", "centre-operations.html"],
     ["rental-management", "Rental Management", "rental-management.html"],
-    ["complaint-management", "Complaints", "complaint-management.html"]
+    ["complaint-management", "Complaints", "complaint-management.html"],
+    ["profile", "My Profile", "profile.html"]
+  ];
+
+  const ADMIN_NAV = [
+    ["admin-users", "User Management", "admin-users.html"],
+    ["profile", "My Profile", "profile.html"]
   ];
 
   function loadData(key, fallback) {
@@ -464,17 +480,9 @@
   }
 
   function ensureSeedData() {
-    const demoUsers = [
-      { id: "user-customer-demo", name: "Demo Customer", email: "customer@demo.sg", password: "Customer123", role: "customer" },
-      { id: "user-vendor-demo", name: "Demo Vendor", email: "vendor@demo.sg", password: "Vendor123", role: "vendor", stallId: "clementi-chicken-rice" },
-      { id: "user-nea-demo", name: "Demo NEA Officer", email: "nea@demo.sg", password: "NEAOfficer123", role: "nea_officer" },
-      { id: "user-operator-demo", name: "Demo Centre Operator", email: "operator@demo.sg", password: "Operator123", role: "operator", centreId: "clementi-centre-01" }
-    ];
-    const users = loadData(KEYS.users, []);
-    demoUsers.forEach((demoUser) => {
-      if (!users.some((user) => user.id === demoUser.id)) users.push(demoUser);
-    });
-    saveData(KEYS.users, users);
+    // Remove old browser-only accounts and plaintext demo passwords.
+    LEGACY_AUTH_KEYS.forEach((key) => localStorage.removeItem(key));
+
     if (!localStorage.getItem(KEYS.menuItems)) saveData(KEYS.menuItems, MENU_ITEMS);
     if (!localStorage.getItem(KEYS.promotions)) saveData(KEYS.promotions, PROMOTIONS);
     if (!localStorage.getItem(KEYS.cart)) saveData(KEYS.cart, []);
@@ -528,53 +536,260 @@
     ];
   }
 
+  function normalizeRole(role) {
+    const normalized = String(role || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[\s-]+/g, "_");
+
+    const roleMap = {
+      patron: "customer",
+      customer: "customer",
+      vendor: "vendor",
+      neaofficer: "nea_officer",
+      nea_officer: "nea_officer",
+      operator: "operator",
+      hawker_centre_operator: "operator",
+      administrator: "administrator",
+      admin: "administrator",
+      guest: "guest"
+    };
+
+    return roleMap[normalized] || normalized;
+  }
+
+  function sanitizeUser(user) {
+    if (!user || typeof user !== "object") return null;
+
+    const safeUser = { ...user };
+
+    [
+      "password",
+      "Password",
+      "passwordHash",
+      "PasswordHash",
+      "password_hash",
+      "hashedPassword",
+      "hashed_password",
+      "token",
+      "accessToken",
+      "refreshToken"
+    ].forEach((field) => delete safeUser[field]);
+
+    safeUser.id =
+      user.id ??
+      user.userId ??
+      user.UserID ??
+      user.user_id ??
+      user.sub ??
+      null;
+
+    safeUser.userId = safeUser.id;
+
+    safeUser.name =
+      user.name ??
+      user.fullName ??
+      user.FullName ??
+      user.username ??
+      user.email ??
+      "HawkerHub user";
+
+    safeUser.fullName =
+      user.fullName ??
+      user.FullName ??
+      user.name ??
+      safeUser.name;
+
+    safeUser.email = user.email ?? user.Email ?? null;
+    safeUser.phone = user.phone ?? user.Phone ?? null;
+    safeUser.accountStatus =
+      user.accountStatus ?? user.AccountStatus ?? user.status ?? null;
+
+    safeUser.role = normalizeRole(
+      user.role ??
+      user.roleName ??
+      user.RoleName ??
+      user.role_name
+    );
+
+    safeUser.roleName =
+      user.roleName ??
+      user.RoleName ??
+      user.role ??
+      null;
+
+    return safeUser;
+  }
+
+  function getAuthToken() {
+    return localStorage.getItem(KEYS.authToken);
+  }
+
+  function decodeJwtPayload(token) {
+    try {
+      const payload = String(token).split(".")[1];
+      if (!payload) return null;
+
+      const base64Payload = payload
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+
+      const paddedPayload = base64Payload.padEnd(
+        Math.ceil(base64Payload.length / 4) * 4,
+        "="
+      );
+
+      const decoded = decodeURIComponent(
+        atob(paddedPayload)
+          .split("")
+          .map((character) => {
+            return `%${character.charCodeAt(0).toString(16).padStart(2, "0")}`;
+          })
+          .join("")
+      );
+
+      return JSON.parse(decoded);
+    } catch (error) {
+      console.warn("Could not read the authentication token.", error);
+      return null;
+    }
+  }
+
+  function isTokenExpired(token) {
+    const payload = decodeJwtPayload(token);
+    if (!payload || !payload.exp) return false;
+    return Date.now() >= Number(payload.exp) * 1000;
+  }
+
   function getCurrentUser() {
-    return loadData(KEYS.currentUser, null);
+    const storedUser = loadData(KEYS.currentUser, null);
+    if (storedUser) return sanitizeUser(storedUser);
+
+    const token = getAuthToken();
+    const payload = token ? decodeJwtPayload(token) : null;
+    return payload ? sanitizeUser(payload) : null;
   }
 
   function setCurrentUser(user) {
-    saveData(KEYS.currentUser, user);
-    saveData(KEYS.role, user ? user.role : null);
+    const safeUser = sanitizeUser(user);
+
+    if (!safeUser) {
+      localStorage.removeItem(KEYS.currentUser);
+      return null;
+    }
+
+    saveData(KEYS.currentUser, safeUser);
+    return safeUser;
+  }
+
+  function setAuthSession(token, user) {
+    if (!token) {
+      throw new Error("An authentication token is required.");
+    }
+
+    localStorage.removeItem(KEYS.guestMode);
+    localStorage.setItem(KEYS.authToken, token);
+    return setCurrentUser(user);
+  }
+
+  function setGuestSession() {
+    clearAuthSession();
+    localStorage.setItem(KEYS.guestMode, "true");
+    return setCurrentUser({
+      id: "guest",
+      fullName: "Guest",
+      email: null,
+      role: "guest",
+      roleName: "Guest",
+      accountStatus: "Guest"
+    });
+  }
+
+  function isGuestSession() {
+    return localStorage.getItem(KEYS.guestMode) === "true" &&
+      getRole() === "guest";
+  }
+
+  function clearAuthSession() {
+    localStorage.removeItem(KEYS.authToken);
+    localStorage.removeItem(KEYS.currentUser);
+    localStorage.removeItem(KEYS.guestMode);
+    LEGACY_AUTH_KEYS.forEach((key) => localStorage.removeItem(key));
   }
 
   function getRole() {
     const currentUser = getCurrentUser();
-    return currentUser ? currentUser.role : null;
+    return currentUser ? normalizeRole(currentUser.role) : null;
+  }
+
+  function getLandingPage(roleInput) {
+    const role = normalizeRole(roleInput || getRole());
+    const landingPages = {
+      customer: "home.html",
+      guest: "home.html",
+      vendor: "vendor-dashboard.html",
+      nea_officer: "nea-dashboard.html",
+      operator: "operator-dashboard.html",
+      administrator: "admin-users.html"
+    };
+
+    return landingPages[role] || "login.html";
   }
 
   function requireLogin() {
-    if (!getCurrentUser()) {
-      const next = encodeURIComponent(window.location.pathname + window.location.search);
+    if (isGuestSession()) return true;
+
+    const token = getAuthToken();
+
+    if (!token || isTokenExpired(token)) {
+      clearAuthSession();
+      const next = encodeURIComponent(
+        window.location.pathname + window.location.search
+      );
       window.location.replace(`login.html?next=${next}`);
       return false;
     }
+
     return true;
   }
 
   function requireRole(allowedRoles) {
     if (!requireLogin()) return false;
-    const allowed = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+
+    const allowed = (
+      Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles]
+    ).map(normalizeRole);
+
     const role = getRole();
+
     if (!allowed.includes(role)) {
-      showToast("That page is not available for your account role.", "error");
+      showToast(
+        "That page is not available for your account role.",
+        "error"
+      );
+
       window.setTimeout(function redirectForRole() {
-        const landingPages = {
-          customer: "home.html",
-          guest: "home.html",
-          vendor: "vendor-dashboard.html",
-          nea_officer: "nea-dashboard.html",
-          operator: "operator-dashboard.html"
-        };
-        window.location.replace(landingPages[role] || "login.html");
+        window.location.replace(getLandingPage(role));
       }, 250);
+
       return false;
     }
+
     return true;
   }
 
-  function logout() {
-    localStorage.removeItem(KEYS.currentUser);
-    localStorage.removeItem(KEYS.role);
+  async function logout() {
+    const token = getAuthToken();
+
+    if (token && typeof global.apiRequest === "function") {
+      try {
+        await global.apiRequest("/auth/logout", { method: "POST" });
+      } catch (error) {
+        console.warn("Server logout was not completed.", error);
+      }
+    }
+
+    clearAuthSession();
     window.location.replace("login.html");
   }
 
@@ -825,27 +1040,32 @@
     if (!headerTarget) return;
 
     const user = getCurrentUser();
-    const role = user ? user.role : null;
+    const role = getRole();
     let navItems = [];
+
     if (role === "vendor") navItems = VENDOR_NAV;
     if (role === "customer" || role === "guest") navItems = CUSTOMER_NAV;
     if (role === "nea_officer") navItems = NEA_NAV;
     if (role === "operator") navItems = OPERATOR_NAV;
+    if (role === "administrator") navItems = ADMIN_NAV;
 
     const navLinks = navItems.map(([key, label, href]) => {
-      const cartBadge = key === "cart" ? '<span class="cart-count" data-cart-count>0</span>' : "";
+      const cartBadge = key === "cart"
+        ? '<span class="cart-count" data-cart-count>0</span>'
+        : "";
+
       return `<a class="${key === "cart" ? "cart-link" : ""}" href="${href}" ${key === activePage ? 'aria-current="page"' : ""}>${label}${cartBadge}</a>`;
     }).join("");
 
     const accountControl = user
-      ? `<button type="button" data-logout>Logout <span class="sr-only">${escapeHtml(user.name)}</span></button>`
+      ? `<button type="button" data-logout>Logout <span class="sr-only">${escapeHtml(user.name || user.email || "user")}</span></button>`
       : '<a href="login.html">Login</a>';
 
     headerTarget.innerHTML = `
       <a class="skip-link" href="#mainContent">Skip to main content</a>
       <header class="site-header">
         <div class="header-inner">
-          <a class="brand" href="${role === "vendor" ? "vendor-dashboard.html" : role === "nea_officer" ? "nea-dashboard.html" : role === "operator" ? "operator-dashboard.html" : "home.html"}" aria-label="HawkerHub home">
+          <a class="brand" href="${getLandingPage(role)}" aria-label="HawkerHub home">
             <span class="brand-mark" aria-hidden="true">HH</span>
             <span>HawkerHub<small>Singapore hawker companion</small></span>
           </a>
@@ -861,11 +1081,16 @@
 
     const toggle = headerTarget.querySelector(".nav-toggle");
     const nav = headerTarget.querySelector(".site-nav");
-    toggle.addEventListener("click", function toggleNavigation() {
+
+    toggle?.addEventListener("click", function toggleNavigation() {
       const open = nav.classList.toggle("open");
       toggle.setAttribute("aria-expanded", String(open));
     });
-    headerTarget.querySelector("[data-logout]")?.addEventListener("click", logout);
+
+    headerTarget
+      .querySelector("[data-logout]")
+      ?.addEventListener("click", logout);
+
     updateCartCount();
 
     if (options && options.minimal) {
@@ -876,27 +1101,33 @@
   function renderFooter() {
     const footerTarget = document.getElementById("siteFooter");
     if (!footerTarget) return;
+
     const year = new Date().getFullYear();
     const role = getRole();
-    const quickLinks = role === "nea_officer"
-      ? '<li><a href="nea-dashboard.html">NEA dashboard</a></li><li><a href="nea-inspections.html">Inspections & grades</a></li>'
-      : role === "operator"
-        ? '<li><a href="centre-operations.html">Centre operations</a></li><li><a href="rental-management.html">Rental management</a></li><li><a href="complaint-management.html">Complaint management</a></li>'
-        : role === "vendor"
-          ? '<li><a href="vendor-dashboard.html">Vendor dashboard</a></li><li><a href="menu-management.html">Menu management</a></li><li><a href="sales-analytics.html">Sales analytics</a></li>'
-          : '<li><a href="browse-hawker-centres.html">Browse centres</a></li><li><a href="crowd-level.html">Check crowd levels</a></li><li><a href="promotion.html">View promotions</a></li>';
+    let quickLinks;
+
+    if (role === "administrator") {
+      quickLinks = '<li><a href="admin-users.html">User management</a></li><li><a href="profile.html">My profile</a></li>';
+    } else if (role === "nea_officer") {
+      quickLinks = '<li><a href="nea-dashboard.html">NEA dashboard</a></li><li><a href="nea-inspections.html">Inspections & grades</a></li><li><a href="profile.html">My profile</a></li>';
+    } else if (role === "operator") {
+      quickLinks = '<li><a href="centre-operations.html">Centre operations</a></li><li><a href="rental-management.html">Rental management</a></li><li><a href="profile.html">My profile</a></li>';
+    } else if (role === "vendor") {
+      quickLinks = '<li><a href="vendor-dashboard.html">Vendor dashboard</a></li><li><a href="menu-management.html">Menu management</a></li><li><a href="profile.html">My profile</a></li>';
+    } else {
+      quickLinks = '<li><a href="browse-hawker-centres.html">Browse centres</a></li><li><a href="crowd-level.html">Check crowd levels</a></li><li><a href="promotion.html">View promotions</a></li>';
+    }
+
     footerTarget.innerHTML = `
       <footer class="site-footer">
         <div class="footer-inner">
           <section>
             <h2>HawkerHub</h2>
-            <p>A student front-end demonstration for exploring Singapore hawker centres, ordering food and supporting vendors.</p>
+            <p>A student web application for exploring Singapore hawker centres and managing role-specific services.</p>
           </section>
           <section>
             <h3>Quick links</h3>
-            <ul>
-              ${quickLinks}
-            </ul>
+            <ul>${quickLinks}</ul>
           </section>
           <section>
             <h3>Project</h3>
@@ -906,7 +1137,7 @@
             </ul>
           </section>
         </div>
-        <div class="footer-bottom">&copy; ${year} HawkerHub. Educational front-end demonstration.</div>
+        <div class="footer-bottom">&copy; ${year} HawkerHub. Educational project.</div>
       </footer>`;
   }
 
@@ -919,8 +1150,15 @@
   }
 
   function resetDemoData() {
+    const token = getAuthToken();
+    const user = getCurrentUser();
+    const guest = localStorage.getItem(KEYS.guestMode);
+
     Object.values(KEYS).forEach((key) => localStorage.removeItem(key));
     ensureSeedData();
+
+    if (token && user) setAuthSession(token, user);
+    if (!token && guest === "true") setGuestSession();
   }
 
   global.HC = {
@@ -931,9 +1169,19 @@
     loadData,
     saveData,
     ensureSeedData,
+    normalizeRole,
+    sanitizeUser,
+    getAuthToken,
+    decodeJwtPayload,
+    isTokenExpired,
     getCurrentUser,
     setCurrentUser,
+    setAuthSession,
+    setGuestSession,
+    isGuestSession,
+    clearAuthSession,
     getRole,
+    getLandingPage,
     requireLogin,
     requireRole,
     logout,

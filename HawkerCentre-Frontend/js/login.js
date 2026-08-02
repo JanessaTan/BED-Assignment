@@ -1,79 +1,120 @@
-document.addEventListener("DOMContentLoaded", function initialiseLogin() {
-  HC.ensureSeedData();
-  HC.renderHeader("", { minimal: true });
-  HC.renderFooter();
+document.addEventListener("DOMContentLoaded", () => {
+  "use strict";
+
+  HC.initPage(null, null, { minimal: true });
 
   const form = document.getElementById("loginForm");
+  const identifierInput = document.getElementById("identifier");
   const passwordInput = document.getElementById("password");
+  const identifierError = document.getElementById("identifierError");
+  const passwordError = document.getElementById("passwordError");
+  const loginMessage = document.getElementById("loginMessage");
+  const submitButton = form.querySelector('button[type="submit"]');
   const togglePassword = document.getElementById("togglePassword");
-  const message = document.getElementById("loginMessage");
+  const guestButton = document.getElementById("guestButton");
 
-  function setError(id, text) {
-    document.getElementById(id).textContent = text;
-  }
+  form.addEventListener("submit", handleLogin);
+  togglePassword.addEventListener("click", togglePasswordVisibility);
+  guestButton.addEventListener("click", continueAsGuest);
 
-  function clearErrors() {
-    ["identifierError", "passwordError", "roleError"].forEach((id) => setError(id, ""));
-    message.hidden = true;
-  }
-
-  togglePassword.addEventListener("click", function togglePasswordVisibility() {
-    const showing = passwordInput.type === "text";
-    passwordInput.type = showing ? "password" : "text";
-    togglePassword.textContent = showing ? "Show" : "Hide";
-    togglePassword.setAttribute("aria-pressed", String(!showing));
-  });
-
-  form.addEventListener("submit", function handleLogin(event) {
+  async function handleLogin(event) {
     event.preventDefault();
-    clearErrors();
+    clearMessages();
 
-    const identifier = document.getElementById("identifier").value.trim().toLowerCase();
+    const identifier = identifierInput.value.trim();
     const password = passwordInput.value;
-    const role = document.getElementById("role").value;
+
     let valid = true;
 
     if (!identifier) {
-      setError("identifierError", "Enter your email or username.");
+      identifierError.textContent = "Email or username is required.";
       valid = false;
     }
+
     if (!password) {
-      setError("passwordError", "Enter your password.");
+      passwordError.textContent = "Password is required.";
       valid = false;
     }
-    if (!role) {
-      setError("roleError", "Select the account role.");
-      valid = false;
-    }
+
     if (!valid) return;
 
-    const users = HC.loadData(HC.KEYS.users, []);
-    const user = users.find((candidate) => {
-      const emailMatches = candidate.email.toLowerCase() === identifier;
-      const nameMatches = candidate.name.toLowerCase() === identifier;
-      return (emailMatches || nameMatches) && candidate.password === password && candidate.role === role;
-    });
+    try {
+      setLoading(true);
 
-    if (!user) {
-      message.textContent = "The details do not match the selected role. Check the demo account information and try again.";
-      message.hidden = false;
+      const response = await apiPost("/auth/login", {
+        identifier,
+        password
+      });
+
+      const token = response?.data?.token;
+      const loginUser = response?.data?.user;
+
+      if (!token || !loginUser) {
+        throw new Error("The login response did not contain a token and user account.");
+      }
+
+      HC.setAuthSession(token, loginUser);
+
+      // Confirm the token and refresh the user from the backend.
+      const profileResponse = await apiGet("/auth/me");
+      const verifiedUser = profileResponse?.data || loginUser;
+      HC.setAuthSession(token, verifiedUser);
+
+      showMessage(response.message || "Login successful.", "success");
+      redirectAfterLogin(verifiedUser);
+    } catch (error) {
+      console.error("Login failed:", error);
+      showMessage(
+        error.status === 401
+          ? "The email/username or password is incorrect."
+          : error.message || "Unable to log in.",
+        "error"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function redirectAfterLogin(user) {
+    const requestedPage = new URLSearchParams(window.location.search).get("next");
+
+    if (requestedPage && requestedPage.startsWith("/") && !requestedPage.startsWith("//")) {
+      window.location.replace(requestedPage);
       return;
     }
 
-    const safeUser = { id: user.id, name: user.name, email: user.email, role: user.role, stallId: user.stallId, centreId: user.centreId };
-    HC.setCurrentUser(safeUser);
-    const next = HC.getQueryParameter("next");
-    const roleLandingPages = {
-      customer: "home.html",
-      vendor: "vendor-dashboard.html",
-      nea_officer: "nea-dashboard.html",
-      operator: "operator-dashboard.html"
-    };
-    window.location.href = next || roleLandingPages[user.role] || "home.html";
-  });
+    window.location.replace(HC.getLandingPage(user.roleName || user.role));
+  }
 
-  document.getElementById("guestButton").addEventListener("click", function continueAsGuest() {
-    HC.setCurrentUser({ id: `guest-${Date.now()}`, name: "Guest", role: "guest" });
-    window.location.href = "home.html";
-  });
+  function continueAsGuest() {
+    HC.setGuestSession();
+    window.location.href = "browse-hawker-centres.html";
+  }
+
+  function togglePasswordVisibility() {
+    const reveal = passwordInput.type === "password";
+    passwordInput.type = reveal ? "text" : "password";
+    togglePassword.textContent = reveal ? "Hide" : "Show";
+    togglePassword.setAttribute("aria-pressed", String(reveal));
+  }
+
+  function clearMessages() {
+    identifierError.textContent = "";
+    passwordError.textContent = "";
+    loginMessage.textContent = "";
+    loginMessage.hidden = true;
+  }
+
+  function showMessage(message, type) {
+    loginMessage.textContent = message;
+    loginMessage.hidden = false;
+    loginMessage.className = type === "success"
+      ? "notice notice-success"
+      : "notice notice-danger";
+  }
+
+  function setLoading(loading) {
+    submitButton.disabled = loading;
+    submitButton.textContent = loading ? "Signing in..." : "Sign in";
+  }
 });
