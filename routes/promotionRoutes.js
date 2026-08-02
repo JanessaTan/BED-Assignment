@@ -1,55 +1,54 @@
 const express = require("express");
-const promotionController = require("../controllers/promotionController");
-const { authenticate, authorize } = require("../middlewares/auth");
-const validate = require("../middlewares/validate");
+const controller = require("../controllers/promotionController");
+const validator = require("../validators/promotionValidator");
+const authenticateToken = require("../middlewares/authenticateToken");
+const authorizeRole = require("../middlewares/authorizeRole");
 const asyncHandler = require("../utils/asyncHandler");
-const schemas = require("../validators/promotionsSchemas");
-
+const { ROLES } = require("../config/constants");
 const router = express.Router();
-
+// Retrieve promotions
 router.get(
   "/",
-  validate(schemas.listQuery, "query"),
-  asyncHandler(promotionController.listActivePromotions)
+  validator.list,
+  asyncHandler(controller.list)
 );
+// Retrieve one promotion
 router.get(
-  "/active",
-  validate(schemas.listQuery, "query"),
-  asyncHandler(promotionController.listActivePromotions)
+  "/:promotionId",
+  validator.id,
+  asyncHandler(controller.getOne)
 );
-router.get(
-  "/mine",
-  authenticate,
-  authorize("vendor"),
-  validate(schemas.listQuery, "query"),
-  asyncHandler(promotionController.listMyPromotions)
-);
+// Create a promotion
 router.post(
   "/",
-  authenticate,
-  authorize("vendor"),
-  validate(schemas.create),
-  asyncHandler(promotionController.createPromotion)
+  authenticateToken,
+  authorizeRole(
+    ROLES.VENDOR,
+    ROLES.ADMINISTRATOR
+  ),
+  validator.create,
+  asyncHandler(controller.create)
 );
-router.get(
+// Update a promotion
+router.put(
   "/:promotionId",
-  validate(schemas.promotionParams, "params"),
-  asyncHandler(promotionController.getPromotion)
+  authenticateToken,
+  authorizeRole(
+    ROLES.VENDOR,
+    ROLES.ADMINISTRATOR
+  ),
+  validator.update,
+  asyncHandler(controller.update)
 );
-router.patch(
-  "/:promotionId",
-  authenticate,
-  authorize("vendor"),
-  validate(schemas.promotionParams, "params"),
-  validate(schemas.update),
-  asyncHandler(promotionController.updatePromotion)
-);
+// Deactivate a promotion
 router.delete(
   "/:promotionId",
-  authenticate,
-  authorize("vendor"),
-  validate(schemas.promotionParams, "params"),
-  asyncHandler(promotionController.deletePromotion)
+  authenticateToken,
+  authorizeRole(
+    ROLES.VENDOR,
+    ROLES.ADMINISTRATOR
+  ),
+  validator.id,
+  asyncHandler(controller.remove)
 );
-
 module.exports = router;
