@@ -239,15 +239,14 @@ CREATE TABLE dbo.Likes
     StallID varchar(4) NOT NULL,
     ItemCode varchar(10) NOT NULL,
 
+    CONSTRAINT PK_Likes
+        PRIMARY KEY (CustomerID, StallID, ItemCode),
 
-    --CONSTRAINT PK_Likes 
-    --    PRIMARY KEY (CustomerID, ItemCode),
-
-    CONSTRAINT FK_Likes_CustomerID 
+    CONSTRAINT FK_Likes_CustomerID
         FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
 
-    CONSTRAINT FK_Likes_MenuItem 
-        FOREIGN KEY (StallID, ItemCode) 
+    CONSTRAINT FK_Likes_MenuItem
+        FOREIGN KEY (StallID, ItemCode)
         REFERENCES MenuItem(StallID, ItemCode)
 );
 GO
@@ -346,7 +345,9 @@ INSERT INTO FoodStall VALUES
 ('S032', '#06-05', 'Claypot Delights', 'Claypot rice specialties', 'HC06');
 
 
-insert into Customer values ('CU001','S1234567A','Alex Tan','91234567','alex@gmail.com'),
+insert into Customer values 
+('CU000','S0000000A','Demo Customer','98765432','customer@demo.sg'),
+('CU001','S1234567A','Alex Tan','91234567','alex@gmail.com'),
 ('CU002','S2345678B','Mei Ling','92345678','mei@gmail.com'),
 ('CU003','S3456789C','Raj Kumar','93456789','raj@gmail.com'),
 ('CU004','S4567890D','Sarah Lim','94567890','sarah@gmail.com'),
