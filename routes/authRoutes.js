@@ -1,18 +1,38 @@
-const express = require("express");
-const authController = require("../controllers/authController");
-const asyncHandler = require("../utils/asyncHandler");
-const validate = require("../middlewares/validate");
-const schemas = require("../validators/authSchemas");
+const express = require("express"),
+  controller = require("../controllers/authController"),
+  validator = require("../validators/authValidator"),
+  asyncHandler = require("../utils/asyncHandler"),
+  authenticate = require("../middlewares/authenticateToken");
 
+// Create the authentication router
 const router = express.Router();
 
-router.post("/register", validate(schemas.register), asyncHandler(authController.register));
-router.post("/login", validate(schemas.login), asyncHandler(authController.login));
-// Compatibility with the former two-tab login page.
+// Register a new account
 router.post(
-  "/vendor-login",
-  validate(schemas.login),
-  asyncHandler(authController.vendorLogin)
+  "/register",
+  validator.register,
+  asyncHandler(controller.register)
+);
+
+// Log in to an account
+router.post(
+  "/login",
+  validator.login,
+  asyncHandler(controller.login)
+);
+
+// Get the authenticated user's information
+router.get(
+  "/me",
+  authenticate,
+  asyncHandler(controller.me)
+);
+
+// Log out from the account
+router.post(
+  "/logout",
+  authenticate,
+  asyncHandler(controller.logout)
 );
 
 module.exports = router;

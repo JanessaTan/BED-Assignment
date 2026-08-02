@@ -1,48 +1,57 @@
 const express = require("express");
-const userController = require("../controllers/userController");
-const { authenticate, authorize } = require("../middlewares/auth");
-const validate = require("../middlewares/validate");
+const controller = require("../controllers/userController");
+const validator = require("../validators/userValidator");
+const authenticateToken = require("../middlewares/authenticateToken");
+const authorizeRole = require("../middlewares/authorizeRole");
+const authorizeOwnership = require("../middlewares/authorizeOwnership");
 const asyncHandler = require("../utils/asyncHandler");
-const schemas = require("../validators/userSchemas");
-
+const { ROLES } = require("../config/constants");
 const router = express.Router();
-router.use(authenticate);
-
+// Require authentication for all routes
+router.use(authenticateToken);
+// Retrieve the authenticated user
+router.get(
+  "/me",
+  asyncHandler(controller.getMe)
+);
+// Create a user account
 router.post(
   "/",
-  authorize("administrator"),
-  validate(schemas.adminCreate),
-  asyncHandler(userController.createUser)
+  authorizeRole(ROLES.ADMINISTRATOR),
+  validator.create,
+  asyncHandler(controller.create)
 );
+// Retrieve all users
 router.get(
   "/",
-  authorize("administrator"),
-  validate(schemas.listQuery, "query"),
-  asyncHandler(userController.listUsers)
+  authorizeRole(ROLES.ADMINISTRATOR),
+  validator.list,
+  asyncHandler(controller.list)
 );
-router.get("/me", asyncHandler(userController.getMe));
-router.patch(
-  "/me",
-  validate(schemas.updateMe),
-  asyncHandler(userController.updateMe)
-);
+// Retrieve one user
 router.get(
   "/:userId",
-  validate(schemas.userParams, "params"),
-  asyncHandler(userController.getUser)
+  validator.id,
+  authorizeOwnership("userId"),
+  asyncHandler(controller.getOne)
 );
-router.patch(
+// Update a user account
+router.put(
   "/:userId",
-  authorize("administrator"),
-  validate(schemas.userParams, "params"),
-  validate(schemas.adminUpdate),
-  asyncHandler(userController.updateUser)
+  validator.update,
+  asyncHandler(controller.update)
 );
+// Update account status
+router.patch(
+  "/:userId/status",
+  authorizeRole(ROLES.ADMINISTRATOR),
+  validator.status,
+  asyncHandler(controller.updateStatus)
+);
+// Deactivate a user account
 router.delete(
   "/:userId",
-  authorize("administrator"),
-  validate(schemas.userParams, "params"),
-  asyncHandler(userController.deactivateUser)
+  validator.id,
+  asyncHandler(controller.remove)
 );
-
 module.exports = router;
