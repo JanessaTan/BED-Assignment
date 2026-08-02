@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
                         </span>
                         <strong>
                             ${HC.formatCurrency(
-                                item.quantity * item.rice
+                                item.quantity * item.price
                             )}
                         </strong>
                     </div>
