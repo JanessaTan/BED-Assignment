@@ -1,55 +1,110 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel");
+const {
+  hashPassword,
+  comparePassword
+} = require("../utils/passwordUtils");
+const { createToken } = require("../utils/tokenUtils");
+const {
+  created,
+  success
+} = require("../utils/responseUtils");
 const AppError = require("../utils/AppError");
-
-function publicUser(user) {
-  const { passwordHash, ...safeUser } = user;
-  return safeUser;
+// Create the login response data
+function authPayload(user) {
+  return {
+    token: createToken(user),
+    user
+  };
 }
-
+// Register a new user account
 async function register(req, res) {
-  if (await userModel.emailExists(req.body.email)) {
-    throw new AppError(409, "An account with this email already exists");
+  const existingUser = await userModel.findByIdentifier(req.body.email);
+  if (
+    existingUser &&
+    existingUser.email.toLowerCase() === req.body.email.toLowerCase()
+  ) {
+    throw new AppError(
+      409,
+      "An account with this email already exists",
+      [
+        {
+          field: "email",
+          message: "Email is already registered"
+        }
+      ]
+    );
   }
-
-  const passwordHash = await bcrypt.hash(req.body.password, 12);
-  const user = await userModel.createUser({
+  const passwordHash = await hashPassword(req.body.password);
+  const user = await userModel.create({
     ...req.body,
-    role: "customer",
     passwordHash
   });
-
-  res.status(201).json({
-    success: true,
-    message: "Customer account created successfully",
-    data: publicUser(user)
-  });
-}
-
-async function login(req, res) {
-  const user = await userModel.findByEmail(req.body.email, true);
-  const matches =
-    user && (await bcrypt.compare(req.body.password, user.passwordHash));
-
-  if (!user || !matches || !user.isActive) {
-    throw new AppError(401, "Invalid email or password");
-  }
-
-  const token = jwt.sign(
-    { userId: user.userId, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || "2h" }
+  return created(
+    res,
+    "Account created successfully",
+    authPayload(user)
   );
-
-  res.json({
-    success: true,
-    message: "Login successful",
-    data: {
-      token,
-      user: publicUser(user)
-    }
-  });
 }
-
-module.exports = { register, login, vendorLogin: login };
+// Log in an existing user
+async function login(req, res) {
+  const user = await userModel.findByIdentifier(req.body.identifier);
+  const passwordMatches = user
+    ? await comparePassword(req.body.password, user.passwordHash)
+    : false;
+  const roleDoesNotMatch =
+    req.body.role &&
+    req.body.role !== user?.roleName;
+  if (!user || !passwordMatches || roleDoesNotMatch) {
+    throw new AppError(
+      401,
+      "The login details are incorrect for the selected role"
+    );
+  }
+  if (user.accountStatus !== "Active") {
+    throw new AppError(
+      403,
+      "This account is not active"
+    );
+  }
+  const {
+    passwordHash,
+    ...safeUser
+  } = user;
+  return success(
+    res,
+    200,
+    "Login successful",
+    authPayload(safeUser)
+  );
+}
+// Retrieve the authenticated user's account
+async function me(req, res) {
+  const user = await userModel.findById(req.user.userId);
+  if (!user) {
+    throw new AppError(
+      404,
+      "User account was not found"
+    );
+  }
+  return success(
+    res,
+    200,
+    "Authenticated user retrieved",
+    user
+  );
+}
+// Log out the current user
+async function logout(req, res) {
+  return success(
+    res,
+    200,
+    "Logout successful. Remove the token from browser storage.",
+    null
+  );
+}
+module.exports = {
+  register,
+  login,
+  me,
+  logout
+};

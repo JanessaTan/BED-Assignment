@@ -1,366 +1,422 @@
-const { sql, getPool } = require("../config/database");
-const cuisineModel = require("./cuisineModel");
-const AppError = require("../utils/AppError");
-
-const ITEM_SELECT = `
-  m.MenuItemID AS itemId,
-  m.StallID AS stallId,
-  m.ItemCode AS itemCode,
-  m.ItemDesc AS itemName,
-  m.ItemDetails AS description,
-  CAST(m.ItemPrice AS DECIMAL(10, 2)) AS price,
-  m.ItemCategory AS category,
-  m.ImageURL AS imageUrl,
-  m.IsAvailable AS isAvailable,
-  m.IsActive AS isActive,
-  m.IsVegetarian AS isVegetarian,
-  m.DietaryInfo AS dietaryInfo,
-  m.CreatedAt AS createdAt,
-  m.UpdatedAt AS updatedAt,
-  fs.StallName AS stallName,
+const {
+  sql,
+  getPool,
+  request,
+  pageValues
+} = require("./modelHelper");
+// Select menu item information
+const columns = `
+  mi.menu_item_id AS menuItemId,
+  mi.stall_id AS stallId,
+  s.name AS stallName,
+  s.centre_id AS centreId,
+  mi.name,
+  mi.category,
+  mi.description,
+  mi.price,
+  mi.preparation_minutes AS preparationMinutes,
+  mi.is_available AS isAvailable,
   (
-    SELECT c.CuisineID AS cuisineId, c.CuisineDesc AS name
-    FROM dbo.MenuItemCuisine mc
-    INNER JOIN dbo.Cuisine c ON c.CuisineID = mc.CuisineID
-    WHERE mc.StallID = m.StallID AND mc.ItemCode = m.ItemCode
-    ORDER BY c.CuisineDesc
-    FOR JSON PATH
-  ) AS cuisinesJson
+    SELECT STRING_AGG(c.name, '|')
+    FROM menu_item_cuisines mic
+    JOIN cuisines c
+      ON c.cuisine_id = mic.cuisine_id
+    WHERE mic.menu_item_id = mi.menu_item_id
+  ) AS cuisineNames,
+  (
+    SELECT STRING_AGG(
+      CAST(mic.cuisine_id AS VARCHAR(12)),
+      '|'
+    )
+    FROM menu_item_cuisines mic
+    WHERE mic.menu_item_id = mi.menu_item_id
+  ) AS cuisineIds,
+  (
+    SELECT COUNT(*)
+    FROM menu_item_likes ml
+    WHERE ml.menu_item_id = mi.menu_item_id
+  ) AS likeCount
 `;
-
-function normalizeItem(row) {
-  if (!row) return null;
-  const { cuisinesJson, totalCount, ...item } = row;
+// Convert database values
+function normalise(row) {
   return {
-    ...item,
-    price: Number(item.price),
-    cuisines: cuisinesJson ? JSON.parse(cuisinesJson) : []
+    ...row,
+    price: Number(row.price),
+    cuisines: row.cuisineNames
+      ? row.cuisineNames.split("|")
+      : [],
+    cuisineIds: row.cuisineIds
+      ? row.cuisineIds.split("|").map(Number)
+      : []
   };
 }
-
-async function list(filters, options = {}) {
-  const pool = await getPool();
-  const request = pool.request();
-  const where = [];
-  const publicOnly = options.publicOnly !== false;
-
-  if (publicOnly) {
-    where.push("m.IsActive = 1", "m.IsAvailable = 1");
-  } else if (filters.availability && filters.availability !== "all") {
-    request.input(
-      "isAvailable",
-      sql.Bit,
-      filters.availability === "available"
-    );
-    where.push("m.IsAvailable = @isAvailable");
-  }
-
-  if (filters.ownerId) {
-    request.input("ownerId", sql.VarChar(5), filters.ownerId);
-    where.push(`
-      EXISTS (
-        SELECT 1
-        FROM dbo.RentalAgreement ra
-        WHERE ra.StallID = m.StallID
-          AND ra.OwnerID = @ownerId
-          AND (ra.AgrStartDate IS NULL OR ra.AgrStartDate <= GETDATE())
-          AND (ra.AgrEndDate IS NULL OR ra.AgrEndDate >= GETDATE())
-      )
-    `);
-  }
-  if (filters.search) {
-    request.input("search", sql.NVarChar(102), `%${filters.search}%`);
-    where.push("m.ItemDesc LIKE @search");
-  }
-  if (filters.stallId) {
-    request.input("stallId", sql.VarChar(4), filters.stallId);
-    where.push("m.StallID = @stallId");
-  }
-  if (filters.category) {
-    request.input("category", sql.NVarChar(50), filters.category);
-    where.push("m.ItemCategory = @category");
-  }
-  if (filters.cuisineId) {
-    request.input("cuisineId", sql.VarChar(10), filters.cuisineId);
-    where.push(`
-      EXISTS (
-        SELECT 1 FROM dbo.MenuItemCuisine filterCuisine
-        WHERE filterCuisine.StallID = m.StallID
-          AND filterCuisine.ItemCode = m.ItemCode
-          AND filterCuisine.CuisineID = @cuisineId
-      )
-    `);
-  }
-
-  const sortColumns = { name: "m.ItemDesc", price: "m.ItemPrice" };
-  const sortColumn = sortColumns[filters.sortBy] || sortColumns.name;
-  const sortDirection = filters.sortDir === "desc" ? "DESC" : "ASC";
-  const page = filters.page || 1;
-  const limit = filters.limit || 12;
-  request.input("offset", sql.Int, (page - 1) * limit);
-  request.input("limit", sql.Int, limit);
-
-  const result = await request.query(`
-    SELECT ${ITEM_SELECT}, COUNT(*) OVER() AS totalCount
-    FROM dbo.MenuItem m
-    INNER JOIN dbo.FoodStall fs ON fs.StallID = m.StallID
-    ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
-    ORDER BY ${sortColumn} ${sortDirection}, m.MenuItemID
-    OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
+// Retrieve available add-ons
+async function addOns(menuItemId) {
+  const req = await request();
+  req.input(
+    "menuItemId",
+    sql.Int,
+    menuItemId
+  );
+  const result = await req.query(`
+    SELECT
+      add_on_id AS addOnId,
+      name,
+      price,
+      is_available AS isAvailable
+    FROM menu_add_ons
+    WHERE menu_item_id = @menuItemId
+      AND is_available = 1
+    ORDER BY name;
   `);
-
-  const total = result.recordset[0]?.totalCount || 0;
+  return result.recordset.map((row) => ({
+    ...row,
+    price: Number(row.price)
+  }));
+}
+// Retrieve menu items
+async function list(filters = {}) {
+  const { page, limit, offset } =
+    pageValues(filters);
+  const req = await request();
+  req.input(
+    "stallId",
+    sql.Int,
+    filters.stallId || null
+  );
+  req.input(
+    "cuisineId",
+    sql.Int,
+    filters.cuisineId || null
+  );
+  req.input(
+    "search",
+    sql.NVarChar(100),
+    filters.search
+      ? `%${filters.search}%`
+      : null
+  );
+  req.input(
+    "category",
+    sql.NVarChar(60),
+    filters.category || null
+  );
+  req.input(
+    "available",
+    sql.Bit,
+    filters.available === undefined
+      ? null
+      : filters.available
+  );
+  req.input("offset", sql.Int, offset);
+  req.input("limit", sql.Int, limit);
+  const sort =
+    filters.sort === "price_asc"
+      ? "mi.price ASC"
+      : filters.sort === "price_desc"
+        ? "mi.price DESC"
+        : filters.sort === "name"
+          ? "mi.name ASC"
+          : "likeCount DESC, mi.name ASC";
+  const result = await req.query(`
+    SELECT
+      ${columns},
+      COUNT(*) OVER() AS totalCount
+    FROM menu_items mi
+    JOIN stalls s
+      ON s.stall_id = mi.stall_id
+    WHERE s.is_active = 1
+      AND (
+        @stallId IS NULL
+        OR mi.stall_id = @stallId
+      )
+      AND (
+        @search IS NULL
+        OR mi.name LIKE @search
+        OR mi.description LIKE @search
+      )
+      AND (
+        @category IS NULL
+        OR mi.category = @category
+      )
+      AND (
+        @available IS NULL
+        OR mi.is_available = @available
+      )
+      AND (
+        @cuisineId IS NULL
+        OR EXISTS (
+          SELECT 1
+          FROM menu_item_cuisines
+          WHERE menu_item_id =
+            mi.menu_item_id
+            AND cuisine_id = @cuisineId
+        )
+      )
+    ORDER BY ${sort}
+    OFFSET @offset ROWS
+    FETCH NEXT @limit ROWS ONLY;
+  `);
+  const total =
+    result.recordset[0]?.totalCount || 0;
+  const rows = [];
+  for (const raw of result.recordset) {
+    const { totalCount, ...row } = raw;
+    rows.push({
+      ...normalise(row),
+      addOns: await addOns(row.menuItemId)
+    });
+  }
   return {
-    items: result.recordset.map(normalizeItem),
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit)
-    }
+    rows,
+    page,
+    limit,
+    total
   };
 }
-
-async function findById(itemId, includeInactive = false) {
-  const pool = await getPool();
-  const request = pool.request().input("itemId", sql.Int, itemId);
-  const result = await request.query(`
-    SELECT ${ITEM_SELECT}
-    FROM dbo.MenuItem m
-    INNER JOIN dbo.FoodStall fs ON fs.StallID = m.StallID
-    WHERE m.MenuItemID = @itemId
-      ${includeInactive ? "" : "AND m.IsActive = 1 AND m.IsAvailable = 1"}
+// Find a menu item by ID
+async function findById(menuItemId) {
+  const req = await request();
+  req.input(
+    "menuItemId",
+    sql.Int,
+    menuItemId
+  );
+  const result = await req.query(`
+    SELECT ${columns}
+    FROM menu_items mi
+    JOIN stalls s
+      ON s.stall_id = mi.stall_id
+    WHERE mi.menu_item_id = @menuItemId;
   `);
-  return normalizeItem(result.recordset[0]);
+  const row = result.recordset[0];
+  return row
+    ? {
+        ...normalise(row),
+        addOns: await addOns(menuItemId)
+      }
+    : null;
 }
-
-async function stallExists(stallId) {
-  const pool = await getPool();
-  const result = await pool
-    .request()
-    .input("stallId", sql.VarChar(4), stallId)
-    .query("SELECT 1 AS found FROM dbo.FoodStall WHERE StallID = @stallId");
-  return result.recordset.length > 0;
-}
-
-async function isStallOwnedBy(stallId, ownerId) {
-  if (!ownerId) return false;
-  const pool = await getPool();
-  const result = await pool
-    .request()
-    .input("stallId", sql.VarChar(4), stallId)
-    .input("ownerId", sql.VarChar(5), ownerId)
-    .query(`
-      SELECT TOP 1 1 AS found
-      FROM dbo.RentalAgreement
-      WHERE StallID = @stallId
-        AND OwnerID = @ownerId
-        AND (AgrStartDate IS NULL OR AgrStartDate <= GETDATE())
-        AND (AgrEndDate IS NULL OR AgrEndDate >= GETDATE())
-    `);
-  return result.recordset.length > 0;
-}
-
-async function getOwnedStalls(ownerId) {
-  if (!ownerId) return [];
-  const pool = await getPool();
-  const result = await pool
-    .request()
-    .input("ownerId", sql.VarChar(5), ownerId)
-    .query(`
-      SELECT DISTINCT fs.StallID AS stallId, fs.StallName AS stallName
-      FROM dbo.RentalAgreement ra
-      INNER JOIN dbo.FoodStall fs ON fs.StallID = ra.StallID
-      WHERE ra.OwnerID = @ownerId
-        AND (ra.AgrStartDate IS NULL OR ra.AgrStartDate <= GETDATE())
-        AND (ra.AgrEndDate IS NULL OR ra.AgrEndDate >= GETDATE())
-      ORDER BY fs.StallName
-    `);
-  return result.recordset;
-}
-
-async function insertCuisineLinks(transaction, stallId, itemCode, cuisineIds) {
+// Save cuisines and add-ons
+async function saveChildren(
+  transaction,
+  menuItemId,
+  data
+) {
+  const removeRequest =
+    new sql.Request(transaction);
+  removeRequest.input(
+    "menuItemId",
+    sql.Int,
+    menuItemId
+  );
+  await removeRequest.query(`
+    DELETE FROM menu_item_cuisines
+    WHERE menu_item_id = @menuItemId;
+    DELETE FROM menu_add_ons
+    WHERE menu_item_id = @menuItemId;
+  `);
+  const cuisineIds = [
+    ...new Set(data.cuisineIds)
+  ];
   for (const cuisineId of cuisineIds) {
-    await new sql.Request(transaction)
-      .input("cuisineId", sql.VarChar(10), cuisineId)
-      .input("stallId", sql.VarChar(4), stallId)
-      .input("itemCode", sql.VarChar(10), itemCode)
-      .query(`
-        INSERT INTO dbo.MenuItemCuisine (CuisineID, StallID, ItemCode)
-        VALUES (@cuisineId, @stallId, @itemCode)
-      `);
+    const req = new sql.Request(transaction);
+    req.input(
+      "menuItemId",
+      sql.Int,
+      menuItemId
+    );
+    req.input(
+      "cuisineId",
+      sql.Int,
+      cuisineId
+    );
+    await req.query(`
+      INSERT INTO menu_item_cuisines (
+        menu_item_id,
+        cuisine_id
+      )
+      VALUES (
+        @menuItemId,
+        @cuisineId
+      );
+    `);
+  }
+  for (const addOn of data.addOns || []) {
+    const req = new sql.Request(transaction);
+    req.input(
+      "menuItemId",
+      sql.Int,
+      menuItemId
+    );
+    req.input(
+      "name",
+      sql.NVarChar(100),
+      addOn.name
+    );
+    req.input(
+      "price",
+      sql.Decimal(10, 2),
+      addOn.price
+    );
+    await req.query(`
+      INSERT INTO menu_add_ons (
+        menu_item_id,
+        name,
+        price
+      )
+      VALUES (
+        @menuItemId,
+        @name,
+        @price
+      );
+    `);
   }
 }
-
+// Bind menu item values
+function bind(req, data) {
+  return req
+    .input("stallId", sql.Int, data.stallId)
+    .input(
+      "name",
+      sql.NVarChar(150),
+      data.name
+    )
+    .input(
+      "category",
+      sql.NVarChar(60),
+      data.category
+    )
+    .input(
+      "description",
+      sql.NVarChar(600),
+      data.description
+    )
+    .input(
+      "price",
+      sql.Decimal(10, 2),
+      data.price
+    )
+    .input(
+      "prep",
+      sql.Int,
+      data.preparationMinutes
+    )
+    .input(
+      "available",
+      sql.Bit,
+      data.isAvailable
+    );
+}
+// Create a menu item
 async function create(data) {
   const pool = await getPool();
-  const transaction = new sql.Transaction(pool);
+  const transaction =
+    new sql.Transaction(pool);
   await transaction.begin();
-
   try {
-    const validCuisineCount = await cuisineModel.countActiveByIds(
-      data.cuisineIds,
-      transaction
+    const req = bind(
+      new sql.Request(transaction),
+      data
     );
-    if (validCuisineCount !== data.cuisineIds.length) {
-      throw new AppError(400, "One or more cuisine IDs are invalid or inactive");
-    }
-
-    const sequenceResult = await new sql.Request(transaction).query(
-      "SELECT NEXT VALUE FOR dbo.MenuItemCodeSequence AS nextNumber"
-    );
-    const itemCode = `I${String(
-      sequenceResult.recordset[0].nextNumber
-    ).padStart(4, "0")}`;
-
-    const insertResult = await new sql.Request(transaction)
-      .input("stallId", sql.VarChar(4), data.stallId)
-      .input("itemCode", sql.VarChar(10), itemCode)
-      .input("itemName", sql.NVarChar(100), data.itemName)
-      .input("description", sql.NVarChar(500), data.description || null)
-      .input("price", sql.Decimal(10, 2), data.price)
-      .input("category", sql.NVarChar(50), data.category)
-      .input("imageUrl", sql.NVarChar(500), data.imageUrl || null)
-      .input("isAvailable", sql.Bit, data.isAvailable)
-      .input("isVegetarian", sql.Bit, data.isVegetarian)
-      .input("dietaryInfo", sql.NVarChar(200), data.dietaryInfo || null)
-      .query(`
-        INSERT INTO dbo.MenuItem (
-          StallID, ItemCode, ItemDesc, ItemDetails, ItemPrice,
-          ItemCategory, ImageURL, IsAvailable, IsActive,
-          IsVegetarian, DietaryInfo
-        )
-        OUTPUT INSERTED.MenuItemID
-        VALUES (
-          @stallId, @itemCode, @itemName, @description, @price,
-          @category, @imageUrl, @isAvailable, 1,
-          @isVegetarian, @dietaryInfo
-        )
-      `);
-
-    await insertCuisineLinks(
-      transaction,
-      data.stallId,
-      itemCode,
-      data.cuisineIds
-    );
-    const itemId = insertResult.recordset[0].MenuItemID;
-    await transaction.commit();
-    return findById(itemId, true);
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
-  }
-}
-
-async function update(itemId, data) {
-  const existing = await findById(itemId, true);
-  if (!existing) return null;
-
-  const pool = await getPool();
-  const transaction = new sql.Transaction(pool);
-  await transaction.begin();
-
-  try {
-    if (data.cuisineIds) {
-      const validCuisineCount = await cuisineModel.countActiveByIds(
-        data.cuisineIds,
-        transaction
+    const result = await req.query(`
+      INSERT INTO menu_items (
+        stall_id,
+        name,
+        category,
+        description,
+        price,
+        preparation_minutes,
+        is_available
+      )
+      OUTPUT INSERTED.menu_item_id
+      VALUES (
+        @stallId,
+        @name,
+        @category,
+        @description,
+        @price,
+        @prep,
+        @available
       );
-      if (validCuisineCount !== data.cuisineIds.length) {
-        throw new AppError(
-          400,
-          "One or more cuisine IDs are invalid or inactive"
-        );
-      }
-    }
-
-    const merged = {
-      itemName: data.itemName ?? existing.itemName,
-      description:
-        data.description !== undefined ? data.description : existing.description,
-      price: data.price ?? existing.price,
-      category: data.category ?? existing.category,
-      imageUrl: data.imageUrl !== undefined ? data.imageUrl : existing.imageUrl,
-      isAvailable: data.isAvailable ?? existing.isAvailable,
-      isVegetarian: data.isVegetarian ?? existing.isVegetarian,
-      dietaryInfo:
-        data.dietaryInfo !== undefined
-          ? data.dietaryInfo
-          : existing.dietaryInfo
-    };
-
-    await new sql.Request(transaction)
-      .input("itemId", sql.Int, itemId)
-      .input("itemName", sql.NVarChar(100), merged.itemName)
-      .input("description", sql.NVarChar(500), merged.description || null)
-      .input("price", sql.Decimal(10, 2), merged.price)
-      .input("category", sql.NVarChar(50), merged.category)
-      .input("imageUrl", sql.NVarChar(500), merged.imageUrl || null)
-      .input("isAvailable", sql.Bit, merged.isAvailable)
-      .input("isVegetarian", sql.Bit, merged.isVegetarian)
-      .input("dietaryInfo", sql.NVarChar(200), merged.dietaryInfo || null)
-      .query(`
-        UPDATE dbo.MenuItem
-        SET ItemDesc = @itemName,
-            ItemDetails = @description,
-            ItemPrice = @price,
-            ItemCategory = @category,
-            ImageURL = @imageUrl,
-            IsAvailable = @isAvailable,
-            IsVegetarian = @isVegetarian,
-            DietaryInfo = @dietaryInfo,
-            UpdatedAt = SYSUTCDATETIME()
-        WHERE MenuItemID = @itemId AND IsActive = 1
-      `);
-
-    if (data.cuisineIds) {
-      await new sql.Request(transaction)
-        .input("stallId", sql.VarChar(4), existing.stallId)
-        .input("itemCode", sql.VarChar(10), existing.itemCode)
-        .query(`
-          DELETE FROM dbo.MenuItemCuisine
-          WHERE StallID = @stallId AND ItemCode = @itemCode
-        `);
-      await insertCuisineLinks(
-        transaction,
-        existing.stallId,
-        existing.itemCode,
-        data.cuisineIds
-      );
-    }
-
-    await transaction.commit();
-    return findById(itemId, true);
-  } catch (error) {
-    await transaction.rollback();
-    throw error;
-  }
-}
-
-async function deactivate(itemId) {
-  const pool = await getPool();
-  const result = await pool
-    .request()
-    .input("itemId", sql.Int, itemId)
-    .query(`
-      UPDATE dbo.MenuItem
-      SET IsActive = 0,
-          IsAvailable = 0,
-          UpdatedAt = SYSUTCDATETIME()
-      WHERE MenuItemID = @itemId AND IsActive = 1
     `);
-  return result.rowsAffected[0] > 0;
+    const menuItemId =
+      result.recordset[0].menu_item_id;
+    await saveChildren(
+      transaction,
+      menuItemId,
+      data
+    );
+    await transaction.commit();
+    return findById(menuItemId);
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 }
-
+// Update a menu item
+async function update(menuItemId, data) {
+  const pool = await getPool();
+  const transaction =
+    new sql.Transaction(pool);
+  await transaction.begin();
+  try {
+    const req = bind(
+      new sql.Request(transaction),
+      data
+    );
+    req.input(
+      "menuItemId",
+      sql.Int,
+      menuItemId
+    );
+    await req.query(`
+      UPDATE menu_items
+      SET
+        stall_id = @stallId,
+        name = @name,
+        category = @category,
+        description = @description,
+        price = @price,
+        preparation_minutes = @prep,
+        is_available = @available,
+        updated_at = SYSUTCDATETIME()
+      WHERE menu_item_id = @menuItemId;
+    `);
+    await saveChildren(
+      transaction,
+      menuItemId,
+      data
+    );
+    await transaction.commit();
+    return findById(menuItemId);
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+}
+// Make a menu item unavailable
+async function remove(menuItemId) {
+  const req = await request();
+  req.input(
+    "menuItemId",
+    sql.Int,
+    menuItemId
+  );
+  const result = await req.query(`
+    UPDATE menu_items
+    SET
+      is_available = 0,
+      updated_at = SYSUTCDATETIME()
+    WHERE menu_item_id = @menuItemId;
+    SELECT @@ROWCOUNT AS affected;
+  `);
+  return result.recordset[0].affected;
+}
 module.exports = {
   list,
   findById,
-  stallExists,
-  isStallOwnedBy,
-  getOwnedStalls,
   create,
   update,
-  deactivate,
-  normalizeItem
+  remove
 };

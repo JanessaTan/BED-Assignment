@@ -1,56 +1,54 @@
 const express = require("express");
-const menuItemController = require("../controllers/menuItemController");
-const { authenticate, authorize } = require("../middlewares/auth");
-const validate = require("../middlewares/validate");
+const controller = require("../controllers/menuItemController");
+const validator = require("../validators/menuItemValidator");
+const authenticateToken = require("../middlewares/authenticateToken");
+const authorizeRole = require("../middlewares/authorizeRole");
 const asyncHandler = require("../utils/asyncHandler");
-const schemas = require("../validators/menuItemSchemas");
-
+const { ROLES } = require("../config/constants");
 const router = express.Router();
-
+// Retrieve menu items
 router.get(
   "/",
-  validate(schemas.listQuery, "query"),
-  asyncHandler(menuItemController.listMenuItems)
+  validator.list,
+  asyncHandler(controller.list)
 );
+// Retrieve one menu item
 router.get(
-  "/vendor/stalls",
-  authenticate,
-  authorize("vendor"),
-  asyncHandler(menuItemController.listOwnedStalls)
+  "/:menuItemId",
+  validator.id,
+  asyncHandler(controller.getOne)
 );
-router.get(
-  "/vendor/mine",
-  authenticate,
-  authorize("vendor"),
-  validate(schemas.listQuery, "query"),
-  asyncHandler(menuItemController.listMyMenuItems)
-);
+// Create a menu item
 router.post(
   "/",
-  authenticate,
-  authorize("vendor"),
-  validate(schemas.create),
-  asyncHandler(menuItemController.createMenuItem)
+  authenticateToken,
+  authorizeRole(
+    ROLES.VENDOR,
+    ROLES.ADMINISTRATOR
+  ),
+  validator.create,
+  asyncHandler(controller.create)
 );
-router.get(
-  "/:itemId",
-  validate(schemas.itemParams, "params"),
-  asyncHandler(menuItemController.getMenuItem)
+// Update a menu item
+router.put(
+  "/:menuItemId",
+  authenticateToken,
+  authorizeRole(
+    ROLES.VENDOR,
+    ROLES.ADMINISTRATOR
+  ),
+  validator.update,
+  asyncHandler(controller.update)
 );
-router.patch(
-  "/:itemId",
-  authenticate,
-  authorize("vendor"),
-  validate(schemas.itemParams, "params"),
-  validate(schemas.update),
-  asyncHandler(menuItemController.updateMenuItem)
-);
+// Make a menu item unavailable
 router.delete(
-  "/:itemId",
-  authenticate,
-  authorize("vendor"),
-  validate(schemas.itemParams, "params"),
-  asyncHandler(menuItemController.deleteMenuItem)
+  "/:menuItemId",
+  authenticateToken,
+  authorizeRole(
+    ROLES.VENDOR,
+    ROLES.ADMINISTRATOR
+  ),
+  validator.id,
+  asyncHandler(controller.remove)
 );
-
 module.exports = router;

@@ -1,180 +1,64 @@
 const stallModel = require("../models/stallModel");
-
-// GET /api/stalls?hc=HC01
-async function getAllStalls(req, res) {
-    try {
-        const stalls = await stallModel.getAllStalls(req.query.hc);
-
-        return res.status(200).json(stalls);
-    } catch (error) {
-        console.error("Error fetching stalls:", error);
-
-        return res.status(500).json({
-            message: "Error fetching stalls",
-            error: error.message
-        });
-    }
+const { ROLES } = require("../config/constants");
+const { success, created } = require("../utils/responseUtils");
+const AppError = require("../utils/AppError");
+// Retrieve all stalls
+async function list(req, res) {
+  const result = await stallModel.list(req.query);
+  return success(res, 200, "Stalls retrieved", result.rows, {
+    page: result.page,
+    limit: result.limit,
+    total: result.total
+  });
 }
-
-// GET /api/stalls/:id
-async function getStall(req, res) {
-    try {
-        const stall = await stallModel.getStallById(req.params.id);
-
-        if (!stall) {
-            return res.status(404).json({
-                message: "Stall not found"
-            });
-        }
-
-        return res.status(200).json(stall);
-    } catch (error) {
-        console.error("Error fetching stall:", error);
-
-        return res.status(500).json({
-            message: "Error fetching stall",
-            error: error.message
-        });
-    }
+// Retrieve one stall
+async function getOne(req, res) {
+  const stall = await stallModel.findById(req.params.stallId);
+  if (!stall) {
+    throw new AppError(404, "Stall was not found");
+  }
+  return success(res, 200, "Stall retrieved", stall);
 }
-
-// GET /api/stalls/:id/menu
-async function getStallMenu(req, res) {
-    try {
-        const stall = await stallModel.getStallById(req.params.id);
-
-        if (!stall) {
-            return res.status(404).json({
-                message: "Stall not found"
-            });
-        }
-
-        const menuItems = await stallModel.getMenuByStallId(
-            req.params.id
-        );
-
-        return res.status(200).json({
-            stall: stall.StallName,
-            menu: menuItems
-        });
-    } catch (error) {
-        console.error("Error fetching stall menu:", error);
-
-        return res.status(500).json({
-            message: "Error fetching menu",
-            error: error.message
-        });
-    }
+// Check whether the user can manage the stall
+async function ensureOwner(req, stallId) {
+  if (req.user.role === ROLES.ADMINISTRATOR) {
+    return;
+  }
+  const ownsStall = await stallModel.vendorOwns(req.user.userId, stallId);
+  if (!ownsStall) {
+    throw new AppError(403, "You can manage only your own stall");
+  }
 }
-
-// POST /api/stalls
-async function addStall(req, res) {
-    try {
-        const {
-            stallUnitNo,
-            stallName,
-            stallDesc,
-            hawkerCentreId
-        } = req.body;
-
-        if (!stallName || !hawkerCentreId) {
-            return res.status(400).json({
-                message:
-                    "stallName and hawkerCentreId are required"
-            });
-        }
-
-        const newStall = await stallModel.createStall({
-            stallUnitNo,
-            stallName,
-            stallDesc,
-            hawkerCentreId
-        });
-
-        return res.status(201).json(newStall);
-    } catch (error) {
-        console.error("Error creating stall:", error);
-
-        return res.status(500).json({
-            message: "Error creating stall",
-            error: error.message
-        });
-    }
+// Create a stall
+async function create(req, res) {
+  const vendorId =
+    req.user.role === ROLES.ADMINISTRATOR
+      ? req.body.vendorId || req.user.userId
+      : req.user.userId;
+  const stall = await stallModel.create(req.body, vendorId);
+  return created(res, "Stall created", stall);
 }
-
-// PUT /api/stalls/:id
-async function editStall(req, res) {
-    try {
-        const { stallName, stallDesc } = req.body;
-
-        if (!stallName) {
-            return res.status(400).json({
-                message: "stallName is required"
-            });
-        }
-
-        const existingStall = await stallModel.getStallById(
-            req.params.id
-        );
-
-        if (!existingStall) {
-            return res.status(404).json({
-                message: "Stall not found"
-            });
-        }
-
-        const updatedStall = await stallModel.updateStall(
-            req.params.id,
-            {
-                stallName,
-                stallDesc
-            }
-        );
-
-        return res.status(200).json(updatedStall);
-    } catch (error) {
-        console.error("Error updating stall:", error);
-
-        return res.status(500).json({
-            message: "Error updating stall",
-            error: error.message
-        });
-    }
+// Update a stall
+async function update(req, res) {
+  const stallId = req.params.stallId;
+  await ensureOwner(req, stallId);
+  const updatedStall = await stallModel.update(stallId, req.body);
+  return success(res, 200, "Stall updated", updatedStall);
 }
-
-// DELETE /api/stalls/:id
-async function removeStall(req, res) {
-    try {
-        const existingStall = await stallModel.getStallById(
-            req.params.id
-        );
-
-        if (!existingStall) {
-            return res.status(404).json({
-                message: "Stall not found"
-            });
-        }
-
-        await stallModel.deleteStall(req.params.id);
-
-        return res.status(200).json({
-            message: "Stall deleted successfully"
-        });
-    } catch (error) {
-        console.error("Error deleting stall:", error);
-
-        return res.status(500).json({
-            message: "Error deleting stall",
-            error: error.message
-        });
-    }
+// Deactivate a stall
+async function remove(req, res) {
+  const stallId = req.params.stallId;
+  await ensureOwner(req, stallId);
+  const removed = await stallModel.remove(stallId);
+  if (!removed) {
+    throw new AppError(404, "Stall was not found");
+  }
+  return success(res, 200, "Stall deactivated", null);
 }
-
 module.exports = {
-    getAllStalls,
-    getStall,
-    getStallMenu,
-    addStall,
-    editStall,
-    removeStall
+  list,
+  getOne,
+  create,
+  update,
+  remove
 };

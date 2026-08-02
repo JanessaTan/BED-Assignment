@@ -1,191 +1,71 @@
-const promotionModel = require("../models/promotionModel");
-const menuItemModel = require("../models/menuItemModel");
-const promotionService = require("../services/promotionService");
+const model = require("../models/promotionModel");
+const stallModel = require("../models/stallModel");
+const { ROLES } = require("../config/constants");
+const { success, created } = require("../utils/responseUtils");
 const AppError = require("../utils/AppError");
-
-function requireLinkedVendor(req) {
-  if (!req.user.ownerId) {
-    throw new AppError(
-      403,
-      "This vendor account is not linked to a stall-owner profile"
-    );
-  }
-}
-
-function validatePromotionRules(data) {
-  if (new Date(data.startDate) > new Date(data.endDate)) {
-    throw new AppError(400, "Start date cannot be after end date");
-  }
-  if (
-    data.discountType === "PERCENT" &&
-    (data.discountValue <= 0 || data.discountValue > 100)
-  ) {
-    throw new AppError(
-      400,
-      "Percentage discount must be above 0 and no more than 100"
-    );
-  }
-  if (data.discountType === "FIXED" && data.discountValue <= 0) {
-    throw new AppError(400, "Fixed discount must be above 0");
-  }
-}
-
-async function resolveItem(stallId, itemId) {
-  if (!itemId) return null;
-  const item = await menuItemModel.findById(itemId, true);
-  if (!item || !item.isActive) {
-    throw new AppError(400, "The selected menu item does not exist");
-  }
-  if (item.stallId !== stallId) {
-    throw new AppError(400, "The selected menu item belongs to another stall");
-  }
-  return item;
-}
-
-async function listActivePromotions(req, res) {
-  const result = await promotionModel.listActive(req.query);
-  res.json({
-    success: true,
-    message: "Active promotions retrieved successfully",
-    data: result.promotions.map(promotionService.enrichPromotion),
-    pagination: result.pagination
+// Retrieve all promotions
+async function list(req, res) {
+  const result = await model.list(req.query);
+  return success(res, 200, "Promotions retrieved", result.rows, {
+    page: result.page,
+    limit: result.limit,
+    total: result.total
   });
 }
-
-async function getPromotion(req, res) {
-  const promotion = await promotionModel.findById(
-    Number(req.params.promotionId),
-    true
-  );
-  if (!promotion) throw new AppError(404, "Active promotion not found");
-  res.json({
-    success: true,
-    message: "Promotion retrieved successfully",
-    data: promotionService.enrichPromotion(promotion)
-  });
-}
-
-async function listMyPromotions(req, res) {
-  requireLinkedVendor(req);
-  const result = await promotionModel.listMine(req.user.ownerId, req.query);
-  res.json({
-    success: true,
-    message: "Vendor promotions retrieved successfully",
-    data: result.promotions.map(promotionService.enrichPromotion),
-    pagination: result.pagination
-  });
-}
-
-async function createPromotion(req, res) {
-  requireLinkedVendor(req);
-  if (!(await menuItemModel.stallExists(req.body.stallId))) {
-    throw new AppError(400, "The selected stall does not exist");
+// Retrieve one promotion
+async function getOne(req, res) {
+  const promotion = await model.findById(req.params.promotionId);
+  if (!promotion) {
+    throw new AppError(404, "Promotion was not found");
   }
-  if (
-    !(await menuItemModel.isStallOwnedBy(
-      req.body.stallId,
-      req.user.ownerId
-    ))
-  ) {
-    throw new AppError(
-      403,
-      "You cannot create a promotion for another vendor's stall"
-    );
-  }
-
-  const item = await resolveItem(req.body.stallId, req.body.itemId);
-  validatePromotionRules(req.body);
-  const promotion = await promotionModel.create({
-    ...req.body,
-    itemCode: item?.itemCode || null
-  });
-
-  res.status(201).json({
-    success: true,
-    message: "Promotion created successfully",
-    data: promotionService.enrichPromotion(promotion)
-  });
+  return success(res, 200, "Promotion retrieved", promotion);
 }
-
-async function updatePromotion(req, res) {
-  requireLinkedVendor(req);
-  const promotionId = Number(req.params.promotionId);
-  const existing = await promotionModel.findById(promotionId);
-  if (!existing) throw new AppError(404, "Promotion not found");
-  if (
-    !(await menuItemModel.isStallOwnedBy(
-      existing.stallId,
-      req.user.ownerId
-    ))
-  ) {
-    throw new AppError(
-      403,
-      "You cannot update another vendor's promotion"
-    );
+// Check whether the user can manage the stall
+async function owner(req, stallId) {
+  const isAdministrator = req.user.role === ROLES.ADMINISTRATOR;
+  if (!isAdministrator) {
+    const ownsStall = await stallModel.vendorOwns(req.user.userId, stallId);
+    if (!ownsStall) {
+      throw new AppError(
+        403,
+        "You can manage promotions only for your own stall"
+      );
+    }
   }
-
-  const merged = {
-    promotionName: req.body.promotionName ?? existing.promotionName,
-    description:
-      req.body.description !== undefined
-        ? req.body.description
-        : existing.description,
-    startDate: req.body.startDate ?? existing.startDate,
-    endDate: req.body.endDate ?? existing.endDate,
-    discountType: req.body.discountType ?? existing.discountType,
-    discountValue: req.body.discountValue ?? existing.discountValue,
-    isActive: req.body.isActive ?? existing.isActive
-  };
-  validatePromotionRules(merged);
-
-  let itemCode = existing.itemCode;
-  if (Object.prototype.hasOwnProperty.call(req.body, "itemId")) {
-    const item = await resolveItem(existing.stallId, req.body.itemId);
-    itemCode = item?.itemCode || null;
-  }
-
-  const promotion = await promotionModel.update(promotionId, {
-    ...merged,
-    itemCode
-  });
-  res.json({
-    success: true,
-    message: "Promotion updated successfully",
-    data: promotionService.enrichPromotion(promotion)
-  });
 }
-
-async function deletePromotion(req, res) {
-  requireLinkedVendor(req);
-  const promotionId = Number(req.params.promotionId);
-  const existing = await promotionModel.findById(promotionId);
-  if (!existing) throw new AppError(404, "Promotion not found");
-  if (
-    !(await menuItemModel.isStallOwnedBy(
-      existing.stallId,
-      req.user.ownerId
-    ))
-  ) {
-    throw new AppError(
-      403,
-      "You cannot deactivate another vendor's promotion"
-    );
-  }
-
-  await promotionModel.deactivate(promotionId);
-  res.json({
-    success: true,
-    message: "Promotion deactivated successfully",
-    data: { promotionId }
-  });
+// Create a promotion
+async function create(req, res) {
+  await owner(req, req.body.stallId);
+  const promotion = await model.create(req.body);
+  return created(res, "Promotion created", promotion);
 }
-
+// Update a promotion
+async function update(req, res) {
+  const promotionId = req.params.promotionId;
+  const existingPromotion = await model.findById(promotionId);
+  if (!existingPromotion) {
+    throw new AppError(404, "Promotion was not found");
+  }
+  await owner(req, existingPromotion.stallId);
+  await owner(req, req.body.stallId);
+  const updatedPromotion = await model.update(promotionId, req.body);
+  return success(res, 200, "Promotion updated", updatedPromotion);
+}
+// Deactivate a promotion
+async function remove(req, res) {
+  const promotionId = req.params.promotionId;
+  const existingPromotion = await model.findById(promotionId);
+  if (!existingPromotion) {
+    throw new AppError(404, "Promotion was not found");
+  }
+  await owner(req, existingPromotion.stallId);
+  await model.remove(promotionId);
+  return success(res, 200, "Promotion deactivated", null);
+}
 module.exports = {
-  listActivePromotions,
-  listAllActivePromotions: listActivePromotions,
-  getPromotion,
-  listMyPromotions,
-  createPromotion,
-  updatePromotion,
-  deletePromotion
+  list,
+  getOne,
+  create,
+  update,
+  remove
 };

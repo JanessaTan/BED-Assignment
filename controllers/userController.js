@@ -1,141 +1,99 @@
-const bcrypt = require("bcryptjs");
 const userModel = require("../models/userModel");
+const { hashPassword } = require("../utils/passwordUtils");
+const { success, created } = require("../utils/responseUtils");
 const AppError = require("../utils/AppError");
-
-async function createUser(req, res) {
-  if (await userModel.emailExists(req.body.email)) {
-    throw new AppError(409, "An account with this email already exists");
-  }
-
-  const passwordHash = await bcrypt.hash(req.body.password, 12);
-  const user = await userModel.createUser({
+const { ROLES } = require("../config/constants");
+// Create a user account
+async function create(req, res) {
+  const passwordHash = await hashPassword(req.body.password);
+  const user = await userModel.create({
     ...req.body,
     passwordHash
   });
-
-  res.status(201).json({
-    success: true,
-    message: "User account created successfully",
-    data: user
+  return created(res, "User account created", user);
+}
+// Retrieve all users
+async function list(req, res) {
+  const result = await userModel.list(req.query);
+  return success(res, 200, "Users retrieved", result.rows, {
+    page: result.page,
+    limit: result.limit,
+    total: result.total
   });
 }
-
-async function listUsers(req, res) {
-  const result = await userModel.listUsers(req.query);
-  res.json({
-    success: true,
-    message: "Users retrieved successfully",
-    data: result.users,
-    pagination: result.pagination
-  });
+// Retrieve one user
+async function getOne(req, res) {
+  const user = await userModel.findById(req.params.userId);
+  if (!user) {
+    throw new AppError(404, "User account was not found");
+  }
+  return success(res, 200, "User retrieved", user);
 }
-
+// Retrieve the authenticated user
 async function getMe(req, res) {
-  const user = await userModel.findById(req.user.userId);
-  res.json({
-    success: true,
-    message: "Profile retrieved successfully",
-    data: user
-  });
+  req.params.userId = req.user.userId;
+  return getOne(req, res);
 }
-
-async function getUser(req, res) {
+// Update a user account
+async function update(req, res) {
   const userId = Number(req.params.userId);
-  if (req.user.role !== "administrator" && req.user.userId !== userId) {
-    throw new AppError(403, "You may retrieve only your own profile");
+  const isAdmin = req.user.role === ROLES.ADMINISTRATOR;
+  if (!isAdmin && req.user.userId !== userId) {
+    throw new AppError(403, "You can only update your own profile");
   }
-
-  const user = await userModel.findById(userId);
-  if (!user) throw new AppError(404, "User account not found");
-
-  res.json({
-    success: true,
-    message: "User retrieved successfully",
-    data: user
-  });
+  if (!isAdmin && req.body.role) {
+    throw new AppError(403, "Users cannot change their own role");
+  }
+  const user = await userModel.update(req.params.userId, req.body, isAdmin);
+  if (!user) {
+    throw new AppError(404, "User account was not found");
+  }
+  return success(res, 200, "User account updated", user);
 }
-
-async function updateMe(req, res) {
+// Update a user's account status
+async function updateStatus(req, res) {
+  const userId = Number(req.params.userId);
   if (
-    req.body.email &&
-    (await userModel.emailExists(req.body.email, req.user.userId))
+    req.user.userId === userId &&
+    req.body.status !== "Deactivated"
   ) {
-    throw new AppError(409, "An account with this email already exists");
-  }
-
-  const changes = {
-    ...(req.body.fullName !== undefined && { fullName: req.body.fullName }),
-    ...(req.body.email !== undefined && { email: req.body.email }),
-    ...(req.body.phone !== undefined && { phone: req.body.phone || null })
-  };
-
-  if (req.body.newPassword) {
-    const currentHash = await userModel.getPasswordHash(req.user.userId);
-    const matches = await bcrypt.compare(req.body.currentPassword, currentHash);
-    if (!matches) throw new AppError(400, "Current password is incorrect");
-    changes.passwordHash = await bcrypt.hash(req.body.newPassword, 12);
-  }
-
-  const user = await userModel.updateUser(req.user.userId, changes);
-  res.json({
-    success: true,
-    message: "Profile updated successfully",
-    data: user
-  });
-}
-
-async function updateUser(req, res) {
-  const userId = Number(req.params.userId);
-  const existing = await userModel.findById(userId);
-  if (!existing) throw new AppError(404, "User account not found");
-
-  if (
-    req.body.email &&
-    (await userModel.emailExists(req.body.email, userId))
-  ) {
-    throw new AppError(409, "An account with this email already exists");
-  }
-
-  const changes = { ...req.body };
-  if (changes.newPassword) {
-    changes.passwordHash = await bcrypt.hash(changes.newPassword, 12);
-    delete changes.newPassword;
-  }
-
-  const user = await userModel.updateUser(userId, changes);
-  res.json({
-    success: true,
-    message: "User account updated successfully",
-    data: user
-  });
-}
-
-async function deactivateUser(req, res) {
-  const userId = Number(req.params.userId);
-  if (userId === req.user.userId) {
     throw new AppError(
-      400,
-      "Administrators cannot deactivate their own active session"
+      409,
+      "Administrators cannot suspend their current session account"
     );
   }
-
-  const existing = await userModel.findById(userId);
-  if (!existing) throw new AppError(404, "User account not found");
-
-  const user = await userModel.updateUser(userId, { isActive: false });
-  res.json({
-    success: true,
-    message: "User account deactivated successfully",
-    data: user
-  });
+  const affected = await userModel.updateStatus(
+    req.params.userId,
+    req.body.status
+  );
+  if (!affected) {
+    throw new AppError(404, "User account was not found");
+  }
+  const user = await userModel.findById(req.params.userId);
+  return success(res, 200, "Account status updated", user);
 }
-
+// Deactivate a user account
+async function remove(req, res) {
+  const userId = Number(req.params.userId);
+  const isAdmin = req.user.role === ROLES.ADMINISTRATOR;
+  if (!isAdmin && req.user.userId !== userId) {
+    throw new AppError(
+      403,
+      "You can only deactivate your own account"
+    );
+  }
+  const affected = await userModel.remove(req.params.userId);
+  if (!affected) {
+    throw new AppError(404, "User account was not found");
+  }
+  return success(res, 200, "User account deactivated", null);
+}
 module.exports = {
-  createUser,
-  listUsers,
+  create,
+  list,
+  getOne,
   getMe,
-  getUser,
-  updateMe,
-  updateUser,
-  deactivateUser
+  update,
+  updateStatus,
+  remove
 };

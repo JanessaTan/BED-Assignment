@@ -1,32 +1,96 @@
-const { sql, getPool } = require("../config/database");
-
-async function listActive() {
-  const pool = await getPool();
-  const result = await pool.request().query(`
+const {
+  sql,
+  request
+} = require("./modelHelper");
+// Retrieve all cuisines
+async function list() {
+  const req = await request();
+  const result = await req.query(`
     SELECT
-      CuisineID AS cuisineId,
-      CuisineDesc AS name
-    FROM dbo.Cuisine
-    WHERE IsActive = 1
-    ORDER BY CuisineDesc
+      cuisine_id AS cuisineId,
+      name
+    FROM cuisines
+    ORDER BY name;
   `);
   return result.recordset;
 }
-
-async function countActiveByIds(cuisineIds, transaction = null) {
-  if (!cuisineIds.length) return 0;
-  const pool = transaction || (await getPool());
-  const request = transaction ? new sql.Request(transaction) : pool.request();
-  const parameters = cuisineIds.map((id, index) => {
-    request.input(`cuisine${index}`, sql.VarChar(10), id);
-    return `@cuisine${index}`;
-  });
-  const result = await request.query(`
-    SELECT COUNT(*) AS total
-    FROM dbo.Cuisine
-    WHERE IsActive = 1 AND CuisineID IN (${parameters.join(", ")})
+// Find a cuisine by ID
+async function findById(cuisineId) {
+  const req = await request();
+  req.input(
+    "cuisineId",
+    sql.Int,
+    cuisineId
+  );
+  const result = await req.query(`
+    SELECT
+      cuisine_id AS cuisineId,
+      name
+    FROM cuisines
+    WHERE cuisine_id = @cuisineId;
   `);
-  return result.recordset[0].total;
+  return result.recordset[0] || null;
 }
-
-module.exports = { listActive, countActiveByIds };
+// Create a cuisine
+async function create(data) {
+  const req = await request();
+  req.input(
+    "name",
+    sql.NVarChar(80),
+    data.name
+  );
+  const result = await req.query(`
+    INSERT INTO cuisines (
+      name
+    )
+    OUTPUT INSERTED.cuisine_id
+    VALUES (
+      @name
+    );
+  `);
+  return findById(
+    result.recordset[0].cuisine_id
+  );
+}
+// Update a cuisine
+async function update(cuisineId, data) {
+  const req = await request();
+  req.input(
+    "cuisineId",
+    sql.Int,
+    cuisineId
+  );
+  req.input(
+    "name",
+    sql.NVarChar(80),
+    data.name
+  );
+  await req.query(`
+    UPDATE cuisines
+    SET name = @name
+    WHERE cuisine_id = @cuisineId;
+  `);
+  return findById(cuisineId);
+}
+// Delete a cuisine
+async function remove(cuisineId) {
+  const req = await request();
+  req.input(
+    "cuisineId",
+    sql.Int,
+    cuisineId
+  );
+  const result = await req.query(`
+    DELETE FROM cuisines
+    WHERE cuisine_id = @cuisineId;
+    SELECT @@ROWCOUNT AS affected;
+  `);
+  return result.recordset[0].affected;
+}
+module.exports = {
+  list,
+  findById,
+  create,
+  update,
+  remove
+};

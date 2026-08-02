@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function initialiseOrderResult() {
+document.addEventListener("DOMContentLoaded", async function initialiseOrderResult() {
   if (!HC.initPage("history", ["customer", "guest"])) return;
   const orderId = HC.getQueryParameter("order");
   const target = document.getElementById("successCard");
