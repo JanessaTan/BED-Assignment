@@ -57,6 +57,7 @@ const routesPath = path.join(
   "routes"
 );
 const excludedRoutes = [
+  "centreOperationRoutes.js",
   "likeRoutes.js",
   "stallHygieneRoutes.js"
 ];

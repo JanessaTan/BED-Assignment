@@ -30,7 +30,11 @@ const fields = [
   body("discountValue")
     .isFloat({ gt: 0, max: 10000 })
     .withMessage("Discount must be greater than zero")
-    .toFloat(),
+    .toFloat()
+    .custom((value, { req }) =>
+      req.body.discountType !== "Percentage" || value <= 100
+    )
+    .withMessage("Percentage discount cannot exceed 100"),
 
   body("startDate")
     .isISO8601({ strict: true })

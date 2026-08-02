@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Administrator cuisine management">
+  <title>Cuisine Management | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/menu-management.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/api.js" defer></script>
+  <script src="../js/cuisine-management.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <div class="page-heading"><div><span class="eyebrow">Administrator</span><h1>Cuisine management</h1><p>Maintain reusable cuisine tags through protected CRUD endpoints.</p></div></div>
+    <section class="card"><h2>Add cuisine</h2><form class="search-row" id="cuisineForm" novalidate><label class="sr-only" for="cuisineName">Cuisine name</label><input id="cuisineName" maxlength="80" placeholder="Example: Thai" required><button class="btn btn-primary" type="submit">Add cuisine</button></form><p class="field-error" id="cuisineFormError"></p></section>
+    <p class="notice" id="cuisineMessage" role="status" hidden></p>
+    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Cuisine</th><th>Actions</th></tr></thead><tbody id="cuisineTableBody"></tbody></table></div>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

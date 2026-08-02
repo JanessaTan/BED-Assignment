@@ -58,7 +58,7 @@ describe("authentication", () => {
     expect(response.status).toBe(409);
     expect(response.body.errors[0].field).toBe("email");
   });
-  test("allows public Operator registration", async () => {
+  test("rejects public Operator registration", async () => {
     const response = await request(app)
       .post("/api/auth/register")
       .send({
@@ -69,7 +69,8 @@ describe("authentication", () => {
         role: "Operator",
         termsAccepted: true
       });
-    expect(response.status).toBe(201);
+    expect(response.status).toBe(400);
+    expect(userModel.create).not.toHaveBeenCalled();
   });
   test("logs in with valid credentials", async () => {
     userModel.findByIdentifier.mockResolvedValue({

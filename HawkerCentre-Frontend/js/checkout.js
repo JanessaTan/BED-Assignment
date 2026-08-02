@@ -37,11 +37,11 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
                 ${cart.map(item => `
                     <div class="row-between">
                         <span>
-                            ${item.Quantity} × ${HC.escapeHtml(item.name)}
+                            ${item.quantity} × ${HC.escapeHtml(item.name)}
                         </span>
                         <strong>
                             ${HC.formatCurrency(
-                                item.Quantity * item.UnitPrice
+                                item.quantity * item.price
                             )}
                         </strong>
                     </div>
@@ -62,41 +62,47 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
     document.getElementById("checkoutForm").addEventListener("submit", async function placeOrder(event){
 
         event.preventDefault();
-        const paymentMethod =
-            document.querySelector('input[name="paymentMethod"]:checked')?.value;
-            
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+        if (!paymentMethod) {
+            alert("Please select a payment method.");
+            return;
+        }
         const pickupTimeInput = document.getElementById("pickupTime");
         const pickupTime = pickupTimeInput ? pickupTimeInput.value : null;
         
-        if (collectionMethod === "Self collection" && !pickupTime) {
+        if (collectionMethodInput.value === "Self collection" && !pickupTime) {
         alert("Please select a pickup time for self-collection.");
         return;
         }
 
         const orderData = {
-          orderDate: new Date(),
-          pmtType: paymentMethod,
-          customerID: "CU017", // currentUser?.id || null,
+            customerID: currentUser.customerID,
+            orderDate: new Date(),
+            pmtType: paymentMethod,
+            pickupTime: pickupTime,
 
-          items: cart.map(item => ({
+            items: cart.map(item => ({
             StallID: item.stallId,
             ItemCode: item.menuItemId,
             Quantity: item.quantity,
             UnitPrice: item.price
           }))
         };
+
+        const currentUser = HC.getCurrentUser();
         try {
-            const response = await fetch("/api/checkout", {
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify(orderData)
-            });
-            const result = await response.json();
-            if(!response.ok){
-                throw new Error(result.message);
-            }
+            // const response = await fetch("/api/checkout", {
+            //     method:"POST",
+            //     headers:{
+            //         "Content-Type":"application/json",
+            //          "Authorization": `Bearer ${localStorage.getItem("token")}`
+            //     },
+            //     body:JSON.stringify(orderData)
+            // });
+            // const result = await response.json();
+            // if(!response.ok){
+            //     throw new Error(result.message);
+            // }
 
             localStorage.removeItem("cart");
             window.location.href = `order-success.html?order=${result.OrderID}`;

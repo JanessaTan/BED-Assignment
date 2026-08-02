@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="View and update your HawkerHub profile">
+  <title>My Profile | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/profile.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/api.js" defer></script>
+  <script src="../js/profile.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell profile-page" id="mainContent">
+    <section class="page-heading">
+      <span class="eyebrow">User Account Management</span>
+      <h1>My profile</h1>
+      <p>Profile data is retrieved from and saved to the backend API.</p>
+    </section>
+
+    <p id="profileMessage" class="notice" role="status" hidden></p>
+
+    <section class="card profile-card">
+      <form id="profileForm" class="profile-form" novalidate>
+        <div class="field">
+          <label for="fullName">Full name</label>
+          <input id="fullName" name="fullName" maxlength="120" required>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" maxlength="254" required>
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input id="phone" name="phone" inputmode="numeric" maxlength="8">
+        </div>
+
+        <div class="field">
+          <label for="roleName">Role</label>
+          <input id="roleName" readonly>
+        </div>
+
+        <div class="field">
+          <label for="accountStatus">Account status</label>
+          <input id="accountStatus" readonly>
+        </div>
+
+        <p class="profile-meta">Account created: <strong id="createdAt">Loading...</strong></p>
+
+        <div class="profile-actions">
+          <button class="btn btn-primary" id="saveProfileButton" type="submit">Save profile</button>
+          <button class="btn btn-danger" id="deactivateAccountButton" type="button">Deactivate my account</button>
+        </div>
+      </form>
+    </section>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

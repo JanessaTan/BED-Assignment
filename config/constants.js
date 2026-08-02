@@ -8,9 +8,7 @@ const ROLES = Object.freeze({
 
 const PUBLIC_REGISTRATION_ROLES = Object.freeze([
   ROLES.CUSTOMER,
-  ROLES.VENDOR,
-  ROLES.NEA_OFFICER,
-  ROLES.OPERATOR
+  ROLES.VENDOR
 ]);
 
 module.exports = {
