@@ -140,6 +140,6 @@ async function createHygiene(data) {
 
 module.exports = {
     getCurrentHygiene,
-    updateHygiene,
+    // updateHygiene,
     createHygiene
 };
