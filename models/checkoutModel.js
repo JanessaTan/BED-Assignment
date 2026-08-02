@@ -1,72 +1,101 @@
 const { sql, poolPromise } = require('../dbConfig');
+const orderModel = require("./orderModel"); // For Ordermodel
 
-//Generate OrderID
-async function generateOrderID(){
+// get customer id for mapping
+
+async function getCustomerId(userId){
     const connection = await poolPromise;
-    const result = await connection.request().query(`
-        SELECT OrderID
-        FROM CustOrder
-    `);
+    const request = connection.request()
+    request.input = ("userId", sql.Int, userId);
+    const result = await request.query(`
+        SELECT c.CustomerID
+        FROM Customer c
+        INNER JOIN users u
+        ON c.email = u.email
+        WHERE u.user_id = @userId
+        `);
+
 
     if(result.recordset.length === 0){
-        return "O001";
+        throw new Error("Customer account not found");
     }
 
-    let highest = 0;
-    for (const row of result.recordset){
-        const number = Number(
-            row.OrderID.substring(1)
-        );
-        if(number > highest){
-            highest = number;
-        }
-    }
-    const nextNumber = highest + 1;
-    return "O" + nextNumber.toString().padStart(3,"0");
+    return result.recordset[0].CustomerID;
 }
-//     const lastID = result.recordset[0].OrderID;
+// //Generate OrderID
+// async function generateOrderID(){
+//     const connection = await poolPromise;
+//     const result = await connection.request().query(`
+//         SELECT OrderID
+//         FROM CustOrder
+//     `);
 
-//     const number = parseInt(lastID.substring(1)) + 1;
+//     if(result.recordset.length === 0){
+//         return "O001";
+//     }
 
-//     return "O" + number.toString().padStart(3,"0");
-
+//     let highest = 0;
+//     for (const row of result.recordset){
+//         const number = Number(
+//             row.OrderID.substring(1)
+//         );
+//         if(number > highest){
+//             highest = number;
+//         }
+//     }
+//     const nextNumber = highest + 1;
+//     return "O" + nextNumber.toString().padStart(3,"0");
 // }
+// //     const lastID = result.recordset[0].OrderID;
+
+// //     const number = parseInt(lastID.substring(1)) + 1;
+
+// //     return "O" + number.toString().padStart(3,"0");
+
+// // }
 
 
-// CREATE ORDER
+// CREATE CHECKOUT ORDER
 async function createOrder(data) {
     const connection = await poolPromise;
+    console.log("CustomerID being inserted:", data.customerId); // for checking
 
     // Generate a new OrderID
-    const orderID = await generateOrderID();
+    const order = await orderModel.createOrder({
+        customerId: data.customerId,
+        pmtType: data.pmtType,
+        orderDate: data.orderDate
+    });
 
-    // Create CustOrder
-    const orderRequest = connection.request();
-    orderRequest.input("OrderID", orderID);
-    orderRequest.input("OrderDate", data.orderDate);
-    orderRequest.input("PmtType", data.pmtType);
-    orderRequest.input("CustomerID", data.customerID);
-    orderRequest.input("PickupTime", sql.DateTime, checkoutData.pickupTime);
+    const orderID = order.OrderID;
 
-    console.log("CustomerID being inserted:", data.customerID);
-    await orderRequest.query(`
-        INSERT INTO CustOrder
-        (
-            OrderID,
-            OrderDate,
-            PmtType,
-            CustomerID,
-            PickupTime
-        )
-        VALUES
-        (
-            @OrderID,
-            @OrderDate,
-            @PmtType,
-            @CustomerID,
-            @PickupTime
-        )
-    `);
+    // // Create CustOrder
+    // const orderRequest = connection.request();
+    // orderRequest.input("OrderID", orderID);
+    // orderRequest.input("OrderDate", data.orderDate);
+    // orderRequest.input("PmtType", data.pmtType);
+    // orderRequest.input("CustomerID", data.customerID);
+    // orderRequest.input("PickupTime", sql.DateTime, checkoutData.pickupTime);
+
+    // console.log("CustomerID being inserted:", data.customerID);
+    // await orderRequest.query(`
+    //     INSERT INTO CustOrder
+    //     (
+    //         OrderID,
+    //         OrderDate,
+    //         PmtType,
+    //         CustomerID,
+    //         PickupTime
+    //     )
+    //     VALUES
+    //     (
+    //         @OrderID,
+    //         @OrderDate,
+    //         @PmtType,
+    //         @CustomerID,
+    //         @PickupTime
+    //     )
+    // `);
 
 // create orderItems
 
@@ -76,12 +105,12 @@ async function createOrder(data) {
 
         const itemRequest = connection.request();
 
-        itemRequest.input("OrderID", orderID);
-        itemRequest.input("OrderItemNo", itemNo);
-        itemRequest.input("StallID", item.StallID);
-        itemRequest.input("ItemCode", item.ItemCode);
-        itemRequest.input("Quantity", item.Quantity);
-        itemRequest.input("UnitPrice", item.UnitPrice);
+        itemRequest.input("OrderID", sql.VarChar, orderID);
+        itemRequest.input("OrderItemNo", sql.Int, itemNo);
+        itemRequest.input("StallID", sql.VarChar, item.StallID);
+        itemRequest.input("ItemCode", sql.VarChar, item.ItemCode);
+        itemRequest.input("Quantity", sql.Int, item.Quantity);
+        itemRequest.input("UnitPrice", sql.Decimal(10,2), item.UnitPrice);
 
 
         await itemRequest.query(`
@@ -120,7 +149,7 @@ async function getOrder(orderID){
 
     const request = connection.request();
 
-    request.input("OrderID", orderID);
+    request.input("OrderID", sql.VarChar, orderID);
 
 
     const result = await request.query(`
@@ -148,5 +177,6 @@ async function getOrder(orderID){
 
 module.exports = {
     createOrder,
-    getOrder
+    getOrder,
+    getCustomerId
 };
