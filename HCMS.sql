@@ -239,15 +239,14 @@ CREATE TABLE dbo.Likes
     StallID varchar(4) NOT NULL,
     ItemCode varchar(10) NOT NULL,
 
+    CONSTRAINT PK_Likes
+        PRIMARY KEY (CustomerID, StallID, ItemCode),
 
-    --CONSTRAINT PK_Likes 
-    --    PRIMARY KEY (CustomerID, ItemCode),
-
-    CONSTRAINT FK_Likes_CustomerID 
+    CONSTRAINT FK_Likes_CustomerID
         FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
 
-    CONSTRAINT FK_Likes_MenuItem 
-        FOREIGN KEY (StallID, ItemCode) 
+    CONSTRAINT FK_Likes_MenuItem
+        FOREIGN KEY (StallID, ItemCode)
         REFERENCES MenuItem(StallID, ItemCode)
 );
 GO

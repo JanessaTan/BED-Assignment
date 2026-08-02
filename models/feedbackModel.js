@@ -4,9 +4,11 @@ const { sql, poolPromise } = require('../dbConfig');
 async function getFeedback() {
   try{
     const connection = await poolPromise;
-    const query = `SELECT Feedback.*, Customer.CustName
+    const query = `
+    SELECT Feedback.*, Customer.CustName
     FROM Feedback INNER JOIN Customer
     ON Feedback.CustomerID = Customer.CustomerID`;
+
     const request = connection.request()
     const result = await request.query(query);
     return result.recordset
@@ -20,10 +22,12 @@ async function getFeedback() {
 async function getFeedbackByCategory(category) {
   try{
     const connection = await poolPromise;
-    const query = `SELECT Feedback.*, Customer.CustName
+    const query = `
+    SELECT Feedback.*, Customer.CustName
     FROM Feedback INNER JOIN Customer
     ON Feedback.CustomerID = Customer.CustomerID
     WHERE Feedback.Category = @category`;
+
     const request = connection.request();
     request.input("category", category);
     const result = await request.query(query);
@@ -41,10 +45,12 @@ async function getFeedbackByCategory(category) {
 async function getFeedbackBySubcategory(subcategory) {
   try{
     const connection = await poolPromise;
-    const query = `SELECT Feedback.*, Customer.CustName
+    const query = `
+    SELECT Feedback.*, Customer.CustName
     FROM Feedback INNER JOIN Customer
     ON Feedback.CustomerID = Customer.CustomerID
     WHERE Feedback.Subcategory = @subcategory`;
+
     const request = connection.request();
     request.input("subcategory", subcategory);
     const result = await request.query(query);
@@ -67,6 +73,7 @@ async function getFeedbackByStallId(stallId) {
     FROM Feedback INNER JOIN Customer
     ON Feedback.CustomerID = Customer.CustomerID
     WHERE Feedback.StallID = @stallId`;
+
     const request = connection.request();
     request.input("stallId", stallId);
     const result = await request.query(query);
@@ -84,10 +91,12 @@ async function getFeedbackByStallId(stallId) {
 async function getFeedbackById(id) {
   try{
     const connection = await poolPromise;
-    const query = `SELECT Feedback.*, Customer.CustName
+    const query = `
+    SELECT Feedback.*, Customer.CustName
     FROM Feedback INNER JOIN Customer
     ON Feedback.CustomerID = Customer.CustomerID
     WHERE Feedback.FbkID = @id`;
+
     const request = connection.request();
     request.input("id", id);
     const result = await request.query(query);
@@ -118,8 +127,30 @@ async function submitFeedback(feedbackData) {
     const connection = await poolPromise;
     const newFbkId = await getNextFbkId();
 
-    const query = `INSERT INTO Feedback (FbkID, Category, Subcategory, FbkComment, FbkDateTime, FbkRating, CustomerID, StallID) 
-    VALUES (@FbkID, @Category, @Subcategory, @FbkComment, GETDATE(), @FbkRating, @CustomerID, @StallID)`;
+    const query = `
+    INSERT INTO Feedback 
+    (
+      FbkID, 
+      Category, 
+      Subcategory, 
+      FbkComment, 
+      FbkDateTime, 
+      FbkRating, 
+      CustomerID, 
+      StallID
+    ) 
+    VALUES 
+    (
+      @FbkID, 
+      @Category, 
+      @Subcategory, 
+      @FbkComment, 
+      GETDATE(), 
+      @FbkRating, 
+      @CustomerID, 
+      @StallID
+    )`;
+    
     const request = connection.request();
 
     request.input("FbkID", newFbkId);
