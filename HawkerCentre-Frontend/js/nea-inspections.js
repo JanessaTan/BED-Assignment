@@ -3,17 +3,22 @@ document.addEventListener("DOMContentLoaded", async function initialiseNeaInspec
     const form = document.getElementById("inspectionForm");
     const stallInput = document.getElementById("inspectionStall");
 
-    // Populate stalls
-    console.log(HC.stalls);
-    stallInput.insertAdjacentHTML(
-        "beforeend",
-        HC.stalls.map(
-            (stall) =>
-                `<option value="${stall.StallID}">
-                    ${HC.escapeHtml(stall.StallName)}
-                </option>`
-        ).join("")
-    );
+    let stalls = [];
+
+    try {
+        const response = await fetch("/api/stalls");
+        if(!response.ok){
+        throw new Error("Failed to load stalls");
+    }
+
+    const data = await response.json();
+    stalls = data.rows();
+    stallInput.insertAdjacentHTML("beforeend", stalls.map(stall =>`<option value="${stall.stallId}">${HC.escapeHtml(stall.name)}</option>`).join(""));
+
+    } catch(error){
+        console.error(error);
+    }
+
     document.getElementById("inspectionDate").value =
         new Date().toISOString().slice(0, 10);
 
@@ -43,6 +48,7 @@ document.addEventListener("DOMContentLoaded", async function initialiseNeaInspec
 
         event.preventDefault();
         clearErrors();
+        let valid = true;
         const stallId = stallInput.value;
         const date = document.getElementById("inspectionDate").value;
         const scoreText = document.getElementById("inspectionScore").value;
@@ -50,11 +56,10 @@ document.addEventListener("DOMContentLoaded", async function initialiseNeaInspec
         const validUntil = document.getElementById("validUntil").value;
         const remarks = document.getElementById("inspectionRemarks").value.trim();
 
-        let valid = true;
+        if (!stallId) {
+            document.getElementById("inspectionStallError").textContent =
+                "Select a stall.";
 
-        if(!stallId){
-            document.getElementById("inspectionStallError")
-            .textContent = "Select a food stall.";
             valid = false;
         }
 

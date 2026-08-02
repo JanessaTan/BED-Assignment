@@ -125,7 +125,7 @@ async function list(filters = {}) {
 // Find a stall by ID
 async function findById(stallId) {
   const req = await request();
-  req.input("stallId", sql.Int, stallId);
+  req.input("stallId", sql.VarChar(10), stallId);
   const result = await req.query(`
     SELECT ${columns}
     FROM stalls s
