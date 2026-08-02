@@ -16,10 +16,10 @@ router.post(
     hygieneController.createHygiene
 );
 
-// // UPDATE hygiene
-// router.put(
-//     "/inspection/:id",
-//     hygieneController.updateHygiene
-// );
+// UPDATE hygiene
+router.put(
+    "/inspection/:id",
+    hygieneController.updateHygiene
+);
 
 module.exports = router;
