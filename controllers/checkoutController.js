@@ -12,7 +12,8 @@ async function createOrder(req,res){
             customerId,
             orderDate: req.body.orderDate,
             pmtType: req.body.pmtType,
-            items: req.body.items
+            items: req.body.items,
+            pickupTime: req.body.pickupTime
         };
 
         const orderID = await checkoutModel.createOrder(data);

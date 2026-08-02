@@ -62,9 +62,11 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
     document.getElementById("checkoutForm").addEventListener("submit", async function placeOrder(event){
 
         event.preventDefault();
-        const paymentMethod =
-            document.querySelector('input[name="paymentMethod"]:checked')?.value;
-            
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+        if (!paymentMethod) {
+            alert("Please select a payment method.");
+            return;
+        }
         const pickupTimeInput = document.getElementById("pickupTime");
         const pickupTime = pickupTimeInput ? pickupTimeInput.value : null;
         
