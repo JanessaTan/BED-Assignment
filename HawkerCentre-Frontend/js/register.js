@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
       password: passwordInput.value,
       confirmPassword: confirmPasswordInput.value,
       role: document.getElementById("role").value,
-      termsAccepted: String(document.getElementById("termsAccepted").checked)
+      termsAccepted: document.getElementById("termsAccepted").checked
     };
 
     if (!validateRegistration(registration)) return;
@@ -63,12 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
       valid = false;
     }
 
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(values.email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
       setFieldError("email", "Enter a valid email address.");
       valid = false;
     }
 
-    if (values.phone && !/^[689]\\d{7}$/.test(values.phone)) {
+    if (values.phone && !/^[689]\d{7}$/.test(values.phone)) {
       setFieldError("phone", "Enter a valid 8-digit Singapore phone number.");
       valid = false;
     }
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
       values.password.length < 8 ||
       values.password.length > 72 ||
       !/[A-Za-z]/.test(values.password) ||
-      !/\\d/.test(values.password)
+      !/\d/.test(values.password)
     ) {
       setFieldError("password", "Use 8 to 72 characters with at least one letter and one number.");
       valid = false;
@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
       valid = false;
     }
 
-    if (values.termsAccepted !== "true") {
+    if (!values.termsAccepted) {
       setFieldError("termsAccepted", "You must accept the terms.");
       valid = false;
     }

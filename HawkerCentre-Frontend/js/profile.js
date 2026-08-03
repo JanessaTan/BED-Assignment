@@ -54,12 +54,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setMessage("Enter a valid email address.", "error");
       return;
     }
 
-    if (phone && !/^[689]\\d{7}$/.test(phone)) {
+    if (phone && !/^[689]\d{7}$/.test(phone)) {
       setMessage("Enter a valid 8-digit Singapore phone number.", "error");
       return;
     }
