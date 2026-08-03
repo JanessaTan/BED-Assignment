@@ -28,7 +28,23 @@ async function getCurrentHygiene(req,res){
 
 async function createHygiene(req,res){
     try{
-        await hygieneModel.createHygiene(req.body);
+
+        if (!req.user) {
+            return res.status(401).json({
+            error:"Unauthenticated user"
+            });
+        }
+
+        const userId = req.user.userId;
+
+        const officerID = await hygieneModel.getOfficerID(userId);
+
+        const hygieneData = {
+            ...req.body,
+            OfficerID: officerID
+        };
+        console.log("Creating inspection:", hygieneData);
+        await hygieneModel.createHygiene(hygieneData);
         res.status(201).json({
             message:"Hygiene record created successfully"
         });
