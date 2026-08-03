@@ -1272,3 +1272,60 @@ JOIN sys.database_principals dp ON dp.principal_id = drm.member_principal_id
 WHERE dp.name = N'HawkerHubAppLogin'
 ORDER BY rp.name;
 GO
+
+/* =========================================================
+   Seed NEA Officer test account
+   ========================================================= */
+
+DECLARE @NeaOfficerRoleId INT;
+
+SELECT @NeaOfficerRoleId = role_id
+FROM dbo.roles
+WHERE role_name = 'NEA Officer';
+
+IF @NeaOfficerRoleId IS NULL
+BEGIN
+    THROW 50001, 'The NEA Officer role does not exist.', 1;
+END;
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM dbo.users
+    WHERE email_normalized = 'ninanea@gmail.com'
+)
+BEGIN
+    INSERT INTO dbo.users (
+        role_id,
+        full_name,
+        email,
+        email_normalized,
+        password_hash,
+        phone,
+        account_status,
+        created_at,
+        updated_at
+    )
+    VALUES (
+        @NeaOfficerRoleId,
+        'Nina NEA Officer',
+        'ninanea@gmail.com',
+        'ninanea@gmail.com',
+        'PASTE_THE_COMPLETE_PASSWORD_HASH_HERE',
+        '91234567',
+        'active',
+        SYSUTCDATETIME(),
+        SYSUTCDATETIME()
+    );
+END
+ELSE
+BEGIN
+    UPDATE dbo.users
+    SET
+        role_id = @NeaOfficerRoleId,
+        full_name = 'Nina NEA Officer',
+        password_hash = 'PASTE_THE_COMPLETE_PASSWORD_HASH_HERE',
+        account_status = 'active',
+        updated_at = SYSUTCDATETIME()
+    WHERE email_normalized = 'ninanea@gmail.com';
+END;
+GO
