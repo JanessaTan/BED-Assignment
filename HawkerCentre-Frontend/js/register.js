@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
       password: passwordInput.value,
       confirmPassword: confirmPasswordInput.value,
       role: document.getElementById("role").value,
-      termsAccepted: String(document.getElementById("termsAccepted").checked)
+      termsAccepted: document.getElementById("termsAccepted").checked
     };
 
     if (!validateRegistration(registration)) return;
@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
       valid = false;
     }
 
-    if (values.termsAccepted !== "true") {
+    if (!values.termsAccepted) {
       setFieldError("termsAccepted", "You must accept the terms.");
       valid = false;
     }

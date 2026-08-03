@@ -42,12 +42,6 @@ const fields = [
   body("cuisineIds.*")
     .optional()
     .isInt({ min: 1 })
-    .toInt(),
-
-  body("vendorId")
-    .optional()
-    .isInt({ min: 1 })
-    .withMessage("vendorId must be a positive integer")
     .toInt()
 ];
 

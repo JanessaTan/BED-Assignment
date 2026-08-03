@@ -28,8 +28,6 @@
     "currentUser"
   ];
 
-  // Legacy sample records support teammate-owned prototype pages only.
-  // Account, centre, stall, cuisine, menu and promotion pages use the REST API.
   const CENTRES = [
     {
       id: "clementi-centre-01",
@@ -439,7 +437,6 @@
 
   const VENDOR_NAV = [
     ["dashboard", "Vendor Dashboard", "vendor-dashboard.html"],
-    ["stall-management", "Stall Management", "stall-management.html"],
     ["menu-management", "Menu Management", "menu-management.html"],
     ["orders", "Orders", "order.html"],
     ["promotion", "Promotions", "promotion.html"],
@@ -464,7 +461,6 @@
 
   const ADMIN_NAV = [
     ["admin-users", "User Management", "admin-users.html"],
-    ["cuisine-management", "Cuisine Management", "cuisine-management.html"],
     ["profile", "My Profile", "profile.html"]
   ];
 
@@ -1146,6 +1142,7 @@
   }
 
   function initPage(activePage, allowedRoles, options) {
+    ensureSeedData();
     if (allowedRoles && !requireRole(allowedRoles)) return false;
     renderHeader(activePage, options);
     renderFooter();
