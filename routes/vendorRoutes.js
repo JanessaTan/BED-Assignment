@@ -9,7 +9,7 @@ const authenticateToken = require("../middlewares/authenticateToken");
 
 router.get(
     "/stall",
-    // authenticateToken,
+    authenticateToken,
     vendorController.getVendorStall
 );
 

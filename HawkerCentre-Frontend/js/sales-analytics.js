@@ -1,7 +1,8 @@
 document.addEventListener("DOMContentLoaded", function initialiseSalesAnalytics() {
   if (!HC.initPage("analytics", ["vendor"])) return;
   const user = HC.getCurrentUser();
-  const stallId = user.stallId || "clementi-chicken-rice";
+  // const stallId = user.stallId
+  let stallId = null;
 
   // function getOrders() {
   //   const visible = HC.getVisibleOrders();
@@ -40,16 +41,46 @@ document.addEventListener("DOMContentLoaded", function initialiseSalesAnalytics(
     });
   }
 
+  async function getVendorStallID() {
+
+    const response = await fetch(
+      "http://localhost:3000/api/vendor/stall",
+      {
+        headers: {
+          "Authorization":
+            `Bearer ${HC.getAuthToken()}`
+        }
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Unable to retrieve stall ID");
+    }
+    const data = await response.json();
+
+    console.log("Vendor Stall ID:", data.stallId);
+    return data.stallId;
+  }
+
+
   async function render() {
     const period = document.getElementById("analyticsPeriod").value;
+    // Get stall ID once
+      if (!stallId) {
+        stallId = await getVendorStallID();
+      }
     const response = await fetch(
     `http://localhost:3000/api/sales?stallId=${stallId}`,
     {
         headers: {
             "Authorization": `Bearer ${HC.getAuthToken()}`
         }
-    }
-  );
+      }
+    );
+    if (!response.ok) {
+        throw new Error(
+          "Failed to load sales data"
+        );
+      }
     const data = await response.json();
     const summary = data.summary;
     const popularItems = data.popularItems;
