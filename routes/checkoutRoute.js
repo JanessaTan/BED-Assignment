@@ -2,12 +2,12 @@ const express = require("express");
 const router = express.Router();
 
 const checkoutController = require("../controllers/checkoutController");
-// const authenticateToken = require("../middlewares/authenticateToken");
+const authenticateToken = require("../middlewares/authenticateToken");
 
 // CREATE ORDER
 router.post(
     "/",
-    // authenticateToken,
+    authenticateToken,
     checkoutController.createOrder
 );
 
@@ -15,7 +15,7 @@ router.post(
 // GET ORDER DETAILS
 router.get(
     "/:id",
-    // authenticateToken,
+    authenticateToken,
     checkoutController.getOrder
 );
 
