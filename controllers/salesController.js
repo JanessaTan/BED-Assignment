@@ -1,5 +1,5 @@
 const salesModel = require("../models/salesModel");
-const userModel = require("../models/userModel");
+// const userModel = require("../models/userModel");
 
 const EARLIEST_POSSIBLE_DATE = new Date("2000-01-01");
 const LATEST_POSSIBLE_DATE = new Date("2100-01-01");
@@ -9,13 +9,21 @@ async function getDashboard(req, res) {
         const endDate = LATEST_POSSIBLE_DATE;
         const startDate = EARLIEST_POSSIBLE_DATE;
 
-        const requestingUser = await userModel.findById(req.body.customerID);//req.user.userId);
-        const stallId = requestingUser?.stallId;
+        const stallId = req.query.stallId;
+
         if (!stallId) {
-            return res.status(404).json({
-                message: "No stall is currently associated with this vendor account"
-            });
-        }
+            return res.status(400).json({
+            message: "stallId is required"
+        });
+}
+
+        // const requestingUser = await userModel.findById(req.body.customerID);//req.user.userId);
+        // const stallId = requestingUser?.stallId;
+        // if (!stallId) {
+        //     return res.status(404).json({
+        //         message: "No stall is currently associated with this vendor account"
+        //     });
+        //}
 
         const summary = await salesModel.getSalesSummary(
             startDate,
