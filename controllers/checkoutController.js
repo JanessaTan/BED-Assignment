@@ -6,7 +6,11 @@ async function createOrder(req,res){
         console.log(req.body);
         console.log(req.user);
 
-        const customerId = req.body.customerID; // await checkoutModel.getCustomerId(req.user.userId);
+        console.log("Authenticated user:", req.user);
+
+        const customerId = await checkoutModel.getCustomerId(req.user.userId);
+
+        console.log("Mapped CustomerID:", customerId);
 
         const data = {
             customerId,
