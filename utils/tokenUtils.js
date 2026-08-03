@@ -22,7 +22,8 @@ function createToken(user) {
   return jwt.sign(
     {
       sub: String(user.userId),
-      role: user.roleName
+      role: user.roleName,
+      stallId: user.stallId
     },
     getSecret(),
     {
