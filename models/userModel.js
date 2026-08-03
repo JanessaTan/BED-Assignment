@@ -98,27 +98,37 @@ async function create(data) {
         SELECT role_id
         FROM roles
         WHERE role_name = @role
-      );
-      IF @roleId IS NULL
-        THROW 50001, 'Invalid role', 1;
-      INSERT INTO users (
-        role_id,
-        full_name,
-        email,
-        email_normalized,
-        password_hash,
-        phone
-      )
-      OUTPUT INSERTED.user_id
-      VALUES (
-        @roleId,
-        @fullName,
-        @email,
-        @emailNormalized,
-        @passwordHash,
-        @phone
-      );
-    `);
+   );
+
+    IF @roleId IS NULL
+      THROW 50001, 'Invalid role', 1;
+
+    DECLARE @InsertedUser TABLE (
+      user_id INT
+    );
+
+    INSERT INTO users (
+      role_id,
+      full_name,
+      email,
+      email_normalized,
+      password_hash,
+      phone
+    )
+    OUTPUT INSERTED.user_id
+      INTO @InsertedUser (user_id)
+    VALUES (
+      @roleId,
+      @fullName,
+      @email,
+      @emailNormalized,
+      @passwordHash,
+      @phone
+    );
+
+  SELECT user_id
+  FROM @InsertedUser;
+`);
     const userId = result.recordset[0].user_id;
     await transaction.commit();
     return findById(userId);

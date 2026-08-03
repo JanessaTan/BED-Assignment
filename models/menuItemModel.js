@@ -320,33 +320,43 @@ async function create(data) {
       data
     );
     const result = await req.query(`
-      INSERT INTO menu_items (
-        stall_id,
-        name,
-        category,
-        description,
-        price,
-        preparation_minutes,
-        is_available
-      )
-      OUTPUT INSERTED.menu_item_id
-      VALUES (
-        @stallId,
-        @name,
-        @category,
-        @description,
-        @price,
-        @prep,
-        @available
-      );
-    `);
-    const menuItemId =
-      result.recordset[0].menu_item_id;
-    await saveChildren(
-      transaction,
-      menuItemId,
-      data
+      DECLARE @InsertedMenuItem TABLE (
+        menu_item_id INT
     );
+
+    INSERT INTO dbo.menu_items (
+      stall_id,
+      name,
+      category, 
+      description,
+      price,
+      preparation_minutes,
+      is_available
+    )
+    OUTPUT INSERTED.menu_item_id
+    INTO @InsertedMenuItem (menu_item_id)
+    VALUES (
+      @stallId,
+      @name,
+      @category,
+      @description,
+      @price,
+      @prep,
+      @available
+    );
+
+    SELECT menu_item_id
+    FROM @InsertedMenuItem;
+  `);
+
+  const menuItemId =
+    result.recordset[0].menu_item_id;
+
+  await saveChildren(
+    transaction,
+    menuItemId,
+    data
+ );
     await transaction.commit();
     return findById(menuItemId);
   } catch (error) {

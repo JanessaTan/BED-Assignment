@@ -60,7 +60,7 @@ app.get("/api/health", (req, res) => {
         success: true,
         message: "HawkerHub API is running",
         data: {
-            database: "HawkerCentreManagementSystem"
+            database: process.env.DB_DATABASE
         }
     });
 });

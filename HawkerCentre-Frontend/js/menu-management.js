@@ -10,12 +10,24 @@ document.addEventListener("DOMContentLoaded", async function initialiseMenuManag
   const emptyState = document.getElementById("menuManagementEmpty");
   const formError = document.getElementById("menuFormError");
   const submitButton = form.querySelector('button[type="submit"]');
+  const addMenuItemButton = document.getElementById("addMenuItem");
+  addMenuItemButton.disabled = true;
 
   let stallId = null;
   let menuItems = [];
   let cuisines = [];
 
-  document.getElementById("addMenuItem").addEventListener("click", () => openModal(null));
+  addMenuItemButton.addEventListener("click", () => {
+    if (!Number.isInteger(Number(stallId)) || cuisines.length === 0) {
+      HC.showToast(
+        "Menu management is not ready. Confirm that this Vendor owns a stall."
+      );
+      return;
+    }
+
+    openModal(null);
+  });
+
   document.getElementById("closeMenuModal").addEventListener("click", closeModal);
   modal.addEventListener("click", (event) => {
     if (event.target === modal) closeModal();
@@ -46,30 +58,43 @@ document.addEventListener("DOMContentLoaded", async function initialiseMenuManag
     menuItems = Array.isArray(menuResponse?.data) ? menuResponse.data : [];
 
     addCuisineSuggestions();
+    addMenuItemButton.disabled = false;
     render();
   }
 
   async function resolveVendorStallId() {
-    const directStallId = Number(currentUser?.stallId);
+    const directStallId = Number(
+      currentUser?.stallId ?? currentUser?.stall_id
+    );
+
     if (Number.isInteger(directStallId) && directStallId > 0) {
       return directStallId;
     }
 
     const response = await apiGet("/stalls?limit=100");
     const stalls = Array.isArray(response?.data) ? response.data : [];
-    const userId = Number(currentUser?.userId);
+    const userId = Number(
+      currentUser?.userId ?? currentUser?.user_id
+    );
 
     const ownedStall = stalls.find((stall) => {
       const vendorId = Number(
         stall.vendorId ??
         stall.vendorUserId ??
+        stall.vendor_id ??
+        stall.vendor_user_id ??
         stall.ownerId ??
-        stall.userId
+        stall.owner_id ??
+        stall.userId ??
+        stall.user_id
       );
+
       return Number.isInteger(userId) && vendorId === userId;
     });
 
-    const resolvedStallId = Number(ownedStall?.stallId);
+    const resolvedStallId = Number(
+      ownedStall?.stallId ?? ownedStall?.stall_id
+    );
     if (!Number.isInteger(resolvedStallId) || resolvedStallId < 1) {
       throw new Error(
         "No stall is linked to this Vendor account. Create or assign a stall before managing menu items."
@@ -288,7 +313,7 @@ document.addEventListener("DOMContentLoaded", async function initialiseMenuManag
     const cuisineByName = new Map(
       cuisines.map((cuisine) => [
         String(cuisine.name).trim().toLowerCase(),
-        Number(cuisine.cuisineId)
+        Number(cuisine.cuisineId ?? cuisine.cuisine_id)
       ])
     );
     const unknownNames = names.filter(

@@ -254,6 +254,10 @@ async function create(data, vendorId) {
       data.openingHours || null
     );
     const result = await req.query(`
+      DECLARE @InsertedStall TABLE (
+        stall_id INT
+      );
+
       INSERT INTO stalls (
         centre_id,
         name,

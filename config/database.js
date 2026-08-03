@@ -76,12 +76,10 @@ async function testConnection() {
   `);
 
   const status = result.recordset[0];
-  if (
-    status.DatabaseName !== "HawkerCentreManagementSystem"
-  ) {
+  if (status.DatabaseName !== process.env.DB_DATABASE) {
     const error = new Error(
-      "The configured database is not the verified HawkerCentreManagementSystem database."
-    );
+      `Connected to "${status.DatabaseName}", but DB_DATABASE is configured as "${process.env.DB_DATABASE}".`
+   );
     error.code = "SCHEMA_ERROR";
     throw error;
   }
