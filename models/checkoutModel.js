@@ -3,25 +3,74 @@ const orderModel = require("./orderModel"); // For Ordermodel
 
 // get customer id for mapping
 
-// async function getCustomerId(userId){
-//     const connection = await poolPromise;
-//     const request = connection.request()
-//     request.input("userId", sql.Int, userId);
-//     const result = await request.query(`
-//         SELECT c.CustomerID
-//         FROM Customer c
-//         INNER JOIN users u
-//         ON c.email = u.email
-//         WHERE u.user_id = @userId
-//         `);
+async function getCustomerId(userId){
+    const connection = await poolPromise;
+    const request = connection.request()
+    request.input("userId", sql.Int, userId);
+    const result = await request.query(`
+        SELECT c.CustomerID
+        FROM Customer c
+        INNER JOIN users u
+        ON c.email = u.email
+        WHERE u.user_id = @userId
+        `);
 
 
-//     if(result.recordset.length === 0){
-//         throw new Error("Customer account not found");
-//     }
+    if(result.recordset.length === 0){
+        throw new Error("Customer account not found");
+    }
 
-//     return result.recordset[0].CustomerID;
-// }
+    return result.recordset[0].CustomerID;
+}
+
+
+async function findStallID(stallName) {
+
+    const connection = await poolPromise;
+
+    const result = await connection.request()
+        .input("stallName", sql.VarChar, stallName)
+        .query(`
+            SELECT StallID
+            FROM FoodStall
+            WHERE StallName = @stallName
+        `);
+
+
+    if (result.recordset.length === 0) {
+        throw new Error(
+            `Stall not found: ${stallName}`
+        );
+    }
+
+    return result.recordset[0].StallID;
+}
+
+
+async function findItemCode(itemName, stallID) {
+
+    const connection = await poolPromise;
+
+    const result = await connection.request()
+        .input("itemName", sql.VarChar, itemName)
+        .input("stallID", sql.VarChar, stallID)
+        .query(`
+            SELECT ItemCode
+            FROM MenuItem
+            WHERE ItemName = @itemName
+            AND StallID = @stallID
+        `);
+
+
+    if (result.recordset.length === 0) {
+        throw new Error(
+            `Item not found: ${itemName}`
+        );
+    }
+
+    return result.recordset[0].ItemCode;
+}
+
 // //Generate OrderID
 // async function generateOrderID(){
 //     const connection = await poolPromise;
@@ -103,12 +152,42 @@ async function createOrder(data) {
 
     for (const item of data.items) {
 
+        const stallResult = await connection.request()
+        .input("stallName", sql.VarChar, item.stallName)
+        .query(`
+            SELECT StallID
+            FROM FoodStall
+            WHERE StallName = @stallName
+        `);
+
+        if (stallResult.recordset.length === 0) {
+        throw new Error(`Stall not found: ${item.stallName}`);
+        }
+        const stallID = stallResult.recordset[0].StallID;
+
+
+        // Find ItemCode from item name
+        const menuResult = await connection.request()
+        .input("itemName", sql.VarChar, item.itemName)
+        .input("stallID", sql.VarChar, stallID)
+        .query(`
+            SELECT ItemCode
+            FROM MenuItem
+            WHERE ItemName = @itemName
+            AND StallID = @stallID
+        `);
+
+        if (menuResult.recordset.length === 0) {
+            throw new Error(`Menu item not found: ${item.itemName}`);
+        }
+        const itemCode = menuResult.recordset[0].ItemCode;
+
         const itemRequest = connection.request();
 
         itemRequest.input("OrderID", sql.VarChar, orderID);
         itemRequest.input("OrderItemNo", sql.Int, itemNo);
-        itemRequest.input("StallID", sql.VarChar, item.StallID);
-        itemRequest.input("ItemCode", sql.VarChar, item.ItemCode);
+        itemRequest.input("StallID", sql.VarChar, stallID);
+        itemRequest.input("ItemCode", sql.VarChar, itemCode);
         itemRequest.input("Quantity", sql.Int, item.Quantity);
         itemRequest.input("UnitPrice", sql.Decimal(10,2), item.UnitPrice);
 
@@ -177,6 +256,6 @@ async function getOrder(orderID){
 
 module.exports = {
     createOrder,
-    getOrder
-    // getCustomerId
+    getOrder,
+    getCustomerId
 };

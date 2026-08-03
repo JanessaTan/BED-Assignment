@@ -24,6 +24,7 @@ const hygieneRoutes = require("./routes/hygieneRoute");
 const orderRoutes = require("./routes/orderRoute");
 const likeRoutes = require("./routes/likeRoutes");
 const salesRoutes = require("./routes/salesRoutes");
+const vendorRoutes = require("./routes/vendorRoutes");
 const browseHawkerCentreRoutes = require("./routes/browseHawkerCentreRoutes");
 
 // =========================================================
@@ -137,6 +138,9 @@ app.use("/api/likes", likeRoutes);
 
 // Sales Management
 app.use("/api/sales", salesRoutes);
+
+// Vendor Management
+app.use("/api/vendor", vendorRoutes);
 
 // Hawker Centre Browsing
 app.use("/api/hawker-centres", browseHawkerCentreRoutes);

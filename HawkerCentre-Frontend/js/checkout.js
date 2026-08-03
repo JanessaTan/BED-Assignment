@@ -76,25 +76,25 @@ document.addEventListener("DOMContentLoaded", function initialiseCheckout() {
         }
         const currentUser = HC.getCurrentUser();
         const orderData = {
-            customerID: currentUser.customerID,
             orderDate: new Date(),
             pmtType: paymentMethod,
             pickupTime: pickupTime,
 
             items: cart.map(item => ({
-            StallID: item.stallId,
-            ItemCode: item.menuItemId,
+            stallName: HC.getStallById(item.stallId).name,
+            itemName: item.name,
             Quantity: item.quantity,
             UnitPrice: item.price
           }))
         };
 
         try {
+            console.log("Stored token:", HC.getAuthToken());
             const response = await fetch("/api/checkout", {
                 method:"POST",
                 headers:{
-                    "Content-Type":"application/json"
-                    //  "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    "Content-Type":"application/json",
+                    "Authorization": `Bearer ${HC.getAuthToken()}`
                 },
                 body:JSON.stringify(orderData)
             });
