@@ -816,6 +816,79 @@ BEGIN TRY
       ON target.RoleName = source.RoleName
     WHEN NOT MATCHED THEN
       INSERT (RoleName) VALUES (source.RoleName);
+    
+    /* ================================================================
+   Seed NEA Officer test login
+   ================================================================ */
+
+    DECLARE @NeaOfficerRoleId INT;
+    DECLARE @NeaOfficerPasswordHash NVARCHAR(100);
+
+    SELECT @NeaOfficerRoleId = role_id
+    FROM dbo.roles
+    WHERE role_name = N'NEA Officer';
+
+    SET @NeaOfficerPasswordHash =
+        N'$2b$12$oWUy/nqgYCGtexuMt1Dfa.2.A41hF3Z6zxyWoe7YdVKGgLWWm5Pce';
+
+    IF @NeaOfficerRoleId IS NULL
+    BEGIN
+        THROW 51010, 'NEA Officer role was not found.', 1;
+    END;
+
+    IF @NeaOfficerPasswordHash IS NULL
+    OR @NeaOfficerPasswordHash = N''
+    BEGIN
+        THROW 51011, 'NEA Officer password hash is missing.', 1;
+    END;
+
+    MERGE dbo.users AS target
+    USING (
+        VALUES (
+            N'Nina NEA Officer',
+            N'ninanea@gmail.com',
+            N'ninanea@gmail.com',
+            @NeaOfficerPasswordHash,
+            N'91234567'
+        )
+    ) AS source (
+        full_name,
+        email,
+        email_normalized,
+        password_hash,
+        phone
+    )
+    ON target.email_normalized = source.email_normalized
+
+    WHEN MATCHED THEN
+        UPDATE SET
+            target.role_id = @NeaOfficerRoleId,
+            target.full_name = source.full_name,
+            target.email = source.email,
+            target.password_hash = source.password_hash,
+            target.phone = source.phone,
+            target.account_status = 'Active',
+            target.updated_at = SYSUTCDATETIME()
+
+    WHEN NOT MATCHED THEN
+        INSERT (
+            role_id,
+            full_name,
+            email,
+            email_normalized,
+            password_hash,
+            phone,
+            account_status
+        )
+        VALUES (
+            @NeaOfficerRoleId,
+            source.full_name,
+            source.email,
+            source.email_normalized,
+            source.password_hash,
+            source.phone,
+            'Active'
+        );
 
     /* ================================================================
        Minimal reference/sample data (no application passwords)
