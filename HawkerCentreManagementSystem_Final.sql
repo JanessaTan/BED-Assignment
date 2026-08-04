@@ -619,7 +619,7 @@ BEGIN TRY
             CONSTRAINT PK_Customer PRIMARY KEY (CustomerID),
             CONSTRAINT FK_Customer_users FOREIGN KEY (LinkedUserID)
                 REFERENCES dbo.users(user_id),
-            CONSTRAINT UQ_Customer_LinkedUserID UNIQUE (LinkedUserID)
+            --CONSTRAINT UQ_Customer_LinkedUserID UNIQUE (LinkedUserID)
         );
     END;
 
@@ -633,7 +633,7 @@ BEGIN TRY
             CONSTRAINT PK_StallOwner PRIMARY KEY (OwnerID),
             CONSTRAINT FK_StallOwner_users FOREIGN KEY (LinkedUserID)
                 REFERENCES dbo.users(user_id),
-            CONSTRAINT UQ_StallOwner_LinkedUserID UNIQUE (LinkedUserID)
+            --CONSTRAINT UQ_StallOwner_LinkedUserID UNIQUE (LinkedUserID)
         );
     END;
 
@@ -647,7 +647,7 @@ BEGIN TRY
             CONSTRAINT PK_NEA_Officer PRIMARY KEY (OfficerID),
             CONSTRAINT FK_NEA_Officer_users FOREIGN KEY (LinkedUserID)
                 REFERENCES dbo.users(user_id),
-            CONSTRAINT UQ_NEA_Officer_LinkedUserID UNIQUE (LinkedUserID)
+            --CONSTRAINT UQ_NEA_Officer_LinkedUserID UNIQUE (LinkedUserID)
         );
     END;
 
@@ -771,8 +771,8 @@ BEGIN TRY
             CustomerID   VARCHAR(5) NOT NULL,
             StallID      VARCHAR(4) NOT NULL,
             ItemCode     VARCHAR(10) NOT NULL,
-            CreatedAt    DATETIME2(0) NOT NULL
-                CONSTRAINT DF_Likes_CreatedAt DEFAULT SYSUTCDATETIME(),
+            --CreatedAt    DATETIME2(0) NOT NULL
+            --    CONSTRAINT DF_Likes_CreatedAt DEFAULT SYSUTCDATETIME(),
             CONSTRAINT PK_Likes PRIMARY KEY (CustomerID, StallID, ItemCode),
             CONSTRAINT FK_Likes_Customer FOREIGN KEY (CustomerID)
                 REFERENCES dbo.Customer(CustomerID),

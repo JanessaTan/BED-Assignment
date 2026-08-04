@@ -118,7 +118,68 @@ async function getNextFbkId() {
     const result = await request.query(query);
     const lastId = result.recordset[0]?.FbkID;
     const nextId = lastId ? parseInt(lastId.substring(1)) + 1 : 1;
-    return 'F' + String(nextId).padStart(3, '0');
+    return 'DFB' + String(nextId).padStart(3, '0');
+}
+
+async function getCustomerIdByUserId(userId) {
+  try {
+    const connection = await poolPromise;
+
+    const query = `
+      SELECT TOP 1 c.CustomerID
+      FROM Customer c
+      INNER JOIN users u
+        ON LOWER(c.Email) = LOWER(u.email)
+      WHERE u.user_id = @userId
+    `;
+
+    const request = connection.request();
+    request.input("userId", sql.Int, Number(userId));
+
+    const result = await request.query(query);
+
+    if (result.recordset.length === 0) {
+      return null;
+    }
+
+    return result.recordset[0].CustomerID;
+
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  }
+}
+
+async function customerExists(customerID) {
+  const connection = await poolPromise;
+
+  const query = `
+    SELECT CustomerID
+    FROM Customer
+    WHERE CustomerID = @CustomerID
+  `;
+
+  const request = connection.request();
+  request.input("CustomerID", sql.VarChar, customerID);
+
+  const result = await request.query(query);
+  return result.recordset.length > 0;
+}
+
+async function stallExists(stallID) {
+  const connection = await poolPromise;
+
+  const query = `
+    SELECT StallID
+    FROM FoodStall
+    WHERE StallID = @StallID
+  `;
+
+  const request = connection.request();
+  request.input("StallID", sql.VarChar, stallID);
+
+  const result = await request.query(query);
+  return result.recordset.length > 0;
 }
 
 // Create new feedback
@@ -127,42 +188,67 @@ async function submitFeedback(feedbackData) {
     const connection = await poolPromise;
     const newFbkId = await getNextFbkId();
 
+    let customerID = feedbackData.CustomerID;
+
+    if (!customerID && feedbackData.UserID) {
+      customerID = await getCustomerIdByUserId(feedbackData.UserID);
+    }
+
+    if (!customerID) {
+      throw new Error("Customer account not found for this logged-in user.");
+    }
+
+    const validCustomer = await customerExists(customerID);
+
+    if (!validCustomer) {
+      throw new Error(`CustomerID does not exist in Customer table: ${customerID}`);
+    }
+
+    const validStall = await stallExists(feedbackData.StallID);
+
+    if (!validStall) {
+      throw new Error(`StallID does not exist in FoodStall table: ${feedbackData.StallID}`);
+    }
+
     const query = `
-    INSERT INTO Feedback 
-    (
-      FbkID, 
-      Category, 
-      Subcategory, 
-      FbkComment, 
-      FbkDateTime, 
-      FbkRating, 
-      CustomerID, 
-      StallID
-    ) 
-    VALUES 
-    (
-      @FbkID, 
-      @Category, 
-      @Subcategory, 
-      @FbkComment, 
-      GETDATE(), 
-      @FbkRating, 
-      @CustomerID, 
-      @StallID
-    )`;
-    
+      INSERT INTO Feedback 
+      (
+        FbkID, 
+        Category, 
+        Subcategory, 
+        FbkComment, 
+        FbkDateTime, 
+        FbkRating, 
+        CustomerID, 
+        StallID
+      ) 
+      VALUES 
+      (
+        @FbkID, 
+        @Category, 
+        @Subcategory, 
+        @FbkComment, 
+        GETDATE(), 
+        @FbkRating, 
+        @CustomerID, 
+        @StallID
+      )
+    `;
+
     const request = connection.request();
 
-    request.input("FbkID", newFbkId);
-    request.input("Category", feedbackData.Category);
-    request.input("Subcategory", feedbackData.Subcategory);
-    request.input("FbkComment", feedbackData.FbkComment);
-    request.input("FbkRating", feedbackData.FbkRating);
-    request.input("CustomerID", feedbackData.CustomerID);
-    request.input("StallID", feedbackData.StallID);
+    request.input("FbkID", sql.VarChar, newFbkId);
+    request.input("Category", sql.VarChar, feedbackData.Category);
+    request.input("Subcategory", sql.VarChar, feedbackData.Subcategory);
+    request.input("FbkComment", sql.VarChar, feedbackData.FbkComment);
+    request.input("FbkRating", sql.Int, feedbackData.FbkRating);
+    request.input("CustomerID", sql.VarChar, customerID);
+    request.input("StallID", sql.VarChar, feedbackData.StallID);
 
-    const result = await request.query(query);
+    await request.query(query);
+
     return await getFeedbackById(newFbkId);
+
   } catch (error) {
     console.error("Database error:", error);
     throw error;
@@ -175,5 +261,6 @@ module.exports = {
     getFeedbackBySubcategory,
     getFeedbackByStallId,
     getFeedbackById,
+    getCustomerIdByUserId,
     submitFeedback
 }

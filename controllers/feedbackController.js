@@ -78,17 +78,53 @@ async function getFeedbackById(req, res) {
 // Submit new feedback
 async function submitFeedback(req, res) {
   try {
-    const { Category, Subcategory, FbkComment, FbkRating, CustomerID, StallID } = req.body;
-    
-    if (!Category || !Subcategory || !FbkComment || !FbkRating || !CustomerID || !StallID) {
-      return res.status(400).json({ message: "Please fill in all fields" });
+    let {
+      Category,
+      Subcategory,
+      FbkComment,
+      FbkRating,
+      CustomerID,
+      UserID,
+      StallID
+    } = req.body;
+
+    if (!Category || !Subcategory || !FbkComment || !FbkRating || !StallID) {
+      return res.status(400).json({
+        message: "Please fill in all feedback fields"
+      });
     }
-    
-    const newfeedback = await feedbackModel.submitFeedback(req.body);
+
+    if (CustomerID && !UserID && /^\d+$/.test(String(CustomerID))) {
+      UserID = Number(CustomerID);
+      CustomerID = null;
+    }
+
+    if (!CustomerID && !UserID) {
+      return res.status(400).json({
+        message: "CustomerID or UserID is required"
+      });
+    }
+
+    const feedbackData = {
+      Category,
+      Subcategory,
+      FbkComment,
+      FbkRating,
+      CustomerID,
+      UserID,
+      StallID
+    };
+
+    const newfeedback = await feedbackModel.submitFeedback(feedbackData);
     res.status(201).json(newfeedback);
+
   } catch (error) {
     console.error("Controller error:", error);
-    res.status(500).json({ error: "Error submitting feedback" });
+
+    res.status(500).json({
+      error: "Error submitting feedback",
+      message: error.message
+    });
   }
 }
 
