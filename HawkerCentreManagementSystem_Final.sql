@@ -2518,7 +2518,7 @@ BEGIN TRY
       ('DFB0000006', N'DEMO LOCATION ONLY - Tampines Central, Singapore', N'#01-03', N'demo.customer02@test.com', N'Dessert', N'Taste', N'Demo feedback: mango sago was chilled and smooth.', 5, '2026-07-30T16:10:00'),
       ('DFB0000007', N'DEMO LOCATION ONLY - Jurong East, Singapore', N'#01-01', N'demo.customer03@test.com', N'Food', N'Variety', N'Demo feedback: vegetarian menu had several useful choices.', 4, '2026-07-31T12:00:00'),
       ('DFB0000008', N'DEMO LOCATION ONLY - Jurong East, Singapore', N'#01-02', N'demo.customer04@test.com', N'Food', N'Taste', N'Demo feedback: wanton noodles were springy and flavourful.', 5, '2026-08-01T13:30:00'),
-      ('DFB0000009', N'DEMO LOCATION ONLY - Woodlands, Singapore', N'#01-01', N'demo.customer01@test.com', N'Food', N'Tenderness', N'Demo feedback: beef rendang was tender and rich.', 5, '2026-08-02T19:10:00'),
+      ('DFB0000009', N'DEMO LOCATION ONLY - Woodlands, Singapore', N'#01-01', N'demo.customer01@test.com', N'Food', N'Other', N'Demo feedback: food looked very appetizing and tasted good.', 5, '2026-08-02T19:10:00'),
       ('DFB0000010', N'DEMO LOCATION ONLY - Woodlands, Singapore', N'#01-02', N'demo.customer02@test.com', N'Food', N'Aroma', N'Demo feedback: chicken biryani was aromatic.', 4, '2026-08-03T18:40:00');
 
     MERGE dbo.Feedback AS target

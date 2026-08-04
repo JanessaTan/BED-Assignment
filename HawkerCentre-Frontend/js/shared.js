@@ -1134,7 +1134,6 @@
             <h3>Project</h3>
             <ul>
               <li><a href="credit.html">Credits and data notice</a></li>
-              <li><a href="../README.md">README</a></li>
             </ul>
           </section>
         </div>

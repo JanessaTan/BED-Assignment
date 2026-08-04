@@ -13,34 +13,37 @@
 <body>
   <div id="siteHeader"></div>
   <main class="page-shell" id="mainContent">
-    <div class="page-heading"><div><span class="eyebrow">Help vendors improve</span><h1>Share feedback</h1><p>Rate food quality and service, then leave a useful comment.</p></div></div>
+    <div class="page-heading"><div><span class="eyebrow">Help vendors improve</span><h1>Share feedback</h1><p>Rate food quality, then leave a useful comment.</p></div></div>
     <div class="engagement-layout">
       <form class="card form-grid" id="feedbackForm" novalidate>
         <div class="field"><label for="stallId">Food stall</label><select id="stallId" required><option value="">Select a stall</option></select><p class="field-error" id="stallIdError"></p></div>
         <div class="field"><label for="rating">Rating</label><select id="rating" required><option value="">Select 1-5</option><option value="5">5 - Excellent</option><option value="4">4 - Very good</option><option value="3">3 - Good</option><option value="2">2 - Fair</option><option value="1">1 - Poor</option></select><p class="field-error" id="ratingError"></p></div>
         <div class="field"><label for="category">Category</label><select id="category" required>
           <option value="">Select a category</option>
-          <option value="General">General</option>
-          <option value="Compliment">Compliment</option>
-          <option value="Complaint">Complaint</option>
-          <option value="Suggestion">Suggestion</option>
+          <option value="Food">Food</option>
+          <option value="Drink">Drink</option>
+          <option value="Dessert">Dessert</option>
         </select><p class="field-error" id="categoryError"></p></div>
         <div class="field"><label for="subcategory">Subcategory</label><select id="subcategory" required>
           <option value="">Select a subcategory</option>
-          <option value="Misc.">Misc.</option>
-          <option value="Hygiene">Hygiene</option>
-          <option value="Environment">Environment</option>
-          <option value="Food Quality">Food Quality</option>
-          <option value="Portion Size">Portion Size</option>
-          <option value="Price">Price</option>
-          <option value="Service">Service</option>
-          <option value="Wait Time">Wait Time</option>
+          <option value="Aroma">Aroma</option>
+          <option value="Freshness">Freshness</option>
+          <option value="Portion">Portion</option>
+          <option value="Taste">Taste</option>
+          <option value="Value">Value</option>
+          <option value="Variety">Variety</option>
+          <option value="Other">Other</option>
         </select><p class="field-error" id="subcategoryError"></p></div>
         <div class="field field-full"><label for="comments">Comments</label><textarea id="comments" maxlength="400" required></textarea><div class="row-between"><p class="field-error" id="commentsError"></p><span class="muted" id="characterCount">0 / 400</span></div></div>
         <div class="field field-full"><button class="btn btn-primary" type="submit">Submit feedback</button><a class="btn btn-muted" href="rating.html">View ratings</a></div>
         <p class="notice notice-info field-full" id="feedbackMessage" role="status" hidden></p>
       </form>
-      <aside class="card"><h2>Helpful feedback</h2><p>Describe what you experienced. Avoid personal details and focus on food quality, service and cleanliness.</p></aside>
+      <aside class="card">
+        <h2>Helpful feedback</h2>
+        <p class="muted">Describe what you experienced. Avoid personal details and focus on food quality.</p>
+        <p>Or, if something else made your experience unsatisfactory, you can submit a complaint here.</p><p></p>
+        <div class="field field-full"><a class="btn btn-primary" href="complaint.html">Submit a complaint</a></div>
+      </aside>
     </div>
   </main>
   <div id="siteFooter"></div>

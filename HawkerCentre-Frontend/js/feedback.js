@@ -29,12 +29,19 @@ document.addEventListener("DOMContentLoaded", function initialiseFeedback() {
     clearErrors();
 
     const stallId = stallSelect.value;
+    console.log(stallId);
     const category = categorySelect.value;
+    console.log(category);
     const subcategory = subcategorySelect.value;
+    console.log(subcategory);
     const rating = Number(document.getElementById("rating").value);
+    console.log(rating);
     const comment = comments.value.trim();
+    console.log(comment);
     const currentUser = HC.getCurrentUser();
-    const customerID = currentUser?.customerID;
+    console.log(currentUser);
+    const customerID = currentUser?.userId;
+    console.log(customerID);
 
     let valid = true;
 
