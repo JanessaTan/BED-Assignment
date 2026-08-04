@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const hygieneController =
 require("../controllers/hygieneController");
+const authenticateToken = require("../middlewares/authenticateToken");
+
 
 
 // GET current hygiene
@@ -13,6 +15,7 @@ router.get(
 // CREATE hygiene
 router.post(
     "/",
+    authenticateToken,
     hygieneController.createHygiene
 );
 

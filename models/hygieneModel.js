@@ -62,6 +62,24 @@ async function updateHygiene(inspectionId, data){
     return result.rowsAffected[0];
 }
 
+async function getOfficerID(userId) {
+    const connection = await poolPromise;
+
+    const result = await connection.request()
+        .input("userId", sql.Int, userId)
+        .query(`
+            SELECT OfficerID
+            FROM NEA_Officer
+            WHERE LinkedUserID = @userId
+        `);
+
+    if (result.recordset.length === 0) {
+        throw new Error("NEA Officer record not found");
+    }
+
+    return result.recordset[0].OfficerID;
+}
+
 async function createHygiene(data) {
     const connection = await poolPromise;
 
@@ -140,5 +158,6 @@ async function createHygiene(data) {
 module.exports = {
     getCurrentHygiene,
     updateHygiene,
-    createHygiene
+    createHygiene,
+    getOfficerID
 };

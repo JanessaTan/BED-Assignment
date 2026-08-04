@@ -889,6 +889,20 @@ BEGIN TRY
             source.phone,
             'Active'
         );
+        INSERT INTO NEA_Officer
+        (
+            OfficerID,
+            OfficerName,
+            Email,
+            LinkedUserID
+        )
+        VALUES
+        (
+        'N002',
+        'Nina NEA Officer',
+        'ninanea@gmail.com',
+        5
+        );
 
     /* ================================================================
        Minimal reference/sample data (no application passwords)

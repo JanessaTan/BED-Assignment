@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", async function initialiseNeaInspec
     }
 
     const data = await response.json();
-    stalls = data.data();
+    stalls = data.data;
     stallInput.insertAdjacentHTML("beforeend", stalls.map(stall =>`<option value="${stall.stallId}">${HC.escapeHtml(stall.name)}</option>`).join(""));
 
     } catch(error){
@@ -105,7 +105,6 @@ document.addEventListener("DOMContentLoaded", async function initialiseNeaInspec
             InspectionDate: date,
             HygieneGrade: gradeFromScore(score),
             GradeExpiry: validUntil,
-            OfficerID: "O001",
             InspectionRemark: remarks
         };
 
@@ -115,7 +114,8 @@ document.addEventListener("DOMContentLoaded", async function initialiseNeaInspec
                 {
                     method:"POST",
                     headers:{
-                        "Content-Type":"application/json"
+                        "Content-Type":"application/json",
+                        "Authorization": `Bearer ${HC.getAuthToken()}`
                     },
                     body:JSON.stringify(inspection)
                 }
