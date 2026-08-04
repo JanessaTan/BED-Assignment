@@ -57,11 +57,13 @@ SET NOCOUNT ON;
 SET XACT_ABORT ON;
 GO
 
-/* To reset the tables:
+/* 
+To reset the tables:
 Uncomment the drop table queries and run them multiple times, 
 until you get the message "Commands completed successfully".
-Then run the whole sql file to reset the database tables. */
-
+Then run the whole sql file to reset the database tables. 
+Remember to re-comment these afterwards if you want new values to stay! 
+*/
 --DROP TABLE IF EXISTS dbo.complaints;
 --DROP TABLE IF EXISTS dbo.crowd_updates;
 --DROP TABLE IF EXISTS dbo.cuisines;
@@ -96,6 +98,18 @@ Then run the whole sql file to reset the database tables. */
 --DROP TABLE IF EXISTS dbo.UserAccount;
 --DROP TABLE IF EXISTS dbo.UserRole;
 --DROP TABLE IF EXISTS dbo.users;
+--DROP TABLE IF EXISTS #UserSeed;
+--DROP TABLE IF EXISTS #CentreSeed;
+--DROP TABLE IF EXISTS #StallSeed;
+--DROP TABLE IF EXISTS #OperatorCentreSeed;
+--DROP TABLE IF EXISTS #MenuSeed;
+--DROP TABLE IF EXISTS #AddOnSeed;
+--DROP TABLE IF EXISTS #PromotionSeed;
+--DROP TABLE IF EXISTS #PromotionItemSeed;
+--DROP TABLE IF EXISTS #CrowdSeed;
+--DROP TABLE IF EXISTS #InspectionSeed;
+--DROP TABLE IF EXISTS #ComplaintSeed;
+--DROP TABLE IF EXISTS #FeedbackSeed;
 --GO
 
 /* Refuse to merge this clean schema into an unrelated older database. */
@@ -1054,7 +1068,7 @@ BEGIN TRY
     END;
 
     MERGE dbo.Customer AS target
-    USING (VALUES ('C000', N'Local Test Customer', N'customer.test@example.invalid'))
+    USING (VALUES ('C0000', N'Local Test Customer', N'customer.test@example.invalid'))
       AS source(CustomerID, CustName, Email)
       ON target.CustomerID = source.CustomerID
     WHEN NOT MATCHED THEN
@@ -1062,7 +1076,7 @@ BEGIN TRY
       VALUES (source.CustomerID, source.CustName, source.Email);
 
     MERGE dbo.StallOwner AS target
-    USING (VALUES ('SO000', N'Local Test Stall Owner', N'vendor.test@example.invalid'))
+    USING (VALUES ('V0000', N'Local Test Stall Owner', N'vendor.test@example.invalid'))
       AS source(OwnerID, OwnerName, Email)
       ON target.OwnerID = source.OwnerID
     WHEN NOT MATCHED THEN
@@ -1070,7 +1084,7 @@ BEGIN TRY
       VALUES (source.OwnerID, source.OwnerName, source.Email);
 
     MERGE dbo.NEA_Officer AS target
-    USING (VALUES ('N000', N'Local Test NEA Officer', N'officer.test@example.invalid'))
+    USING (VALUES ('N0000', N'Local Test NEA Officer', N'officer.test@example.invalid'))
       AS source(OfficerID, OfficerName, Email)
       ON target.OfficerID = source.OfficerID
     WHEN NOT MATCHED THEN
@@ -1078,7 +1092,7 @@ BEGIN TRY
       VALUES (source.OfficerID, source.OfficerName, source.Email);
 
     MERGE dbo.FoodStall AS target
-    USING (VALUES ('S000', N'Legacy Sample Food Stall', 'SO000'))
+    USING (VALUES ('0', N'Legacy Sample Food Stall', 'V0000'))
       AS source(StallID, StallName, OwnerID)
       ON target.StallID = source.StallID
     WHEN NOT MATCHED THEN
@@ -1086,7 +1100,7 @@ BEGIN TRY
       VALUES (source.StallID, source.StallName, source.OwnerID);
 
     MERGE dbo.MenuItem AS target
-    USING (VALUES ('S000', 'I000', N'Legacy Sample Meal', CAST(6.00 AS DECIMAL(10,2))))
+    USING (VALUES ('0', '0', N'Legacy Sample Meal', CAST(6.00 AS DECIMAL(10,2))))
       AS source(StallID, ItemCode, ItemDesc, ItemPrice)
       ON target.StallID = source.StallID AND target.ItemCode = source.ItemCode
     WHEN NOT MATCHED THEN
@@ -1094,8 +1108,8 @@ BEGIN TRY
       VALUES (source.StallID, source.ItemCode, source.ItemDesc, source.ItemPrice);
 
     MERGE dbo.Inspection AS target
-    USING (VALUES ('IN000', CAST('2026-07-15' AS DATE), CAST('2027-07-14' AS DATE),
-                   'A', 'N000', 'S000'))
+    USING (VALUES ('DINSP00000', CAST('2026-07-15' AS DATE), CAST('2027-07-14' AS DATE),
+                   'A', 'N0000', '0'))
       AS source(InspectionID, InspectionDate, GradeExpiry, HygieneGrade, OfficerID, StallID)
       ON target.InspectionID = source.InspectionID
     WHEN NOT MATCHED THEN
@@ -1104,7 +1118,7 @@ BEGIN TRY
               source.HygieneGrade, source.OfficerID, source.StallID);
 
     MERGE dbo.InspectionRemark AS target
-    USING (VALUES ('IN000', N'Legacy hygiene smoke-test record.'))
+    USING (VALUES ('DINSP00000', N'Legacy hygiene smoke-test record.'))
       AS source(InspectionID, InspectionRemark)
       ON target.InspectionID = source.InspectionID
     WHEN NOT MATCHED THEN
