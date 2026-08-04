@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", function initialiseStalls() {
-  if (!HC.initPage("browse", ["customer", "guest"])) return;
+  if (!HC.initPage("browse", ["customer", "guest"])) {
+  return;
+ }
 
   const centreId = HC.resolveSelectedCentre();
   const centre = HC.getCentreById(centreId);

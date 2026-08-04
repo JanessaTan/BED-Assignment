@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+  <meta
+    name="description"
+    content="Manage vendor-owned hawker stalls"
+  >
+
+  <title>Stall Management | HawkerHub</title>
+
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/stall-management.css">
+
+  <script src="../js/api.js" defer></script>
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/stall-management.js" defer></script>
+</head>
+
+<body>
+  <div id="siteHeader"></div>
+
+  <main class="page-shell" id="mainContent">
+    <section class="page-heading">
+      <div>
+        <span class="eyebrow">Vendor workspace</span>
+        <h1>Stall management</h1>
+
+        <p>
+          View and update the operating details of stalls assigned
+          to your vendor account.
+        </p>
+      </div>
+
+      <a
+        class="btn btn-outline"
+        href="vendor-dashboard.html"
+      >
+        Back to dashboard
+      </a>
+    </section>
+
+    <div
+      id="stallMessage"
+      class="notice notice-info"
+      role="status"
+    >
+      Loading your stall information...
+    </div>
+
+    <section class="section stall-management-layout">
+      <article class="card">
+        <div class="section-heading">
+          <div>
+            <h2>My stalls</h2>
+            <p>Stalls currently assigned to your vendor account.</p>
+          </div>
+
+          <button
+            class="btn btn-muted"
+            id="refreshStalls"
+            type="button"
+          >
+            Refresh
+          </button>
+        </div>
+
+        <div class="stack" id="stallList"></div>
+      </article>
+
+      <article class="card" id="stallEditorCard" hidden>
+        <div class="section-heading">
+          <div>
+            <h2>Edit stall details</h2>
+            <p>
+              Update the information customers see about your stall.
+            </p>
+          </div>
+        </div>
+
+        <form id="stallForm" novalidate>
+          <input type="hidden" id="stallId">
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="stallName">Stall name</label>
+
+              <input
+                id="stallName"
+                name="name"
+                type="text"
+                maxlength="120"
+                required
+              >
+
+              <p class="field-error" id="stallNameError"></p>
+            </div>
+
+            <div class="field">
+              <label for="unitNumber">Unit number</label>
+
+              <input
+                id="unitNumber"
+                name="unitNumber"
+                type="text"
+                maxlength="20"
+                required
+              >
+
+              <p class="field-error" id="unitNumberError"></p>
+            </div>
+
+            <div class="field">
+              <label for="centreName">Hawker centre</label>
+
+              <input
+                id="centreName"
+                type="text"
+                readonly
+              >
+
+              <p class="field-help">
+                A Vendor cannot change the assigned hawker centre.
+              </p>
+            </div>
+
+            <div class="field">
+              <label for="openingHours">Opening hours</label>
+
+              <input
+                id="openingHours"
+                name="openingHours"
+                type="text"
+                maxlength="100"
+                placeholder="08:00-20:00"
+                required
+              >
+
+              <p class="field-error" id="openingHoursError"></p>
+            </div>
+
+            <div class="field field-full">
+              <label for="stallDescription">Description</label>
+
+              <textarea
+                id="stallDescription"
+                name="description"
+                maxlength="500"
+                required
+              ></textarea>
+
+              <p class="field-error" id="descriptionError"></p>
+            </div>
+
+            <div class="field field-full">
+              <div class="checkbox-row">
+                <label for="isActive">
+                  <input
+                    id="isActive"
+                    name="isActive"
+                    type="checkbox"
+                  >
+                  Available and active
+                </label>
+              </div>
+
+              <p class="field-help">
+                Inactive stalls will not be available for normal ordering.
+              </p>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button
+              class="btn btn-primary"
+              id="saveStallButton"
+              type="submit"
+            >
+              Save changes
+            </button>
+
+            <button
+              class="btn btn-muted"
+              id="cancelEditButton"
+              type="button"
+            >
+              Reset form
+            </button>
+          </div>
+        </form>
+      </article>
+    </section>
+  </main>
+
+  <div id="siteFooter"></div>
+</body>
+</html>

@@ -5,19 +5,32 @@ const authenticateToken = require("../middlewares/authenticateToken");
 const authorizeRole = require("../middlewares/authorizeRole");
 const asyncHandler = require("../utils/asyncHandler");
 const { ROLES } = require("../config/constants");
+
 const router = express.Router();
-// Retrieve stalls
+
+// Retrieve all stalls
 router.get(
   "/",
   validator.list,
   asyncHandler(controller.list)
 );
+
+// Retrieve stalls belonging to the logged-in vendor
+// This must be before "/:stallId"
+router.get(
+  "/mine",
+  authenticateToken,
+  authorizeRole(ROLES.VENDOR),
+  asyncHandler(controller.getMyStalls)
+);
+
 // Retrieve one stall
 router.get(
   "/:stallId",
   validator.id,
   asyncHandler(controller.getOne)
 );
+
 // Create a stall
 router.post(
   "/",
@@ -29,6 +42,7 @@ router.post(
   validator.create,
   asyncHandler(controller.create)
 );
+
 // Update a stall
 router.put(
   "/:stallId",
@@ -40,6 +54,7 @@ router.put(
   validator.update,
   asyncHandler(controller.update)
 );
+
 // Deactivate a stall
 router.delete(
   "/:stallId",
@@ -51,4 +66,5 @@ router.delete(
   validator.id,
   asyncHandler(controller.remove)
 );
+
 module.exports = router;

@@ -1,0 +1,54 @@
+.stall-management-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.85fr) minmax(0, 1.4fr);
+  gap: 1.3rem;
+  align-items: start;
+}
+
+.stall-management-layout > .card {
+  min-width: 0;
+}
+
+.stall-record {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fffdf9;
+}
+
+.stall-record.is-selected {
+  border-color: var(--secondary);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+.stall-record h3 {
+  margin: 0;
+  color: var(--primary-dark);
+}
+
+.stall-record p {
+  margin: 0.35rem 0 0;
+}
+
+.stall-record-meta {
+  display: flex;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+#stallMessage[hidden] {
+  display: none;
+}
+
+#centreName[readonly] {
+  color: var(--muted);
+  background: #f8fafc;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .stall-management-layout {
+    grid-template-columns: 1fr;
+  }
+}

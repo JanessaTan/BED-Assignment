@@ -437,6 +437,7 @@
 
   const VENDOR_NAV = [
     ["dashboard", "Vendor Dashboard", "vendor-dashboard.html"],
+    ["stall-management", "Stall Management", "stall-management.html"],
     ["menu-management", "Menu Management", "menu-management.html"],
     ["orders", "Orders", "order.html"],
     ["promotion", "Promotions", "promotion.html"],

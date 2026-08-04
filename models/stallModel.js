@@ -150,6 +150,51 @@ async function findById(stallId) {
     "cuisines"
   )[0];
 }
+
+// Retrieve active stalls owned by a vendor
+async function listByVendor(vendorId) {
+  const req = await request();
+
+  req.input(
+    "vendorId",
+    sql.Int,
+    vendorId
+  );
+
+  const result = await req.query(`
+    SELECT ${columns}
+    FROM stalls s
+    JOIN hawker_centres hc
+      ON hc.centre_id = s.centre_id
+    OUTER APPLY (
+      SELECT TOP (1)
+        grade,
+        score
+      FROM inspections
+      WHERE stall_id = s.stall_id
+        AND status = 'Completed'
+      ORDER BY inspection_date DESC, inspection_id DESC
+    ) hi
+    WHERE s.is_active = 1
+      AND EXISTS (
+        SELECT 1
+        FROM stall_owners so
+        WHERE so.stall_id = s.stall_id
+          AND so.vendor_id = @vendorId
+          AND (
+            so.end_date IS NULL
+            OR so.end_date >= CAST(GETDATE() AS DATE)
+          )
+      )
+    ORDER BY s.name;
+  `);
+
+  return csvToArray(
+    result.recordset,
+    "cuisines"
+  );
+}
+
 // Check whether a vendor owns a stall
 async function vendorOwns(vendorId, stallId) {
   const req = await request();
@@ -379,6 +424,7 @@ async function remove(stallId) {
 module.exports = {
   list,
   findById,
+  listByVendor,
   vendorOwns,
   operatorManages,
   create,
