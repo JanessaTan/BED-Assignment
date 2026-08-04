@@ -34,7 +34,15 @@ document.addEventListener("DOMContentLoaded", function initialiseFeedback() {
     const rating = Number(document.getElementById("rating").value);
     const comment = comments.value.trim();
     const currentUser = HC.getCurrentUser();
-    const customerID = currentUser?.customerID;
+    const customerID = currentUser?.userId;
+
+    console.log(stallId);
+    console.log(category);
+    console.log(subcategory);
+    console.log(rating);
+    console.log(comment);
+    console.log(currentUser);
+    console.log(customerID);
 
     let valid = true;
 

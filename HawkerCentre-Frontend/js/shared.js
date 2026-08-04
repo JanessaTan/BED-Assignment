@@ -199,10 +199,6 @@
     }
     preparedOptions.headers = Object.fromEntries(preparedHeaders.entries());
 
-    if (typeof global.apiRequest === "function" && global.apiRequest !== apiRequest) {
-      return global.apiRequest(path, preparedOptions);
-    }
-
     options = preparedOptions;
     const normalizedPath = String(path || "");
     const url = /^https?:\/\//i.test(normalizedPath)
@@ -902,9 +898,20 @@
     footerTarget.innerHTML = `
       <footer class="site-footer">
         <div class="footer-inner">
-          <section><h2>HawkerHub</h2><p>A student web application for exploring Singapore hawker centres and managing role-specific services.</p></section>
-          <section><h3>Quick links</h3><ul>${quickLinks}</ul></section>
-          <section><h3>Project</h3><ul><li><a href="credit.html">Credits and data notice</a></li><li><a href="../README.md">README</a></li></ul></section>
+          <section>
+            <h2>HawkerHub</h2>
+            <p>A student web application for exploring Singapore hawker centres and managing role-specific services.</p>
+          </section>
+          <section>
+            <h3>Quick links</h3>
+            <ul>${quickLinks}</ul>
+          </section>
+          <section>
+            <h3>Project</h3>
+            <ul>
+              <li><a href="credit.html">Credits and data notice</a></li>
+            </ul>
+          </section>
         </div>
         <div class="footer-bottom">&copy; ${year} HawkerHub. Educational project.</div>
       </footer>`;
