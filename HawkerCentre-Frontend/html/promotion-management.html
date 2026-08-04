@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Vendor promotion management">
+  <title>Promotion Management | HawkerHub</title>
+
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/promotion-management.css">
+
+  <script src="../js/api.js" defer></script>
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/promotion-management.js" defer></script>
+</head>
+
+<body>
+  <div id="siteHeader"></div>
+
+  <main class="page-shell" id="mainContent">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">Vendor tools</span>
+        <h1>Promotion management</h1>
+        <p>Create, update and deactivate promotions for your own stall.</p>
+      </div>
+
+      <button
+        class="btn btn-primary"
+        id="addPromotion"
+        type="button"
+        disabled>
+        Add promotion
+      </button>
+    </div>
+
+    <section class="promotion-toolbar" aria-label="Promotion filters">
+      <div class="field">
+        <label for="promotionStall">Managed stall</label>
+        <select id="promotionStall" disabled>
+          <option value="">Loading stalls...</option>
+        </select>
+      </div>
+
+      <div class="promotion-summary" aria-live="polite">
+        <strong id="promotionCount">0</strong>
+        <span id="promotionCountLabel">promotions</span>
+      </div>
+    </section>
+
+    <div
+      class="status-box"
+      id="promotionPageStatus"
+      role="status"
+      aria-live="polite">
+      Loading promotion management data...
+    </div>
+
+    <div class="table-wrap" id="promotionTableWrap" hidden>
+      <table>
+        <thead>
+          <tr>
+            <th>Promotion</th>
+            <th>Discount</th>
+            <th>Applies to</th>
+            <th>Period</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody id="promotionTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="empty-state" id="promotionManagementEmpty" hidden>
+      <h2>No promotions</h2>
+      <p>Create the stall's first promotion.</p>
+    </div>
+
+    <div
+      class="modal"
+      id="promotionModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="promotionModalTitle"
+      hidden>
+
+      <div class="modal-panel">
+        <div class="row-between">
+          <div>
+            <span class="eyebrow">Promotion details</span>
+            <h2 id="promotionModalTitle">Add promotion</h2>
+          </div>
+
+          <button
+            class="btn btn-muted"
+            id="closePromotionModal"
+            type="button">
+            Close
+          </button>
+        </div>
+
+        <form class="form-grid" id="promotionForm" novalidate>
+          <input id="editPromotionId" type="hidden">
+
+          <div class="field field-full">
+            <label for="promotionName">Promotion name</label>
+            <input
+              id="promotionName"
+              maxlength="150"
+              required>
+          </div>
+
+          <div class="field field-full">
+            <label for="promotionDescription">Description</label>
+            <textarea
+              id="promotionDescription"
+              maxlength="500"
+              required></textarea>
+          </div>
+
+          <div class="field">
+            <label for="discountType">Discount type</label>
+            <select id="discountType" required>
+              <option value="Percentage">Percentage</option>
+              <option value="Fixed">Fixed amount</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="discountValue" id="discountValueLabel">
+              Discount value (%)
+            </label>
+            <input
+              id="discountValue"
+              type="number"
+              min="0.01"
+              max="100"
+              step="0.01"
+              required>
+          </div>
+
+          <div class="field">
+            <label for="promotionStartDate">Start date</label>
+            <input
+              id="promotionStartDate"
+              type="date"
+              required>
+          </div>
+
+          <div class="field">
+            <label for="promotionEndDate">End date</label>
+            <input
+              id="promotionEndDate"
+              type="date"
+              required>
+          </div>
+
+          <div class="field field-full">
+            <label for="promotionMenuItems">Menu items</label>
+            <select id="promotionMenuItems" multiple size="6"></select>
+            <p class="field-help">
+              Leave every item unselected to apply the promotion to the entire
+              stall. Hold Ctrl while clicking to select more than one item.
+            </p>
+          </div>
+
+          <p
+            class="field-error field-full"
+            id="promotionFormError"
+            role="alert"></p>
+
+          <button
+            class="btn btn-primary field-full"
+            id="savePromotionButton"
+            type="submit">
+            Save promotion
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <div id="siteFooter"></div>
+</body>
+</html>

@@ -440,7 +440,7 @@
     ["stall-management", "Stall Management", "stall-management.html"],
     ["menu-management", "Menu Management", "menu-management.html"],
     ["orders", "Orders", "order.html"],
-    ["promotion", "Promotions", "promotion.html"],
+    ["promotion-management", "Promotions", "promotion-management.html"],
     ["rental", "Rental Agreement", "rental-agreement.html"],
     ["analytics", "Sales Analytics", "sales-analytics.html"],
     ["profile", "My Profile", "profile.html"]

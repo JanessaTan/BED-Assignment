@@ -1,0 +1,218 @@
+.promotion-toolbar {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+  justify-content: space-between;
+  margin: 1.25rem 0;
+  padding: 1rem;
+  border: 1px solid var(--border, #d9dde3);
+  border-radius: 0.9rem;
+  background: var(--surface, #ffffff);
+}
+
+.promotion-toolbar .field {
+  width: min(440px, 100%);
+  margin: 0;
+}
+
+.promotion-summary {
+  display: flex;
+  gap: 0.4rem;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.promotion-summary strong {
+  font-size: 1.5rem;
+}
+
+.status-box {
+  margin: 1rem 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border, #d9dde3);
+  border-radius: 0.75rem;
+  background: var(--surface, #ffffff);
+}
+
+.status-box.is-error {
+  border-color: #b42318;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin-top: 1rem;
+  border: 1px solid var(--border, #d9dde3);
+  border-radius: 0.9rem;
+  background: var(--surface, #ffffff);
+}
+
+.table-wrap table {
+  width: 100%;
+  min-width: 920px;
+  border-collapse: collapse;
+}
+
+.table-wrap th,
+.table-wrap td {
+  padding: 0.9rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border, #d9dde3);
+}
+
+.table-wrap tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.promotion-name {
+  margin: 0 0 0.25rem;
+  font-weight: 700;
+}
+
+.promotion-description {
+  max-width: 300px;
+  margin: 0;
+  color: var(--muted-text, #5f6670);
+  line-height: 1.45;
+}
+
+.promotion-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-width: 76px;
+  justify-content: center;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid currentColor;
+}
+
+.status-active {
+  color: #087443;
+  background: #ecfdf3;
+}
+
+.status-upcoming {
+  color: #175cd3;
+  background: #eff8ff;
+}
+
+.status-expired {
+  color: #6941c6;
+  background: #f4f3ff;
+}
+
+.status-inactive {
+  color: #475467;
+  background: #f2f4f7;
+}
+
+.empty-state {
+  margin-top: 1rem;
+  padding: 2rem;
+  text-align: center;
+  border: 1px dashed var(--border, #d9dde3);
+  border-radius: 0.9rem;
+}
+
+.modal[hidden] {
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 55%);
+}
+
+.modal-panel {
+  width: min(760px, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: var(--surface, #ffffff);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 24%);
+}
+
+.row-between {
+  display: flex;
+  gap: 1rem;
+  align-items: start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.field-full {
+  grid-column: 1 / -1;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+}
+
+.field textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+#promotionMenuItems {
+  min-height: 150px;
+}
+
+.field-help {
+  margin: 0;
+  color: var(--muted-text, #5f6670);
+  font-size: 0.9rem;
+}
+
+.field-error {
+  min-height: 1.25rem;
+  margin: 0;
+  color: #b42318;
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .promotion-toolbar,
+  .row-between {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .promotion-summary {
+    justify-content: flex-start;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field-full {
+    grid-column: auto;
+  }
+}

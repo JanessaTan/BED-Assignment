@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const actions = [
     ["Manage stalls", "stall-management.html", "Create or update your owned stalls."],
     ["Manage menu", "menu-management.html", "Create and update database menu items."],
-    ["Run promotions", "promotion.html", "Create and deactivate stall offers."],
+    ["Run promotions", "promotion-management.html", "Create and deactivate stall offers."],
     ["Manage orders", "order.html", "Review customer orders for your stall."]
   ];
   document.getElementById("vendorActions").innerHTML = actions.map(([title, href, text]) =>
