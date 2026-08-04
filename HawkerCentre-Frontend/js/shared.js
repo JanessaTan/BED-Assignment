@@ -8,10 +8,11 @@
     selectedCentre: "hc.selectedCentre",
     selectedStall: "hc.selectedStall",
     cart: "hc.cart",
+    likes: "hc.likes",
+    migration: "hc.cleanApiMigration.v1",
     orders: "hc.orders",
     feedback: "hc.feedback",
     complaints: "hc.complaints",
-    likes: "hc.likes",
     promotions: "hc.promotions",
     crowdLevels: "hc.crowdLevels",
     menuItems: "hc.menuItems",
@@ -21,407 +22,18 @@
     stallOperations: "hc.stallOperations"
   };
 
-  const LEGACY_AUTH_KEYS = [
-    "hc.users",
-    "hc.role",
-    "authToken",
-    "currentUser"
-  ];
-
-  const CENTRES = [
-    {
-      id: "clementi-centre-01",
-      name: "Clementi 448 Market & Food Centre",
-      town: "Clementi",
-      address: "448 Clementi Avenue 3, Singapore 120448",
-      mrt: "Clementi MRT",
-      hours: "6:00 AM - 10:00 PM",
-      description: "A neighbourhood favourite for breakfast classics and hearty local meals.",
-      crowdBase: 54
-    },
-    {
-      id: "bedok-centre-01",
-      name: "Bedok Interchange Hawker Centre",
-      town: "Bedok",
-      address: "208B New Upper Changi Road, Singapore 462208",
-      mrt: "Bedok MRT",
-      hours: "6:30 AM - 11:00 PM",
-      description: "Conveniently located beside the interchange with a broad mix of cuisines.",
-      crowdBase: 62
-    },
-    {
-      id: "tampines-centre-01",
-      name: "Our Tampines Hub Hawker Centre",
-      town: "Tampines",
-      address: "1 Tampines Walk, Singapore 528523",
-      mrt: "Tampines MRT",
-      hours: "7:00 AM - 10:00 PM",
-      description: "A family-friendly food destination inside the vibrant community hub.",
-      crowdBase: 58
-    },
-    {
-      id: "jurong-centre-01",
-      name: "Yuhua Village Market & Food Centre",
-      town: "Jurong East",
-      address: "254 Jurong East Street 24, Singapore 600254",
-      mrt: "Chinese Garden MRT",
-      hours: "6:00 AM - 9:30 PM",
-      description: "A welcoming heartland centre known for affordable comfort food.",
-      crowdBase: 45
-    },
-    {
-      id: "toa-payoh-centre-01",
-      name: "Toa Payoh Lorong 8 Market & Food Centre",
-      town: "Toa Payoh",
-      address: "210 Lorong 8 Toa Payoh, Singapore 310210",
-      mrt: "Braddell MRT",
-      hours: "6:00 AM - 9:00 PM",
-      description: "A relaxed community market with long-running family stalls.",
-      crowdBase: 47
-    },
-    {
-      id: "chinatown-centre-01",
-      name: "Chinatown Complex Food Centre",
-      town: "Chinatown",
-      address: "335 Smith Street, Singapore 050335",
-      mrt: "Chinatown MRT",
-      hours: "7:00 AM - 10:00 PM",
-      description: "A large heritage food centre showcasing Singapore's diverse hawker culture.",
-      crowdBase: 67
-    }
-  ];
-
-  const STALLS = [
-    {
-      id: "clementi-chicken-rice",
-      centreId: "clementi-centre-01",
-      name: "Clementi Golden Chicken Rice",
-      cuisine: "Chinese",
-      description: "Poached chicken, fragrant rice and house-made chilli.",
-      hours: "9:00 AM - 8:30 PM",
-      rating: 4.7,
-      popularity: 96,
-      hygiene: "A",
-      crowd: 72,
-      promotionId: "promo-chicken"
-    },
-    {
-      id: "clementi-kopi",
-      centreId: "clementi-centre-01",
-      name: "Sunrise Kopi & Toast",
-      cuisine: "Beverages",
-      description: "Traditional kopi, tea and crisp kaya toast sets.",
-      hours: "6:30 AM - 5:00 PM",
-      rating: 4.4,
-      popularity: 84,
-      hygiene: "A",
-      crowd: 48,
-      promotionId: "promo-kopi"
-    },
-    {
-      id: "bedok-laksa",
-      centreId: "bedok-centre-01",
-      name: "Bedok Heritage Laksa",
-      cuisine: "Peranakan",
-      description: "Rich coconut gravy, rice noodles and fresh cockles.",
-      hours: "10:30 AM - 9:00 PM",
-      rating: 4.6,
-      popularity: 93,
-      hygiene: "B",
-      crowd: 69,
-      promotionId: "promo-laksa"
-    },
-    {
-      id: "bedok-veg",
-      centreId: "bedok-centre-01",
-      name: "Green Wok Vegetarian",
-      cuisine: "Vegetarian",
-      description: "Colourful meat-free rice and noodle dishes.",
-      hours: "9:00 AM - 8:00 PM",
-      rating: 4.2,
-      popularity: 72,
-      hygiene: "A",
-      crowd: 41,
-      promotionId: null
-    },
-    {
-      id: "tampines-nasi",
-      centreId: "tampines-centre-01",
-      name: "Mak Cik Nasi Lemak",
-      cuisine: "Malay",
-      description: "Coconut rice with sambal and freshly cooked sides.",
-      hours: "7:00 AM - 9:00 PM",
-      rating: 4.8,
-      popularity: 98,
-      hygiene: "A",
-      crowd: 77,
-      promotionId: "promo-nasi"
-    },
-    {
-      id: "jurong-prata",
-      centreId: "jurong-centre-01",
-      name: "Prata Junction",
-      cuisine: "Indian",
-      description: "Crisp prata and aromatic curries made throughout the day.",
-      hours: "7:00 AM - 10:00 PM",
-      rating: 4.3,
-      popularity: 80,
-      hygiene: "B",
-      crowd: 51,
-      promotionId: null
-    },
-    {
-      id: "toa-payoh-fish",
-      centreId: "toa-payoh-centre-01",
-      name: "Ah Seng Fish Soup",
-      cuisine: "Chinese",
-      description: "Clear, comforting fish soup with sliced fish and vegetables.",
-      hours: "10:00 AM - 8:00 PM",
-      rating: 4.5,
-      popularity: 88,
-      hygiene: "A",
-      crowd: 57,
-      promotionId: null
-    },
-    {
-      id: "chinatown-dessert",
-      centreId: "chinatown-centre-01",
-      name: "Old Street Desserts",
-      cuisine: "Desserts",
-      description: "Traditional hot and cold desserts with reduced-sugar options.",
-      hours: "11:00 AM - 9:30 PM",
-      rating: 4.4,
-      popularity: 86,
-      hygiene: "C",
-      crowd: 64,
-      promotionId: "promo-dessert"
-    }
-  ];
-
-  const MENU_ITEMS = [
-    {
-      id: "menu-chicken-rice",
-      stallId: "clementi-chicken-rice",
-      name: "Signature Chicken Rice",
-      category: "Main",
-      description: "Tender poached chicken with fragrant rice, cucumber and chilli.",
-      price: 4.5,
-      cuisines: ["Chinese", "Singaporean"],
-      available: true,
-      prep: 8,
-      likes: 128,
-      addOns: [
-        { name: "Extra rice", price: 0.7 },
-        { name: "Extra chicken", price: 2.0 }
-      ]
-    },
-    {
-      id: "menu-roast-chicken",
-      stallId: "clementi-chicken-rice",
-      name: "Roasted Chicken Rice",
-      category: "Main",
-      description: "Caramelised roasted chicken served with fragrant rice.",
-      price: 5.0,
-      cuisines: ["Chinese"],
-      available: true,
-      prep: 10,
-      likes: 89,
-      addOns: [{ name: "Braised egg", price: 0.8 }]
-    },
-    {
-      id: "menu-chicken-soup",
-      stallId: "clementi-chicken-rice",
-      name: "Chicken Dumpling Soup",
-      category: "Side",
-      description: "Light broth with handmade chicken dumplings.",
-      price: 3.2,
-      cuisines: ["Chinese"],
-      available: false,
-      prep: 7,
-      likes: 34,
-      addOns: []
-    },
-    {
-      id: "menu-kaya-set",
-      stallId: "clementi-kopi",
-      name: "Kaya Toast Set",
-      category: "Set",
-      description: "Crisp kaya toast, two soft-boiled eggs and a hot drink.",
-      price: 3.8,
-      cuisines: ["Singaporean"],
-      available: true,
-      prep: 6,
-      likes: 96,
-      addOns: [{ name: "Upgrade to iced drink", price: 0.5 }]
-    },
-    {
-      id: "menu-iced-milo",
-      stallId: "clementi-kopi",
-      name: "Iced Milo",
-      category: "Drink",
-      description: "Cold chocolate malt drink over ice.",
-      price: 2.2,
-      cuisines: ["Beverages"],
-      available: true,
-      prep: 3,
-      likes: 58,
-      addOns: [{ name: "Milo dinosaur topping", price: 0.7 }]
-    },
-    {
-      id: "menu-laksa",
-      stallId: "bedok-laksa",
-      name: "Heritage Laksa",
-      category: "Main",
-      description: "Rice noodles in spiced coconut broth with fish cake and prawns.",
-      price: 5.5,
-      cuisines: ["Peranakan", "Singaporean"],
-      available: true,
-      prep: 9,
-      likes: 146,
-      addOns: [{ name: "Extra cockles", price: 1.2 }]
-    },
-    {
-      id: "menu-veg-rice",
-      stallId: "bedok-veg",
-      name: "Rainbow Veg Rice",
-      category: "Main",
-      description: "Brown rice with tofu and seasonal vegetables.",
-      price: 5.2,
-      cuisines: ["Vegetarian", "Asian"],
-      available: true,
-      prep: 8,
-      likes: 41,
-      addOns: [{ name: "Extra tofu", price: 1.0 }]
-    },
-    {
-      id: "menu-nasi-lemak",
-      stallId: "tampines-nasi",
-      name: "Classic Nasi Lemak",
-      category: "Main",
-      description: "Coconut rice, fried chicken wing, egg, ikan bilis and sambal.",
-      price: 5.8,
-      cuisines: ["Malay", "Singaporean"],
-      available: true,
-      prep: 10,
-      likes: 178,
-      addOns: [{ name: "Extra sambal", price: 0.3 }]
-    },
-    {
-      id: "menu-prata",
-      stallId: "jurong-prata",
-      name: "Roti Prata",
-      category: "Main",
-      description: "Two plain prata with fish curry.",
-      price: 2.8,
-      cuisines: ["Indian"],
-      available: true,
-      prep: 7,
-      likes: 101,
-      addOns: [{ name: "Add cheese", price: 1.0 }]
-    },
-    {
-      id: "menu-fish-soup",
-      stallId: "toa-payoh-fish",
-      name: "Sliced Fish Soup",
-      category: "Main",
-      description: "Fresh fish slices, vegetables and tofu in clear broth.",
-      price: 6.0,
-      cuisines: ["Chinese"],
-      available: true,
-      prep: 11,
-      likes: 84,
-      addOns: [{ name: "Add milk", price: 0.5 }]
-    },
-    {
-      id: "menu-chendol",
-      stallId: "chinatown-dessert",
-      name: "Gula Melaka Chendol",
-      category: "Dessert",
-      description: "Shaved ice with coconut milk, chendol and gula melaka.",
-      price: 3.5,
-      cuisines: ["Desserts", "Singaporean"],
-      available: true,
-      prep: 4,
-      likes: 114,
-      addOns: [{ name: "Extra red beans", price: 0.6 }]
-    }
-  ];
-
-  const PROMOTIONS = [
-    {
-      id: "promo-chicken",
-      centreId: "clementi-centre-01",
-      stallId: "clementi-chicken-rice",
-      title: "Weekday Chicken Rice Treat",
-      description: "$1 off one Signature Chicken Rice.",
-      discount: 1,
-      start: "2026-01-01",
-      end: "2027-12-31",
-      eligibleItemIds: ["menu-chicken-rice"]
-    },
-    {
-      id: "promo-kopi",
-      centreId: "clementi-centre-01",
-      stallId: "clementi-kopi",
-      title: "Morning Kopi Pair",
-      description: "Save $0.50 on a Kaya Toast Set.",
-      discount: 0.5,
-      start: "2026-01-01",
-      end: "2027-12-31",
-      eligibleItemIds: ["menu-kaya-set"]
-    },
-    {
-      id: "promo-laksa",
-      centreId: "bedok-centre-01",
-      stallId: "bedok-laksa",
-      title: "Laksa Lunch Special",
-      description: "10% demo discount on Heritage Laksa.",
-      discount: 0.55,
-      start: "2026-01-01",
-      end: "2027-12-31",
-      eligibleItemIds: ["menu-laksa"]
-    },
-    {
-      id: "promo-nasi",
-      centreId: "tampines-centre-01",
-      stallId: "tampines-nasi",
-      title: "Nasi Lemak Bundle",
-      description: "$0.80 off the Classic Nasi Lemak.",
-      discount: 0.8,
-      start: "2026-01-01",
-      end: "2027-12-31",
-      eligibleItemIds: ["menu-nasi-lemak"]
-    },
-    {
-      id: "promo-dessert",
-      centreId: "chinatown-centre-01",
-      stallId: "chinatown-dessert",
-      title: "Dessert Happy Hour",
-      description: "$0.50 off chendol after 3 PM.",
-      discount: 0.5,
-      start: "2025-01-01",
-      end: "2025-12-31",
-      eligibleItemIds: ["menu-chendol"]
-    }
-  ];
-
-  const HYGIENE_RECORDS = [
-    { stallId: "clementi-chicken-rice", grade: "A", date: "2026-05-10", score: 94, remarks: "Excellent food handling and clean preparation areas.", validUntil: "2027-05-09" },
-    { stallId: "clementi-chicken-rice", grade: "B", date: "2025-05-04", score: 84, remarks: "Good overall; improve dry-storage labelling.", validUntil: "2026-05-03" },
-    { stallId: "clementi-kopi", grade: "A", date: "2026-04-18", score: 92, remarks: "Clean beverage station and safe ingredient storage.", validUntil: "2027-04-17" },
-    { stallId: "bedok-laksa", grade: "B", date: "2026-03-22", score: 85, remarks: "Good practices with minor drainage improvements required.", validUntil: "2027-03-21" },
-    { stallId: "bedok-veg", grade: "A", date: "2026-02-16", score: 91, remarks: "Strong separation of raw and cooked ingredients.", validUntil: "2027-02-15" },
-    { stallId: "tampines-nasi", grade: "A", date: "2026-06-01", score: 95, remarks: "Excellent temperature control and workstation hygiene.", validUntil: "2027-05-31" },
-    { stallId: "jurong-prata", grade: "B", date: "2026-01-12", score: 82, remarks: "Generally good; cleaning log should be updated more often.", validUntil: "2027-01-11" },
-    { stallId: "toa-payoh-fish", grade: "A", date: "2026-05-24", score: 93, remarks: "Fresh-food handling and cold storage were excellent.", validUntil: "2027-05-23" },
-    { stallId: "chinatown-dessert", grade: "C", date: "2026-04-03", score: 72, remarks: "Corrective action requested for utensil storage and cleaning frequency.", validUntil: "2027-04-02" }
-  ];
-
-  const SAMPLE_REVIEWS = [
-    { id: "review-1", stallId: "clementi-chicken-rice", user: "Alicia", rating: 5, food: 5, service: 4, comment: "Tender chicken and quick service during lunch.", date: "2026-07-16" },
-    { id: "review-2", stallId: "clementi-chicken-rice", user: "Marcus", rating: 4, food: 4, service: 4, comment: "Good value and the chilli has a nice kick.", date: "2026-07-10" },
-    { id: "review-3", stallId: "bedok-laksa", user: "Nur", rating: 5, food: 5, service: 5, comment: "Rich gravy without being too heavy.", date: "2026-06-28" },
-    { id: "review-4", stallId: "tampines-nasi", user: "Devi", rating: 5, food: 5, service: 4, comment: "Crispy chicken wing and fragrant rice.", date: "2026-06-20" }
+  const LEGACY_AUTH_KEYS = ["hc.users", "hc.role", "authToken", "currentUser"];
+  const DEMO_DATA_KEYS = [
+    KEYS.orders,
+    KEYS.feedback,
+    KEYS.complaints,
+    KEYS.promotions,
+    KEYS.crowdLevels,
+    KEYS.menuItems,
+    KEYS.ratings,
+    KEYS.inspections,
+    KEYS.rentalAgreements,
+    KEYS.stallOperations
   ];
 
   const CUSTOMER_NAV = [
@@ -465,12 +77,32 @@
     ["profile", "My Profile", "profile.html"]
   ];
 
+  const state = {
+    centres: [],
+    stalls: [],
+    menuItems: [],
+    promotions: []
+  };
+
+  const API_BASE = (() => {
+    if (typeof global.HC_API_BASE === "string" && global.HC_API_BASE.trim()) {
+      return global.HC_API_BASE.replace(/\/$/, "");
+    }
+
+    const liveServerPorts = new Set(["5500", "5501"]);
+    if (global.location.protocol === "file:" || liveServerPorts.has(global.location.port)) {
+      return "http://localhost:3000/api";
+    }
+
+    return "/api";
+  })();
+
   function loadData(key, fallback) {
     try {
       const rawValue = localStorage.getItem(key);
       return rawValue === null ? fallback : JSON.parse(rawValue);
     } catch (error) {
-      console.warn("Could not read local demo data.", error);
+      console.warn(`Could not read browser data for ${key}.`, error);
       return fallback;
     }
   }
@@ -480,69 +112,343 @@
     return value;
   }
 
-  function ensureSeedData() {
-    // Remove old browser-only accounts and plaintext demo passwords.
-    LEGACY_AUTH_KEYS.forEach((key) => localStorage.removeItem(key));
-
-    if (!localStorage.getItem(KEYS.menuItems)) saveData(KEYS.menuItems, MENU_ITEMS);
-    if (!localStorage.getItem(KEYS.promotions)) saveData(KEYS.promotions, PROMOTIONS);
-    if (!localStorage.getItem(KEYS.cart)) saveData(KEYS.cart, []);
-    if (!localStorage.getItem(KEYS.orders)) saveData(KEYS.orders, createDemoOrders());
-    if (!localStorage.getItem(KEYS.feedback)) saveData(KEYS.feedback, SAMPLE_REVIEWS);
-    if (!localStorage.getItem(KEYS.ratings)) saveData(KEYS.ratings, SAMPLE_REVIEWS);
-    if (!localStorage.getItem(KEYS.complaints)) saveData(KEYS.complaints, [
-      { id: "CMP-26070101", stallId: "clementi-kopi", category: "Service issue", description: "The queue information was unclear during the morning peak period.", reference: "", userId: "user-customer-demo", status: "Submitted", createdAt: "2026-07-28T08:40:00+08:00" },
-      { id: "CMP-26070102", stallId: "clementi-chicken-rice", category: "Hygiene concern", description: "The tray return area beside the stall needed attention during lunch.", reference: "HC-260715-1042", userId: "user-customer-demo", status: "Under Review", createdAt: "2026-07-29T13:10:00+08:00" }
-    ]);
-    if (!localStorage.getItem(KEYS.likes)) saveData(KEYS.likes, {});
-    if (!localStorage.getItem(KEYS.inspections)) saveData(KEYS.inspections, [
-      { id: "INS-S001", stallId: "clementi-kopi", status: "Scheduled", scheduledDate: "2026-08-12", date: "", score: null, grade: "", remarks: "", validUntil: "" },
-      ...HYGIENE_RECORDS.map((record, index) => ({ ...record, id: `INS-${String(index + 1).padStart(4, "0")}`, status: "Completed", scheduledDate: record.date }))
-    ]);
-    if (!localStorage.getItem(KEYS.rentalAgreements)) saveData(KEYS.rentalAgreements, [
-      { id: "RA-2025-018", stallId: "clementi-chicken-rice", centreId: "clementi-centre-01", unit: "#01-18", start: "2025-09-01", end: "2027-08-31", monthlyRent: 1850, status: "Active", terms: "Monthly rent is due by the seventh day. Vendor must comply with food-safety and centre operating requirements." },
-      { id: "RA-2025-019", stallId: "clementi-kopi", centreId: "clementi-centre-01", unit: "#01-19", start: "2025-06-01", end: "2026-09-30", monthlyRent: 1520, status: "Renewal Due", terms: "Monthly rent is due by the seventh day. Renovation requires operator approval." }
-    ]);
-    if (!localStorage.getItem(KEYS.stallOperations)) saveData(KEYS.stallOperations, STALLS.map((stall) => ({ stallId: stall.id, operationalStatus: "Open", maintenanceNote: "", updatedAt: new Date().toISOString() })));
+  function sameId(left, right) {
+    return left !== null && left !== undefined && right !== null && right !== undefined && String(left) === String(right);
   }
 
-  function getInspections(stallId) {
-    const inspections = loadData(KEYS.inspections, []);
-    return stallId ? inspections.filter((inspection) => inspection.stallId === stallId) : inspections;
+  function firstDefined(object, keys, fallback = null) {
+    for (const key of keys) {
+      if (object && object[key] !== undefined && object[key] !== null) return object[key];
+    }
+    return fallback;
   }
 
-  function getCurrentHygieneRecord(stallId) {
-    return getInspections(stallId)
-      .filter((inspection) => inspection.status === "Completed" && inspection.grade)
-      .sort((a, b) => new Date(b.date || b.scheduledDate) - new Date(a.date || a.scheduledDate))[0] || null;
+  function numberOrNull(value) {
+    if (value === null || value === undefined || value === "") return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
-  function createDemoOrders() {
-    return [
-      {
-        id: "HC-260715-1042",
-        userId: "user-customer-demo",
-        customerName: "Demo Customer",
-        createdAt: "2026-07-15T12:20:00+08:00",
-        status: "Completed",
-        collectionMethod: "Self collection",
-        paymentMethod: "PayNow",
-        notes: "",
-        packaging: "Standard",
-        items: [
-          { menuItemId: "menu-chicken-rice", stallId: "clementi-chicken-rice", name: "Signature Chicken Rice", price: 4.5, quantity: 2, addOns: [] }
-        ],
-        total: 9.3
+  function booleanValue(value, fallback = true) {
+    if (value === null || value === undefined || value === "") return fallback;
+    if (typeof value === "boolean") return value;
+    if (typeof value === "number") return value !== 0;
+    const normalized = String(value).trim().toLowerCase();
+    if (["true", "1", "yes", "active", "available", "open"].includes(normalized)) return true;
+    if (["false", "0", "no", "inactive", "unavailable", "closed"].includes(normalized)) return false;
+    return fallback;
+  }
+
+  function stringList(value) {
+    if (Array.isArray(value)) {
+      return value
+        .map((entry) => typeof entry === "object" ? firstDefined(entry, ["name", "cuisineName", "title"], "") : entry)
+        .map((entry) => String(entry || "").trim())
+        .filter(Boolean);
+    }
+    return String(value || "")
+      .split(/[|,]/)
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  }
+
+  function extractCollection(payload, candidateKeys) {
+    if (Array.isArray(payload)) return payload;
+    if (!payload || typeof payload !== "object") return [];
+
+    for (const key of candidateKeys) {
+      if (Array.isArray(payload[key])) return payload[key];
+    }
+
+    for (const containerKey of ["data", "result", "response", "payload"]) {
+      const nested = payload[containerKey];
+      if (Array.isArray(nested)) return nested;
+      if (nested && typeof nested === "object") {
+        for (const key of candidateKeys) {
+          if (Array.isArray(nested[key])) return nested[key];
+        }
       }
-    ];
+    }
+
+    return [];
+  }
+
+  function extractRecord(payload, candidateKeys) {
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) return payload || null;
+    for (const key of candidateKeys) {
+      if (payload[key] && typeof payload[key] === "object" && !Array.isArray(payload[key])) return payload[key];
+    }
+    if (payload.data && typeof payload.data === "object" && !Array.isArray(payload.data)) {
+      for (const key of candidateKeys) {
+        if (payload.data[key] && typeof payload.data[key] === "object" && !Array.isArray(payload.data[key])) return payload.data[key];
+      }
+      return payload.data;
+    }
+    return payload;
+  }
+
+  async function apiRequest(path, options = {}) {
+    const preparedOptions = { ...options };
+    const preparedHeaders = new Headers(options.headers || {});
+
+    if (preparedOptions.body !== undefined && !(preparedOptions.body instanceof FormData)) {
+      if (!preparedHeaders.has("Content-Type")) preparedHeaders.set("Content-Type", "application/json");
+      if (preparedHeaders.get("Content-Type")?.includes("application/json") && typeof preparedOptions.body !== "string") {
+        preparedOptions.body = JSON.stringify(preparedOptions.body);
+      }
+    }
+    preparedOptions.headers = Object.fromEntries(preparedHeaders.entries());
+
+    if (typeof global.apiRequest === "function" && global.apiRequest !== apiRequest) {
+      return global.apiRequest(path, preparedOptions);
+    }
+
+    options = preparedOptions;
+    const normalizedPath = String(path || "");
+    const url = /^https?:\/\//i.test(normalizedPath)
+      ? normalizedPath
+      : `${API_BASE}${normalizedPath.startsWith("/") ? normalizedPath : `/${normalizedPath}`}`;
+
+    const headers = new Headers(options.headers || {});
+    headers.set("Accept", "application/json");
+    if (options.body !== undefined && !(options.body instanceof FormData) && !headers.has("Content-Type")) {
+      headers.set("Content-Type", "application/json");
+    }
+
+    const token = getAuthToken();
+    if (token && options.auth !== false && !headers.has("Authorization")) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    const fetchOptions = { ...options, headers };
+    delete fetchOptions.auth;
+    if (fetchOptions.body && headers.get("Content-Type") === "application/json" && typeof fetchOptions.body !== "string") {
+      fetchOptions.body = JSON.stringify(fetchOptions.body);
+    }
+
+    const response = await fetch(url, fetchOptions);
+    const text = await response.text();
+    let payload = null;
+    if (text) {
+      try {
+        payload = JSON.parse(text);
+      } catch {
+        payload = { message: text };
+      }
+    }
+
+    if (!response.ok) {
+      const error = new Error(payload?.message || payload?.error || `Request failed with status ${response.status}.`);
+      error.status = response.status;
+      error.payload = payload;
+      throw error;
+    }
+
+    return payload;
+  }
+
+  function normalizeCentre(raw) {
+    const id = firstDefined(raw, ["centreId", "centre_id", "hawkerCentreId", "id"]);
+    return {
+      ...raw,
+      id,
+      centreId: id,
+      name: String(firstDefined(raw, ["name", "centreName", "centre_name"], "Unnamed hawker centre")),
+      town: String(firstDefined(raw, ["town", "area", "region", "district"], "")),
+      address: String(firstDefined(raw, ["address", "location", "centreAddress", "centre_address"], "")),
+      mrt: String(firstDefined(raw, ["mrt", "nearestMrt", "nearestMRT", "nearest_mrt"], "")),
+      hours: String(firstDefined(raw, ["openingHours", "opening_hours", "hours", "operatingHours"], "")),
+      description: String(firstDefined(raw, ["description", "details"], "")),
+      isActive: booleanValue(firstDefined(raw, ["isActive", "is_active", "active"], true), true),
+      stallCount: numberOrNull(firstDefined(raw, ["stallCount", "stall_count", "numberOfStalls"])),
+      crowdPercentage: numberOrNull(firstDefined(raw, ["crowdPercentage", "crowd_percentage", "occupancyPercentage", "occupancy"])),
+      crowdLabel: firstDefined(raw, ["crowdLabel", "crowd_label", "crowdLevel", "crowd_level"], null)
+    };
+  }
+
+  function normalizeStall(raw) {
+    const id = firstDefined(raw, ["stallId", "stall_id", "id"]);
+    const centreId = firstDefined(raw, ["centreId", "centre_id", "hawkerCentreId"]);
+    const cuisines = stringList(firstDefined(raw, ["cuisines", "cuisineNames", "cuisine", "cuisineName"], []));
+    return {
+      ...raw,
+      id,
+      stallId: id,
+      centreId,
+      name: String(firstDefined(raw, ["name", "stallName", "stall_name"], "Unnamed stall")),
+      unitNumber: String(firstDefined(raw, ["unitNumber", "unit_number", "unit"], "")),
+      description: String(firstDefined(raw, ["description", "details"], "")),
+      hours: String(firstDefined(raw, ["openingHours", "opening_hours", "hours", "operatingHours"], "")),
+      cuisines,
+      cuisine: cuisines.join(" · ") || "Unspecified",
+      isActive: booleanValue(firstDefined(raw, ["isActive", "is_active", "active"], true), true),
+      rating: numberOrNull(firstDefined(raw, ["averageRating", "average_rating", "rating"])),
+      feedbackCount: numberOrNull(firstDefined(raw, ["feedbackCount", "feedback_count", "ratingCount"])),
+      popularity: numberOrNull(firstDefined(raw, ["popularity", "popularityScore", "popularity_score"])),
+      crowd: numberOrNull(firstDefined(raw, ["crowd", "crowdPercentage", "crowd_percentage"])),
+      hygieneGrade: firstDefined(raw, ["hygieneGrade", "hygiene_grade", "grade", "hygiene"], null),
+      hygieneScore: numberOrNull(firstDefined(raw, ["hygieneScore", "hygiene_score", "score"])),
+      centreName: String(firstDefined(raw, ["centreName", "centre_name"], "")),
+      promotionId: firstDefined(raw, ["promotionId", "promotion_id"], null)
+    };
+  }
+
+  function normalizeAddOn(raw) {
+    const id = firstDefined(raw, ["addOnId", "addonId", "menuAddOnId", "add_on_id", "id"]);
+    return {
+      ...raw,
+      id,
+      addOnId: id,
+      name: String(firstDefined(raw, ["name", "addOnName", "addonName", "title"], "Add-on")),
+      price: numberOrNull(firstDefined(raw, ["price", "additionalPrice", "additional_price"], 0)) || 0,
+      isAvailable: booleanValue(firstDefined(raw, ["isAvailable", "is_available", "active"], true), true)
+    };
+  }
+
+  function normalizeMenuItem(raw) {
+    const id = firstDefined(raw, ["menuItemId", "menu_item_id", "itemId", "id"]);
+    const stallId = firstDefined(raw, ["stallId", "stall_id"]);
+    const cuisines = stringList(firstDefined(raw, ["cuisines", "cuisineNames", "cuisine", "cuisineName"], []));
+    const rawAddOns = firstDefined(raw, ["addOns", "addons", "menuAddOns", "menu_add_ons"], []);
+    return {
+      ...raw,
+      id,
+      menuItemId: id,
+      stallId,
+      stallName: String(firstDefined(raw, ["stallName", "stall_name"], "")),
+      name: String(firstDefined(raw, ["name", "itemName", "menuItemName"], "Unnamed menu item")),
+      category: String(firstDefined(raw, ["category", "categoryName"], "Other")),
+      description: String(firstDefined(raw, ["description", "details"], "")),
+      price: numberOrNull(firstDefined(raw, ["price", "unitPrice", "unit_price"], 0)) || 0,
+      cuisines,
+      available: booleanValue(firstDefined(raw, ["isAvailable", "is_available", "available"], true), true),
+      prep: numberOrNull(firstDefined(raw, ["preparationMinutes", "preparation_minutes", "prep", "prepMinutes"])),
+      likes: numberOrNull(firstDefined(raw, ["likes", "likeCount", "like_count"], 0)) || 0,
+      addOns: Array.isArray(rawAddOns) ? rawAddOns.map(normalizeAddOn).filter((item) => item.isAvailable) : []
+    };
+  }
+
+  function normalizePromotion(raw) {
+    const id = firstDefined(raw, ["promotionId", "promotion_id", "id"]);
+    const eligibleItemIds = firstDefined(raw, ["eligibleItemIds", "menuItemIds", "eligibleMenuItemIds", "menu_item_ids"], []);
+    return {
+      ...raw,
+      id,
+      promotionId: id,
+      centreId: firstDefined(raw, ["centreId", "centre_id"], null),
+      stallId: firstDefined(raw, ["stallId", "stall_id"], null),
+      title: String(firstDefined(raw, ["title", "name", "promotionName", "promotion_name"], "Promotion")),
+      description: String(firstDefined(raw, ["description", "details"], "")),
+      discountType: String(firstDefined(raw, ["discountType", "discount_type", "type"], "fixed")).toLowerCase(),
+      discountValue: numberOrNull(firstDefined(raw, ["discountValue", "discount_value", "discount", "amount"], 0)) || 0,
+      start: firstDefined(raw, ["startDate", "start_date", "start"], null),
+      end: firstDefined(raw, ["endDate", "end_date", "end"], null),
+      isActive: booleanValue(firstDefined(raw, ["isActive", "is_active", "active"], true), true),
+      eligibleItemIds: Array.isArray(eligibleItemIds)
+        ? eligibleItemIds.map((item) => typeof item === "object" ? firstDefined(item, ["menuItemId", "menu_item_id", "id"]) : item).filter((item) => item !== null && item !== undefined)
+        : stringList(eligibleItemIds)
+    };
+  }
+
+  function replaceState(key, values, normalizer) {
+    state[key].splice(0, state[key].length, ...values.map(normalizer).filter((item) => item.id !== null && item.id !== undefined));
+    return state[key];
+  }
+
+  function mergeState(key, values, normalizer) {
+    const normalized = values.map(normalizer).filter((item) => item.id !== null && item.id !== undefined);
+    normalized.forEach((item) => {
+      const index = state[key].findIndex((existing) => sameId(existing.id, item.id));
+      if (index >= 0) state[key][index] = item;
+      else state[key].push(item);
+    });
+    return normalized;
+  }
+
+  async function fetchCentres(params = {}) {
+    const query = new URLSearchParams({ limit: String(params.limit || 100) });
+    if (params.search) query.set("search", params.search);
+    const payload = await apiRequest(`/hawker-centres?${query}`);
+    const records = extractCollection(payload, ["centres", "hawkerCentres", "items", "records", "results"]);
+    return replaceState("centres", records, normalizeCentre);
+  }
+
+  async function fetchCentreById(centreId) {
+    const cached = getCentreById(centreId);
+    if (cached) return cached;
+    const payload = await apiRequest(`/hawker-centres/${encodeURIComponent(centreId)}`);
+    const record = extractRecord(payload, ["centre", "hawkerCentre"]);
+    return mergeState("centres", [record], normalizeCentre)[0] || null;
+  }
+
+  async function fetchStalls(params = {}) {
+    const hasCentreId = params.centreId !== undefined && params.centreId !== null && String(params.centreId).trim() !== "";
+    const query = new URLSearchParams({ limit: String(params.limit || 100) });
+    if (params.search) query.set("search", params.search);
+
+    const endpoint = hasCentreId
+      ? `/hawker-centres/${encodeURIComponent(params.centreId)}/stalls${query.toString() ? `?${query}` : ""}`
+      : `/stalls${query.toString() ? `?${query}` : ""}`;
+
+    const payload = await apiRequest(endpoint);
+    const records = extractCollection(payload, ["stalls", "items", "records", "results"]);
+    const normalized = records.map(normalizeStall).filter((item) => item.id !== null && item.id !== undefined);
+
+    if (hasCentreId) {
+      state.stalls = state.stalls.filter((stall) => !sameId(stall.centreId, params.centreId));
+      normalized.forEach((stall) => {
+        if (stall.centreId === null || stall.centreId === undefined) stall.centreId = params.centreId;
+      });
+      state.stalls.push(...normalized);
+      return normalized;
+    }
+
+    return replaceState("stalls", records, normalizeStall);
+  }
+
+  async function fetchStallById(stallId) {
+    const cached = getStallById(stallId);
+    if (cached) return cached;
+    const payload = await apiRequest(`/stalls/${encodeURIComponent(stallId)}`);
+    const record = extractRecord(payload, ["stall"]);
+    return mergeState("stalls", [record], normalizeStall)[0] || null;
+  }
+
+  async function fetchMenuItems(params = {}) {
+    const query = new URLSearchParams({ limit: String(params.limit || 100) });
+    if (params.stallId !== undefined && params.stallId !== null) query.set("stallId", String(params.stallId));
+    if (params.search) query.set("search", params.search);
+    if (params.availableOnly) query.set("available", "true");
+    const payload = await apiRequest(`/menu-items?${query}`);
+    const records = extractCollection(payload, ["menuItems", "menu_items", "items", "records", "results"]);
+    const normalized = records.map(normalizeMenuItem).filter((item) => item.id !== null && item.id !== undefined);
+    if (params.stallId !== undefined && params.stallId !== null) {
+      state.menuItems = state.menuItems.filter((item) => !sameId(item.stallId, params.stallId));
+      state.menuItems.push(...normalized);
+      return normalized.filter((item) => sameId(item.stallId, params.stallId));
+    }
+    return replaceState("menuItems", records, normalizeMenuItem);
+  }
+
+  async function fetchPromotions(params = {}) {
+    const query = new URLSearchParams({ limit: String(params.limit || 100) });
+    if (params.stallId !== undefined && params.stallId !== null) query.set("stallId", String(params.stallId));
+    if (params.centreId !== undefined && params.centreId !== null) query.set("centreId", String(params.centreId));
+    const payload = await apiRequest(`/promotions?${query}`);
+    const records = extractCollection(payload, ["promotions", "items", "records", "results"]);
+    return replaceState("promotions", records, normalizePromotion);
+  }
+
+  async function fetchPromotionById(promotionId) {
+    const cached = getPromotionById(promotionId);
+    if (cached && cached.eligibleItemIds.length) return cached;
+    const payload = await apiRequest(`/promotions/${encodeURIComponent(promotionId)}`);
+    const record = extractRecord(payload, ["promotion"]);
+    return mergeState("promotions", [record], normalizePromotion)[0] || null;
   }
 
   function normalizeRole(role) {
-    const normalized = String(role || "")
-      .trim()
-      .toLowerCase()
-      .replace(/[\s-]+/g, "_");
-
+    const normalized = String(role || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
     const roleMap = {
       patron: "customer",
       customer: "customer",
@@ -555,70 +461,22 @@
       admin: "administrator",
       guest: "guest"
     };
-
     return roleMap[normalized] || normalized;
   }
 
   function sanitizeUser(user) {
     if (!user || typeof user !== "object") return null;
-
     const safeUser = { ...user };
-
-    [
-      "password",
-      "Password",
-      "passwordHash",
-      "PasswordHash",
-      "password_hash",
-      "hashedPassword",
-      "hashed_password",
-      "token",
-      "accessToken",
-      "refreshToken"
-    ].forEach((field) => delete safeUser[field]);
-
-    safeUser.id =
-      user.id ??
-      user.userId ??
-      user.UserID ??
-      user.user_id ??
-      user.sub ??
-      null;
-
+    ["password", "Password", "passwordHash", "PasswordHash", "password_hash", "hashedPassword", "hashed_password", "token", "accessToken", "refreshToken"].forEach((field) => delete safeUser[field]);
+    safeUser.id = firstDefined(user, ["id", "userId", "UserID", "user_id", "sub"], null);
     safeUser.userId = safeUser.id;
-
-    safeUser.name =
-      user.name ??
-      user.fullName ??
-      user.FullName ??
-      user.username ??
-      user.email ??
-      "HawkerHub user";
-
-    safeUser.fullName =
-      user.fullName ??
-      user.FullName ??
-      user.name ??
-      safeUser.name;
-
-    safeUser.email = user.email ?? user.Email ?? null;
-    safeUser.phone = user.phone ?? user.Phone ?? null;
-    safeUser.accountStatus =
-      user.accountStatus ?? user.AccountStatus ?? user.status ?? null;
-
-    safeUser.role = normalizeRole(
-      user.role ??
-      user.roleName ??
-      user.RoleName ??
-      user.role_name
-    );
-
-    safeUser.roleName =
-      user.roleName ??
-      user.RoleName ??
-      user.role ??
-      null;
-
+    safeUser.name = String(firstDefined(user, ["name", "fullName", "FullName", "username", "email"], "HawkerHub user"));
+    safeUser.fullName = String(firstDefined(user, ["fullName", "FullName", "name"], safeUser.name));
+    safeUser.email = firstDefined(user, ["email", "Email"], null);
+    safeUser.phone = firstDefined(user, ["phone", "Phone"], null);
+    safeUser.accountStatus = firstDefined(user, ["accountStatus", "AccountStatus", "status"], null);
+    safeUser.role = normalizeRole(firstDefined(user, ["role", "roleName", "RoleName", "role_name"], ""));
+    safeUser.roleName = firstDefined(user, ["roleName", "RoleName", "role"], null);
     return safeUser;
   }
 
@@ -630,25 +488,9 @@
     try {
       const payload = String(token).split(".")[1];
       if (!payload) return null;
-
-      const base64Payload = payload
-        .replace(/-/g, "+")
-        .replace(/_/g, "/");
-
-      const paddedPayload = base64Payload.padEnd(
-        Math.ceil(base64Payload.length / 4) * 4,
-        "="
-      );
-
-      const decoded = decodeURIComponent(
-        atob(paddedPayload)
-          .split("")
-          .map((character) => {
-            return `%${character.charCodeAt(0).toString(16).padStart(2, "0")}`;
-          })
-          .join("")
-      );
-
+      const base64Payload = payload.replace(/-/g, "+").replace(/_/g, "/");
+      const paddedPayload = base64Payload.padEnd(Math.ceil(base64Payload.length / 4) * 4, "=");
+      const decoded = decodeURIComponent(atob(paddedPayload).split("").map((character) => `%${character.charCodeAt(0).toString(16).padStart(2, "0")}`).join(""));
       return JSON.parse(decoded);
     } catch (error) {
       console.warn("Could not read the authentication token.", error);
@@ -658,14 +500,12 @@
 
   function isTokenExpired(token) {
     const payload = decodeJwtPayload(token);
-    if (!payload || !payload.exp) return false;
-    return Date.now() >= Number(payload.exp) * 1000;
+    return Boolean(payload?.exp && Date.now() >= Number(payload.exp) * 1000);
   }
 
   function getCurrentUser() {
     const storedUser = loadData(KEYS.currentUser, null);
     if (storedUser) return sanitizeUser(storedUser);
-
     const token = getAuthToken();
     const payload = token ? decodeJwtPayload(token) : null;
     return payload ? sanitizeUser(payload) : null;
@@ -673,21 +513,16 @@
 
   function setCurrentUser(user) {
     const safeUser = sanitizeUser(user);
-
     if (!safeUser) {
       localStorage.removeItem(KEYS.currentUser);
       return null;
     }
-
     saveData(KEYS.currentUser, safeUser);
     return safeUser;
   }
 
   function setAuthSession(token, user) {
-    if (!token) {
-      throw new Error("An authentication token is required.");
-    }
-
+    if (!token) throw new Error("An authentication token is required.");
     localStorage.removeItem(KEYS.guestMode);
     localStorage.setItem(KEYS.authToken, token);
     return setCurrentUser(user);
@@ -696,19 +531,11 @@
   function setGuestSession() {
     clearAuthSession();
     localStorage.setItem(KEYS.guestMode, "true");
-    return setCurrentUser({
-      id: "guest",
-      fullName: "Guest",
-      email: null,
-      role: "guest",
-      roleName: "Guest",
-      accountStatus: "Guest"
-    });
+    return setCurrentUser({ id: "guest", fullName: "Guest", role: "guest", roleName: "Guest", accountStatus: "Guest" });
   }
 
   function isGuestSession() {
-    return localStorage.getItem(KEYS.guestMode) === "true" &&
-      getRole() === "guest";
+    return localStorage.getItem(KEYS.guestMode) === "true" && getRole() === "guest";
   }
 
   function clearAuthSession() {
@@ -719,12 +546,10 @@
   }
 
   function getRole() {
-    const currentUser = getCurrentUser();
-    return currentUser ? normalizeRole(currentUser.role) : null;
+    return normalizeRole(getCurrentUser()?.role || "");
   }
 
   function getLandingPage(roleInput) {
-    const role = normalizeRole(roleInput || getRole());
     const landingPages = {
       customer: "home.html",
       guest: "home.html",
@@ -733,85 +558,55 @@
       operator: "operator-dashboard.html",
       administrator: "admin-users.html"
     };
-
-    return landingPages[role] || "login.html";
+    return landingPages[normalizeRole(roleInput || getRole())] || "login.html";
   }
 
   function requireLogin() {
     if (isGuestSession()) return true;
-
     const token = getAuthToken();
-
     if (!token || isTokenExpired(token)) {
       clearAuthSession();
-      const next = encodeURIComponent(
-        window.location.pathname + window.location.search
-      );
-      window.location.replace(`login.html?next=${next}`);
+      const next = encodeURIComponent(global.location.pathname + global.location.search);
+      global.location.replace(`login.html?next=${next}`);
       return false;
     }
-
     return true;
   }
 
   function requireRole(allowedRoles) {
     if (!requireLogin()) return false;
-
-    const allowed = (
-      Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles]
-    ).map(normalizeRole);
-
+    const allowed = (Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles]).map(normalizeRole);
     const role = getRole();
-
-    if (!allowed.includes(role)) {
-      showToast(
-        "That page is not available for your account role.",
-        "error"
-      );
-
-      window.setTimeout(function redirectForRole() {
-        window.location.replace(getLandingPage(role));
-      }, 250);
-
-      return false;
-    }
-
-    return true;
+    if (allowed.includes(role)) return true;
+    showToast("That page is not available for your account role.", "error");
+    global.setTimeout(() => global.location.replace(getLandingPage(role)), 250);
+    return false;
   }
 
   async function logout() {
-    const token = getAuthToken();
-
-    if (token && typeof global.apiRequest === "function") {
-      try {
-        await global.apiRequest("/auth/logout", { method: "POST" });
-      } catch (error) {
-        console.warn("Server logout was not completed.", error);
-      }
+    try {
+      if (getAuthToken()) await apiRequest("/auth/logout", { method: "POST" });
+    } catch (error) {
+      console.warn("Server logout was not completed.", error);
+    } finally {
+      clearAuthSession();
+      global.location.replace("login.html");
     }
-
-    clearAuthSession();
-    window.location.replace("login.html");
   }
 
   function getQueryParameter(name) {
-    return new URLSearchParams(window.location.search).get(name);
+    return new URLSearchParams(global.location.search).get(name);
   }
 
   function formatCurrency(value) {
-    return new Intl.NumberFormat("en-SG", {
-      style: "currency",
-      currency: "SGD"
-    }).format(Number(value) || 0);
+    return new Intl.NumberFormat("en-SG", { style: "currency", currency: "SGD" }).format(Number(value) || 0);
   }
 
   function formatDate(value, includeTime) {
+    if (!value) return "Not available";
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "Not available";
-    return new Intl.DateTimeFormat("en-SG", {
-      dateStyle: "medium",
-      ...(includeTime ? { timeStyle: "short" } : {})
-    }).format(date);
+    return new Intl.DateTimeFormat("en-SG", { dateStyle: "medium", ...(includeTime ? { timeStyle: "short" } : {}) }).format(date);
   }
 
   function escapeHtml(value) {
@@ -823,7 +618,7 @@
       .replaceAll("'", "&#039;");
   }
 
-  function showToast(message, type) {
+  function showToast(message, type = "") {
     let region = document.getElementById("toastRegion");
     if (!region) {
       region = document.createElement("div");
@@ -834,37 +629,36 @@
       document.body.appendChild(region);
     }
     const toast = document.createElement("div");
-    toast.className = `toast ${type === "error" ? "error" : ""}`;
-    toast.textContent = message;
+    toast.className = `toast ${type ? `toast-${type}` : ""}`.trim();
+    toast.textContent = String(message || "");
     region.appendChild(toast);
-    window.setTimeout(function removeToast() {
-      toast.remove();
-    }, 3600);
+    global.setTimeout(() => toast.remove(), 4500);
   }
 
   function getCentreById(id) {
-    return CENTRES.find((centre) => centre.id === id) || null;
+    return state.centres.find((centre) => sameId(centre.id, id)) || null;
   }
 
   function getStallById(id) {
-    return STALLS.find((stall) => stall.id === id) || null;
+    return state.stalls.find((stall) => sameId(stall.id, id)) || null;
   }
 
   function getPromotionById(id) {
-    return loadData(KEYS.promotions, PROMOTIONS).find((promotion) => promotion.id === id) || null;
+    return state.promotions.find((promotion) => sameId(promotion.id, id)) || null;
   }
 
   function getMenuItems() {
-    return loadData(KEYS.menuItems, MENU_ITEMS);
+    return state.menuItems;
   }
 
   function getStallCount(centreId) {
-    return STALLS.filter((stall) => stall.centreId === centreId).length;
+    const centre = getCentreById(centreId);
+    return centre?.stallCount ?? state.stalls.filter((stall) => sameId(stall.centreId, centreId)).length;
   }
 
   function selectCentre(centreId) {
     saveData(KEYS.selectedCentre, centreId);
-    window.location.href = `stalls.html?centre=${encodeURIComponent(centreId)}`;
+    global.location.href = `stalls.html?centre=${encodeURIComponent(centreId)}`;
   }
 
   function resolveSelectedCentre() {
@@ -873,7 +667,7 @@
 
   function selectStall(stallId) {
     saveData(KEYS.selectedStall, stallId);
-    window.location.href = `menu-item.html?stall=${encodeURIComponent(stallId)}`;
+    global.location.href = `menu-item.html?stall=${encodeURIComponent(stallId)}`;
   }
 
   function resolveSelectedStall() {
@@ -881,56 +675,85 @@
   }
 
   function crowdLabel(percentage) {
-    if (percentage < 35) return "Low";
-    if (percentage < 60) return "Moderate";
-    if (percentage < 80) return "High";
+    const number = numberOrNull(percentage);
+    if (number === null) return "Unknown";
+    if (number < 35) return "Low";
+    if (number < 60) return "Moderate";
+    if (number < 80) return "High";
     return "Very High";
   }
 
-  function calculateCrowd(centre, refresh) {
-    const saved = loadData(KEYS.crowdLevels, {});
-    if (!refresh && saved[centre.id]) return saved[centre.id];
-
-    const hour = new Date().getHours();
-    let peakModifier = 0;
-    if ((hour >= 11 && hour <= 14) || (hour >= 18 && hour <= 20)) peakModifier = 18;
-    if (hour < 7 || hour > 21) peakModifier = -20;
-    const variation = refresh ? Math.floor(Math.random() * 15) - 7 : 0;
-    const percentage = Math.max(12, Math.min(96, centre.crowdBase + peakModifier + variation));
-    const record = {
+  function calculateCrowd(centre) {
+    const percentage = numberOrNull(centre?.crowdPercentage);
+    return {
       percentage,
-      label: crowdLabel(percentage),
-      seats: Math.max(8, Math.round((100 - percentage) * 2.4)),
-      updatedAt: new Date().toISOString()
+      label: centre?.crowdLabel || crowdLabel(percentage),
+      seats: numberOrNull(firstDefined(centre, ["availableSeats", "available_seats"], null)),
+      updatedAt: firstDefined(centre, ["crowdUpdatedAt", "crowd_updated_at", "updatedAt"], null)
     };
-    saved[centre.id] = record;
-    saveData(KEYS.crowdLevels, saved);
-    return record;
+  }
+
+  function getInspections(stallId) {
+    const inspections = loadData(KEYS.inspections, []);
+    return stallId ? inspections.filter((inspection) => sameId(inspection.stallId, stallId)) : inspections;
+  }
+
+  function getCurrentHygieneRecord(stallId) {
+    return getInspections(stallId)
+      .filter((inspection) => inspection.status === "Completed" && inspection.grade)
+      .sort((a, b) => new Date(b.date || b.scheduledDate) - new Date(a.date || a.scheduledDate))[0] || null;
+  }
+
+  function isLegacyDemoId(value) {
+    const text = String(value || "");
+    return /^(menu-|promo-|review-|clementi-|bedok-|tampines-|jurong-|toa-payoh-|chinatown-)/i.test(text);
+  }
+
+  function migrateAwayFromDemoData() {
+    if (localStorage.getItem(KEYS.migration) === "done") return;
+    LEGACY_AUTH_KEYS.forEach((key) => localStorage.removeItem(key));
+    DEMO_DATA_KEYS.forEach((key) => localStorage.removeItem(key));
+
+    const cart = loadData(KEYS.cart, []);
+    const cleanCart = Array.isArray(cart)
+      ? cart.filter((line) => !isLegacyDemoId(line?.menuItemId) && !isLegacyDemoId(line?.stallId))
+      : [];
+    saveData(KEYS.cart, cleanCart);
+    if (!localStorage.getItem(KEYS.likes)) saveData(KEYS.likes, {});
+    localStorage.setItem(KEYS.migration, "done");
   }
 
   function getCart() {
-    return loadData(KEYS.cart, []);
+    const cart = loadData(KEYS.cart, []);
+    return Array.isArray(cart) ? cart : [];
   }
 
   function saveCart(cart) {
-    saveData(KEYS.cart, cart);
+    saveData(KEYS.cart, Array.isArray(cart) ? cart : []);
     updateCartCount();
     return cart;
   }
 
-  function addToCart(menuItem, quantity, selectedAddOns) {
-    const itemQuantity = Math.max(1, Number(quantity) || 1);
-    const addOns = selectedAddOns || [];
-    const signature = addOns.map((addOn) => addOn.name).sort().join("|");
+  function addToCart(menuItemInput, quantity, selectedAddOns) {
+    const menuItem = normalizeMenuItem(menuItemInput);
+    if (menuItem.id === null || menuItem.id === undefined) throw new Error("A database menu item ID is required.");
+    if (menuItem.stallId === null || menuItem.stallId === undefined) throw new Error("A database stall ID is required.");
+
+    const itemQuantity = Math.max(1, Math.min(20, Number(quantity) || 1));
+    const addOns = (selectedAddOns || []).map(normalizeAddOn);
+    const signature = addOns.map((addOn) => String(addOn.id ?? addOn.name)).sort().join("|");
     const cart = getCart();
-    const existing = cart.find((item) => item.menuItemId === menuItem.id && item.addOnSignature === signature);
+    const existing = cart.find((item) => sameId(item.menuItemId, menuItem.id) && item.addOnSignature === signature);
+
     if (existing) {
-      existing.quantity += itemQuantity;
+      existing.quantity = Math.min(20, Number(existing.quantity) + itemQuantity);
     } else {
+      const stall = getStallById(menuItem.stallId);
       cart.push({
-        cartLineId: `line-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        cartLineId: global.crypto?.randomUUID?.() || `line-${Date.now()}-${Math.floor(Math.random() * 100000)}`,
         menuItemId: menuItem.id,
         stallId: menuItem.stallId,
+        stallName: menuItem.stallName || stall?.name || "",
         name: menuItem.name,
         price: menuItem.price,
         quantity: itemQuantity,
@@ -938,25 +761,27 @@
         addOnSignature: signature
       });
     }
-    saveCart(cart);
+
+    return saveCart(cart);
   }
 
   function calculateLineTotal(line) {
-    const addOnTotal = (line.addOns || []).reduce((sum, addOn) => sum + Number(addOn.price), 0);
-    const discount = Math.min(Number(line.promotionDiscount) || 0, Number(line.price));
-    return (Number(line.price) + addOnTotal - discount) * Number(line.quantity);
+    const addOnTotal = (line.addOns || []).reduce((sum, addOn) => sum + (Number(addOn.price) || 0), 0);
+    const unitPrice = Number(line.price) || 0;
+    const discount = Math.min(Math.max(Number(line.promotionDiscount) || 0, 0), unitPrice + addOnTotal);
+    return (unitPrice + addOnTotal - discount) * Math.max(1, Number(line.quantity) || 1);
   }
 
   function getCartSummary(cartInput) {
-    const cart = cartInput || getCart();
+    const cart = Array.isArray(cartInput) ? cartInput : getCart();
     const itemSubtotal = cart.reduce((sum, line) => sum + calculateLineTotal(line), 0);
-    const stallIds = [...new Set(cart.map((line) => line.stallId))];
+    const stallIds = [...new Set(cart.map((line) => String(line.stallId)))];
     const packaging = cart.length ? stallIds.length * 0.3 : 0;
     return {
       itemSubtotal,
       packaging,
       total: itemSubtotal + packaging,
-      itemCount: cart.reduce((sum, line) => sum + Number(line.quantity), 0)
+      itemCount: cart.reduce((sum, line) => sum + Math.max(1, Number(line.quantity) || 1), 0)
     };
   }
 
@@ -968,57 +793,34 @@
     });
   }
 
-  function createOrder(checkoutData) {
-    const cart = getCart();
-    const summary = getCartSummary(cart);
-    const currentUser = getCurrentUser();
-    const datePart = new Date().toISOString().slice(2, 10).replaceAll("-", "");
-    const order = {
-      id: `HC-${datePart}-${Math.floor(1000 + Math.random() * 9000)}`,
-      userId: currentUser ? currentUser.id : "guest",
-      customerName: checkoutData.customerName,
-      createdAt: new Date().toISOString(),
-      status: "Order received",
-      collectionMethod: checkoutData.collectionMethod,
-      paymentMethod: checkoutData.paymentMethod,
-      notes: checkoutData.notes,
-      packaging: checkoutData.packaging,
-      items: cart,
-      total: summary.total
-    };
-    const orders = loadData(KEYS.orders, []);
-    orders.unshift(order);
-    saveData(KEYS.orders, orders);
-    saveCart([]);
-    sessionStorage.setItem("hc.latestOrder", order.id);
-    return order;
-  }
-
-  function getVisibleOrders() {
-    const user = getCurrentUser();
-    const orders = loadData(KEYS.orders, []);
-    if (!user) return [];
-    if (user.role === "vendor") {
-      const stallId = user.stallId || "clementi-chicken-rice";
-      return orders.filter((order) => order.items.some((item) => item.stallId === stallId));
-    }
-    return orders.filter((order) => order.userId === user.id || (user.role === "guest" && order.userId === "guest"));
-  }
-
-  function isPromotionActive(promotion) {
+  function isPromotionActive(promotionInput) {
+    const promotion = normalizePromotion(promotionInput || {});
+    if (!promotion.isActive) return false;
     const now = new Date();
-    const start = new Date(`${promotion.start}T00:00:00`);
-    const end = new Date(`${promotion.end}T23:59:59`);
-    return now >= start && now <= end;
+    if (promotion.start) {
+      const start = new Date(promotion.start);
+      if (!Number.isNaN(start.getTime()) && now < start) return false;
+    }
+    if (promotion.end) {
+      const end = new Date(promotion.end);
+      if (!Number.isNaN(end.getTime())) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(String(promotion.end))) end.setHours(23, 59, 59, 999);
+        if (now > end) return false;
+      }
+    }
+    return true;
+  }
+
+  function promotionDiscountForLine(promotionInput, line) {
+    const promotion = normalizePromotion(promotionInput || {});
+    const value = Math.max(0, Number(promotion.discountValue) || 0);
+    if (promotion.discountType.includes("percent")) return Math.min(Number(line.price) || 0, (Number(line.price) || 0) * value / 100);
+    return Math.min(Number(line.price) || 0, value);
   }
 
   function hygieneText(grade) {
-    const labels = {
-      A: "Excellent",
-      B: "Good",
-      C: "Satisfactory",
-      D: "Needs Improvement"
-    };
+    if (!grade) return "Not graded";
+    const labels = { A: "Excellent", B: "Good", C: "Satisfactory", D: "Needs Improvement" };
     return `Grade ${grade} - ${labels[grade] || "Not rated"}`;
   }
 
@@ -1026,24 +828,24 @@
     if (grade === "A") return "badge-success";
     if (grade === "B") return "badge-info";
     if (grade === "C") return "badge-warning";
-    return "badge-danger";
+    if (grade === "D") return "badge-danger";
+    return "badge-neutral";
   }
 
   function crowdBadgeClass(label) {
     if (label === "Low") return "badge-success";
     if (label === "Moderate") return "badge-info";
     if (label === "High") return "badge-warning";
-    return "badge-danger";
+    if (label === "Very High") return "badge-danger";
+    return "badge-neutral";
   }
 
   function renderHeader(activePage, options) {
     const headerTarget = document.getElementById("siteHeader");
     if (!headerTarget) return;
-
     const user = getCurrentUser();
     const role = getRole();
     let navItems = [];
-
     if (role === "vendor") navItems = VENDOR_NAV;
     if (role === "customer" || role === "guest") navItems = CUSTOMER_NAV;
     if (role === "nea_officer") navItems = NEA_NAV;
@@ -1051,10 +853,7 @@
     if (role === "administrator") navItems = ADMIN_NAV;
 
     const navLinks = navItems.map(([key, label, href]) => {
-      const cartBadge = key === "cart"
-        ? '<span class="cart-count" data-cart-count>0</span>'
-        : "";
-
+      const cartBadge = key === "cart" ? '<span class="cart-count" data-cart-count>0</span>' : "";
       return `<a class="${key === "cart" ? "cart-link" : ""}" href="${href}" ${key === activePage ? 'aria-current="page"' : ""}>${label}${cartBadge}</a>`;
     }).join("");
 
@@ -1073,103 +872,87 @@
           <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavigation">
             <span aria-hidden="true">☰</span><span class="sr-only">Open navigation</span>
           </button>
-          <nav class="site-nav" id="siteNavigation" aria-label="Main navigation">
-            ${navLinks}
-            ${accountControl}
-          </nav>
+          <nav class="site-nav" id="siteNavigation" aria-label="Main navigation">${navLinks}${accountControl}</nav>
         </div>
       </header>`;
 
     const toggle = headerTarget.querySelector(".nav-toggle");
     const nav = headerTarget.querySelector(".site-nav");
-
-    toggle?.addEventListener("click", function toggleNavigation() {
+    toggle?.addEventListener("click", () => {
       const open = nav.classList.toggle("open");
       toggle.setAttribute("aria-expanded", String(open));
     });
-
-    headerTarget
-      .querySelector("[data-logout]")
-      ?.addEventListener("click", logout);
-
+    headerTarget.querySelector("[data-logout]")?.addEventListener("click", logout);
     updateCartCount();
-
-    if (options && options.minimal) {
-      nav.innerHTML = '<a href="credit.html">Credits</a>';
-    }
+    if (options?.minimal && nav) nav.innerHTML = '<a href="credit.html">Credits</a>';
   }
 
   function renderFooter() {
     const footerTarget = document.getElementById("siteFooter");
     if (!footerTarget) return;
-
     const year = new Date().getFullYear();
     const role = getRole();
     let quickLinks;
-
-    if (role === "administrator") {
-      quickLinks = '<li><a href="admin-users.html">User management</a></li><li><a href="profile.html">My profile</a></li>';
-    } else if (role === "nea_officer") {
-      quickLinks = '<li><a href="nea-dashboard.html">NEA dashboard</a></li><li><a href="nea-inspections.html">Inspections & grades</a></li><li><a href="profile.html">My profile</a></li>';
-    } else if (role === "operator") {
-      quickLinks = '<li><a href="centre-operations.html">Centre operations</a></li><li><a href="rental-management.html">Rental management</a></li><li><a href="profile.html">My profile</a></li>';
-    } else if (role === "vendor") {
-      quickLinks = '<li><a href="vendor-dashboard.html">Vendor dashboard</a></li><li><a href="menu-management.html">Menu management</a></li><li><a href="profile.html">My profile</a></li>';
-    } else {
-      quickLinks = '<li><a href="browse-hawker-centres.html">Browse centres</a></li><li><a href="crowd-level.html">Check crowd levels</a></li><li><a href="promotion.html">View promotions</a></li>';
-    }
+    if (role === "administrator") quickLinks = '<li><a href="admin-users.html">User management</a></li><li><a href="profile.html">My profile</a></li>';
+    else if (role === "nea_officer") quickLinks = '<li><a href="nea-dashboard.html">NEA dashboard</a></li><li><a href="nea-inspections.html">Inspections & grades</a></li><li><a href="profile.html">My profile</a></li>';
+    else if (role === "operator") quickLinks = '<li><a href="centre-operations.html">Centre operations</a></li><li><a href="rental-management.html">Rental management</a></li><li><a href="profile.html">My profile</a></li>';
+    else if (role === "vendor") quickLinks = '<li><a href="vendor-dashboard.html">Vendor dashboard</a></li><li><a href="menu-management.html">Menu management</a></li><li><a href="profile.html">My profile</a></li>';
+    else quickLinks = '<li><a href="browse-hawker-centres.html">Browse centres</a></li><li><a href="crowd-level.html">Check crowd levels</a></li><li><a href="promotion.html">View promotions</a></li>';
 
     footerTarget.innerHTML = `
       <footer class="site-footer">
         <div class="footer-inner">
-          <section>
-            <h2>HawkerHub</h2>
-            <p>A student web application for exploring Singapore hawker centres and managing role-specific services.</p>
-          </section>
-          <section>
-            <h3>Quick links</h3>
-            <ul>${quickLinks}</ul>
-          </section>
-          <section>
-            <h3>Project</h3>
-            <ul>
-              <li><a href="credit.html">Credits and data notice</a></li>
-              <li><a href="../README.md">README</a></li>
-            </ul>
-          </section>
+          <section><h2>HawkerHub</h2><p>A student web application for exploring Singapore hawker centres and managing role-specific services.</p></section>
+          <section><h3>Quick links</h3><ul>${quickLinks}</ul></section>
+          <section><h3>Project</h3><ul><li><a href="credit.html">Credits and data notice</a></li><li><a href="../README.md">README</a></li></ul></section>
         </div>
         <div class="footer-bottom">&copy; ${year} HawkerHub. Educational project.</div>
       </footer>`;
   }
 
   function initPage(activePage, allowedRoles, options) {
-    ensureSeedData();
+    migrateAwayFromDemoData();
     if (allowedRoles && !requireRole(allowedRoles)) return false;
     renderHeader(activePage, options);
     renderFooter();
     return true;
   }
 
-  function resetDemoData() {
-    const token = getAuthToken();
-    const user = getCurrentUser();
-    const guest = localStorage.getItem(KEYS.guestMode);
-
-    Object.values(KEYS).forEach((key) => localStorage.removeItem(key));
-    ensureSeedData();
-
-    if (token && user) setAuthSession(token, user);
-    if (!token && guest === "true") setGuestSession();
+  function ensureSeedData() {
+    migrateAwayFromDemoData();
   }
 
-  global.HC = {
+  function resetDemoData() {
+    DEMO_DATA_KEYS.forEach((key) => localStorage.removeItem(key));
+    saveCart([]);
+    saveData(KEYS.likes, {});
+    state.centres.length = 0;
+    state.stalls.length = 0;
+    state.menuItems.length = 0;
+    state.promotions.length = 0;
+  }
+
+  const HC = {
     KEYS,
-    centres: CENTRES,
-    stalls: STALLS,
-    hygieneRecords: HYGIENE_RECORDS,
+    API_BASE,
     loadData,
     saveData,
     ensureSeedData,
+    migrateAwayFromDemoData,
+    apiRequest,
+    extractCollection,
+    extractRecord,
+    normalizeCentre,
+    normalizeStall,
+    normalizeMenuItem,
+    normalizePromotion,
+    fetchCentres,
+    fetchCentreById,
+    fetchStalls,
+    fetchStallById,
+    fetchMenuItems,
+    fetchPromotions,
+    fetchPromotionById,
     normalizeRole,
     sanitizeUser,
     getAuthToken,
@@ -1210,9 +993,8 @@
     calculateLineTotal,
     getCartSummary,
     updateCartCount,
-    createOrder,
-    getVisibleOrders,
     isPromotionActive,
+    promotionDiscountForLine,
     hygieneText,
     hygieneBadgeClass,
     crowdBadgeClass,
@@ -1221,4 +1003,14 @@
     initPage,
     resetDemoData
   };
+
+  Object.defineProperties(HC, {
+    centres: { enumerable: true, get: () => state.centres },
+    stalls: { enumerable: true, get: () => state.stalls },
+    menuItems: { enumerable: true, get: () => state.menuItems },
+    promotions: { enumerable: true, get: () => state.promotions },
+    hygieneRecords: { enumerable: true, get: () => [] }
+  });
+
+  global.HC = HC;
 })(window);

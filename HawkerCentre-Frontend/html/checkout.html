@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Complete a front-end simulated order">
+  <meta name="description" content="Complete your HawkerHub order">
   <title>Checkout | HawkerHub</title>
   <link rel="stylesheet" href="../css/shared.css">
   <link rel="stylesheet" href="../css/checkout.css">
-  <script src="../js/shared.js" defer></script>
   <script src="../js/api.js" defer></script>
+  <script src="../js/shared.js" defer></script>
   <script src="../js/checkout.js" defer></script>
 </head>
 <body>
   <div id="siteHeader"></div>
   <main class="page-shell" id="mainContent">
-    <div class="page-heading"><div><span class="eyebrow">Front-end simulation</span><h1>Checkout</h1><p>No real payment will be processed.</p></div></div>
+    <div class="page-heading"><div><span class="eyebrow">Customer checkout</span><h1>Checkout</h1><p>Review your collection details and place your order.</p></div></div>
     <div class="checkout-layout">
       <form class="card form-grid" id="checkoutForm" novalidate>
         <div class="field"><label for="customerName">Customer name</label><input id="customerName" autocomplete="name" required><p class="field-error" id="customerNameError"></p></div>
@@ -35,7 +35,7 @@
           <div class="radio-row"><label for="paymentCash"><input id="paymentCash" type="radio" name="paymentMethod" value="Cash"> Cash</label><label for="paymentNets"><input id="paymentNets" type="radio" name="paymentMethod" value="NETS"> NETS</label><label for="paymentPaynow"><input id="paymentPaynow" type="radio" name="paymentMethod" value="PayNow"> PayNow</label></div>
           <p class="field-error" id="paymentMethodError"></p>
         </fieldset>
-        <div class="field field-full"><button class="btn btn-primary" type="submit">Place demonstration order</button><a class="btn btn-muted" href="cart.html">Back to cart</a></div>
+        <div class="field field-full"><button class="btn btn-primary" type="submit">Place order</button><a class="btn btn-muted" href="cart.html">Back to cart</a></div>
       </form>
       <aside class="card order-summary" id="checkoutSummary"></aside>
     </div>

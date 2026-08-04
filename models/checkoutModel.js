@@ -1,261 +1,178 @@
-const { sql, poolPromise } = require('../dbConfig');
-const orderModel = require("./orderModel"); // For Ordermodel
+const { sql, poolPromise } = require("../dbConfig");
 
-// get customer id for mapping
-
-async function getCustomerId(userId){
-    const connection = await poolPromise;
-    const request = connection.request()
-    request.input("userId", sql.Int, userId);
-    const result = await request.query(`
-        SELECT c.CustomerID
-        FROM Customer c
-        INNER JOIN users u
-        ON c.email = u.email
-        WHERE u.user_id = @userId
-        `);
-
-
-    if(result.recordset.length === 0){
-        throw new Error("Customer account not found");
-    }
-
-    return result.recordset[0].CustomerID;
+function createModelError(statusCode, message) {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  return error;
 }
 
+async function getCustomerId(userId) {
+  const connection = await poolPromise;
+  const result = await connection.request()
+    .input("userId", sql.Int, userId)
+    .query(`
+      SELECT TOP (1)
+        c.CustomerID
+      FROM dbo.Customer AS c
+      LEFT JOIN dbo.users AS u
+        ON u.user_id = @userId
+      WHERE c.LinkedUserID = @userId
+         OR (
+           c.LinkedUserID IS NULL
+           AND u.email IS NOT NULL
+           AND LOWER(c.Email) = LOWER(u.email)
+         )
+      ORDER BY CASE WHEN c.LinkedUserID = @userId THEN 0 ELSE 1 END;
+    `);
 
-async function findStallID(stallName) {
+  if (result.recordset.length === 0) {
+    throw createModelError(
+      404,
+      "Customer compatibility record was not found for this login. Check dbo.Customer.LinkedUserID."
+    );
+  }
 
-    const connection = await poolPromise;
-
-    const result = await connection.request()
-        .input("stallName", sql.VarChar, stallName)
-        .query(`
-            SELECT StallID
-            FROM FoodStall
-            WHERE StallName = @stallName
-        `);
-
-
-    if (result.recordset.length === 0) {
-        throw new Error(
-            `Stall not found: ${stallName}`
-        );
-    }
-
-    return result.recordset[0].StallID;
+  return result.recordset[0].CustomerID;
 }
 
-
-async function findItemCode(itemName, stallID) {
-
-    const connection = await poolPromise;
-
-    const result = await connection.request()
-        .input("itemName", sql.VarChar, itemName)
-        .input("stallID", sql.VarChar, stallID)
-        .query(`
-            SELECT ItemCode
-            FROM MenuItem
-            WHERE ItemName = @itemName
-            AND StallID = @stallID
-        `);
-
-
-    if (result.recordset.length === 0) {
-        throw new Error(
-            `Item not found: ${itemName}`
-        );
-    }
-
-    return result.recordset[0].ItemCode;
-}
-
-// //Generate OrderID
-// async function generateOrderID(){
-//     const connection = await poolPromise;
-//     const result = await connection.request().query(`
-//         SELECT OrderID
-//         FROM CustOrder
-//     `);
-
-//     if(result.recordset.length === 0){
-//         return "O001";
-//     }
-
-//     let highest = 0;
-//     for (const row of result.recordset){
-//         const number = Number(
-//             row.OrderID.substring(1)
-//         );
-//         if(number > highest){
-//             highest = number;
-//         }
-//     }
-//     const nextNumber = highest + 1;
-//     return "O" + nextNumber.toString().padStart(3,"0");
-// }
-// //     const lastID = result.recordset[0].OrderID;
-
-// //     const number = parseInt(lastID.substring(1)) + 1;
-
-// //     return "O" + number.toString().padStart(3,"0");
-
-// // }
-
-
-// CREATE CHECKOUT ORDER
 async function createOrder(data) {
-    const connection = await poolPromise;
-    console.log("CustomerID being inserted:", data.customerId); // for checking
+  const connection = await poolPromise;
+  const transaction = new sql.Transaction(connection);
 
-    // Generate a new OrderID
-    const order = await orderModel.createOrder({
-        customerId: data.customerId,
-        pmtType: data.pmtType,
-        orderDate: data.orderDate
-    });
+  try {
+    await transaction.begin(sql.ISOLATION_LEVEL.SERIALIZABLE);
 
-    const orderID = order.OrderID;
+    const nextResult = await new sql.Request(transaction).query(`
+      SELECT
+        ISNULL(
+          MAX(TRY_CONVERT(INT, SUBSTRING(OrderID, 2, 9))),
+          0
+        ) + 1 AS NextNumber
+      FROM dbo.CustOrder WITH (UPDLOCK, HOLDLOCK)
+      WHERE OrderID LIKE 'O%';
+    `);
 
-    // // Create CustOrder
-    // const orderRequest = connection.request();
-    // orderRequest.input("OrderID", orderID);
-    // orderRequest.input("OrderDate", data.orderDate);
-    // orderRequest.input("PmtType", data.pmtType);
-    // orderRequest.input("CustomerID", data.customerID);
-    // orderRequest.input("PickupTime", sql.DateTime, checkoutData.pickupTime);
+    const nextNumber = Number(nextResult.recordset[0].NextNumber);
+    const orderID = `O${String(nextNumber).padStart(3, "0")}`;
 
-    // console.log("CustomerID being inserted:", data.customerID);
-    // await orderRequest.query(`
-    //     INSERT INTO CustOrder
-    //     (
-    //         OrderID,
-    //         OrderDate,
-    //         PmtType,
-    //         CustomerID,
-    //         PickupTime
-    //     )
-    //     VALUES
-    //     (
-    //         @OrderID,
-    //         @OrderDate,
-    //         @PmtType,
-    //         @CustomerID,
-    //         @PickupTime
-    //     )
-    // `);
-
-// create orderItems
+    await new sql.Request(transaction)
+      .input("OrderID", sql.VarChar(10), orderID)
+      .input("PmtType", sql.VarChar(30), data.pmtType)
+      .input("CustomerID", sql.VarChar(5), data.customerId)
+      .input("PickupTime", sql.DateTime2, data.pickupTime || null)
+      .query(`
+        INSERT INTO dbo.CustOrder
+          (OrderID, OrderDate, PmtType, CustomerID, PickupTime)
+        VALUES
+          (@OrderID, CONVERT(DATE, GETDATE()), @PmtType, @CustomerID, @PickupTime);
+      `);
 
     let itemNo = 1;
 
     for (const item of data.items) {
-
-        const stallResult = await connection.request()
-        .input("stallName", sql.VarChar, item.stallName)
+      const mappingResult = await new sql.Request(transaction)
+        .input("stallId", sql.Int, item.stallId)
+        .input("menuItemId", sql.Int, item.menuItemId)
         .query(`
-            SELECT StallID
-            FROM FoodStall
-            WHERE StallName = @stallName
+          SELECT TOP (1)
+            legacyStall.StallID,
+            legacyItem.ItemCode,
+            normalItem.price AS UnitPrice
+          FROM dbo.menu_items AS normalItem
+          INNER JOIN dbo.stalls AS normalStall
+            ON normalStall.stall_id = normalItem.stall_id
+          INNER JOIN dbo.FoodStall AS legacyStall
+            ON legacyStall.LinkedStallID = normalStall.stall_id
+          INNER JOIN dbo.MenuItem AS legacyItem
+            ON legacyItem.LinkedMenuItemID = normalItem.menu_item_id
+           AND legacyItem.StallID = legacyStall.StallID
+          WHERE normalItem.menu_item_id = @menuItemId
+            AND normalItem.stall_id = @stallId
+            AND normalItem.is_available = 1
+            AND normalStall.is_active = 1
+            AND legacyItem.IsAvailable = 1
+            AND legacyStall.IsActive = 1;
         `);
 
-        if (stallResult.recordset.length === 0) {
-        throw new Error(`Stall not found: ${item.stallName}`);
-        }
-        const stallID = stallResult.recordset[0].StallID;
+      if (mappingResult.recordset.length === 0) {
+        throw createModelError(
+          400,
+          `Menu item ${item.menuItemId} is unavailable or its legacy checkout mapping is missing.`
+        );
+      }
 
+      const mapping = mappingResult.recordset[0];
 
-        // Find ItemCode from item name
-        const menuResult = await connection.request()
-        .input("itemName", sql.VarChar, item.itemName)
-        .input("stallID", sql.VarChar, stallID)
+      await new sql.Request(transaction)
+        .input("OrderID", sql.VarChar(10), orderID)
+        .input("OrderItemNo", sql.Int, itemNo)
+        .input("StallID", sql.VarChar(4), mapping.StallID)
+        .input("ItemCode", sql.VarChar(10), mapping.ItemCode)
+        .input("Quantity", sql.Int, item.quantity)
+        .input("UnitPrice", sql.Decimal(10, 2), mapping.UnitPrice)
         .query(`
-            SELECT ItemCode
-            FROM MenuItem
-            WHERE ItemName = @itemName
-            AND StallID = @stallID
+          INSERT INTO dbo.OrderItem
+            (OrderID, OrderItemNo, StallID, ItemCode, Quantity, UnitPrice)
+          VALUES
+            (@OrderID, @OrderItemNo, @StallID, @ItemCode, @Quantity, @UnitPrice);
         `);
 
-        if (menuResult.recordset.length === 0) {
-            throw new Error(`Menu item not found: ${item.itemName}`);
-        }
-        const itemCode = menuResult.recordset[0].ItemCode;
-
-        const itemRequest = connection.request();
-
-        itemRequest.input("OrderID", sql.VarChar, orderID);
-        itemRequest.input("OrderItemNo", sql.Int, itemNo);
-        itemRequest.input("StallID", sql.VarChar, stallID);
-        itemRequest.input("ItemCode", sql.VarChar, itemCode);
-        itemRequest.input("Quantity", sql.Int, item.Quantity);
-        itemRequest.input("UnitPrice", sql.Decimal(10,2), item.UnitPrice);
-
-
-        await itemRequest.query(`
-            INSERT INTO OrderItem
-            (
-                OrderID,
-                OrderItemNo,
-                StallID,
-                ItemCode,
-                Quantity,
-                UnitPrice
-            )
-            VALUES
-            (
-                @OrderID,
-                @OrderItemNo,
-                @StallID,
-                @ItemCode,
-                @Quantity,
-                @UnitPrice
-            )
-        `);
-
-        itemNo++;
+      itemNo += 1;
     }
 
-
+    await transaction.commit();
     return orderID;
+  } catch (error) {
+    try {
+      await transaction.rollback();
+    } catch (rollbackError) {
+      console.error("CHECKOUT ROLLBACK ERROR:", rollbackError);
+    }
+    throw error;
+  }
 }
 
-
-// GET ORDER DETAILS
-async function getOrder(orderID){
-
-    const connection = await poolPromise;
-
-    const request = connection.request();
-
-    request.input("OrderID", sql.VarChar, orderID);
-
-
-    const result = await request.query(`
-        SELECT
-            O.OrderID,
-            O.OrderDate,
-            O.PmtType,
-            O.CustomerID,
-            OI.OrderItemNo,
-            OI.StallID,
-            OI.ItemCode,
-            OI.Quantity,
-            OI.UnitPrice
-
-        FROM CustOrder O
-
-        INNER JOIN OrderItem OI
+async function getOrder(orderID, customerId) {
+  const connection = await poolPromise;
+  const result = await connection.request()
+    .input("OrderID", sql.VarChar(10), orderID)
+    .input("CustomerID", sql.VarChar(5), customerId)
+    .query(`
+      SELECT
+        O.OrderID,
+        O.OrderDate,
+        O.PmtType,
+        O.CustomerID,
+        O.PickupTime,
+        OI.OrderItemNo,
+        OI.StallID,
+        FS.StallName,
+        OI.ItemCode,
+        MI.ItemDesc AS ItemName,
+        OI.Quantity,
+        OI.UnitPrice
+      FROM dbo.CustOrder AS O
+      INNER JOIN dbo.OrderItem AS OI
         ON O.OrderID = OI.OrderID
-
-        WHERE O.OrderID = @OrderID
+      INNER JOIN dbo.FoodStall AS FS
+        ON FS.StallID = OI.StallID
+      INNER JOIN dbo.MenuItem AS MI
+        ON MI.StallID = OI.StallID
+       AND MI.ItemCode = OI.ItemCode
+      WHERE O.OrderID = @OrderID
+        AND O.CustomerID = @CustomerID
+      ORDER BY OI.OrderItemNo;
     `);
 
-    return result.recordset;
+  if (result.recordset.length === 0) {
+    throw createModelError(404, "Order not found.");
+  }
+
+  return result.recordset;
 }
 
 module.exports = {
-    createOrder,
-    getOrder,
-    getCustomerId
+  createOrder,
+  getOrder,
+  getCustomerId
 };

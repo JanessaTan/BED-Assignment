@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function initialiseCart() {
+  "use strict";
   if (!HC.initPage("cart", ["customer", "guest"])) return;
 
   const groupsTarget = document.getElementById("cartGroups");
@@ -9,8 +10,9 @@ document.addEventListener("DOMContentLoaded", function initialiseCart() {
     const cart = HC.getCart();
     const summary = HC.getCartSummary(cart);
     const grouped = cart.reduce((groups, line) => {
-      if (!groups[line.stallId]) groups[line.stallId] = [];
-      groups[line.stallId].push(line);
+      const key = String(line.stallId);
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(line);
       return groups;
     }, {});
 
@@ -19,13 +21,14 @@ document.addEventListener("DOMContentLoaded", function initialiseCart() {
     summaryTarget.hidden = cart.length === 0;
 
     groupsTarget.innerHTML = Object.entries(grouped).map(([stallId, lines]) => {
-      const stall = HC.getStallById(stallId);
+      const cachedStall = HC.getStallById(stallId);
+      const stallName = lines[0]?.stallName || cachedStall?.name || "Food stall";
       const stallSubtotal = lines.reduce((sum, line) => sum + HC.calculateLineTotal(line), 0);
       return `
         <article class="card cart-stall-group">
-          <div class="row-between"><div><span class="eyebrow">Separate stall order</span><h2>${HC.escapeHtml(stall?.name || "Food stall")}</h2></div><strong>${HC.formatCurrency(stallSubtotal)}</strong></div>
+          <div class="row-between"><div><span class="eyebrow">Separate stall order</span><h2>${HC.escapeHtml(stallName)}</h2></div><strong>${HC.formatCurrency(stallSubtotal)}</strong></div>
           ${lines.map((line) => `
-            <div class="cart-line" data-line="${line.cartLineId}">
+            <div class="cart-line" data-line="${HC.escapeHtml(line.cartLineId)}">
               <div><h3>${HC.escapeHtml(line.name)}</h3><p class="muted">${(line.addOns || []).length ? `Add-ons: ${line.addOns.map((addOn) => HC.escapeHtml(addOn.name)).join(", ")}` : "No add-ons"}${line.promotionTitle ? `<br><span class="text-success">Promotion: ${HC.escapeHtml(line.promotionTitle)}</span>` : ""}</p></div>
               <div class="quantity-control"><button type="button" data-action="decrease" aria-label="Decrease ${HC.escapeHtml(line.name)}">−</button><output>${line.quantity}</output><button type="button" data-action="increase" aria-label="Increase ${HC.escapeHtml(line.name)}">+</button></div>
               <div class="line-price"><strong>${HC.formatCurrency(HC.calculateLineTotal(line))}</strong><br><button class="btn btn-danger" type="button" data-action="remove">Remove</button></div>
@@ -38,25 +41,20 @@ document.addEventListener("DOMContentLoaded", function initialiseCart() {
       <div class="summary-row"><span>Items (${summary.itemCount})</span><strong>${HC.formatCurrency(summary.itemSubtotal)}</strong></div>
       <div class="summary-row"><span>Packaging (${Object.keys(grouped).length} stalls)</span><strong>${HC.formatCurrency(summary.packaging)}</strong></div>
       <div class="summary-row summary-total"><span>Total</span><strong>${HC.formatCurrency(summary.total)}</strong></div>
-      <div class="stack">
-        <a class="btn btn-primary" href="checkout.html">Continue to checkout</a>
-        <a class="btn btn-muted" href="browse-hawker-centres.html">Continue shopping</a>
-      </div>`;
+      <div class="stack"><a class="btn btn-primary" href="checkout.html">Continue to checkout</a><a class="btn btn-muted" href="browse-hawker-centres.html">Continue shopping</a></div>`;
     HC.updateCartCount();
   }
 
-  groupsTarget.addEventListener("click", function updateCart(event) {
+  groupsTarget?.addEventListener("click", (event) => {
     const action = event.target.closest("[data-action]")?.dataset.action;
     const lineId = event.target.closest("[data-line]")?.dataset.line;
     if (!action || !lineId) return;
-
     const cart = HC.getCart();
-    const line = cart.find((item) => item.cartLineId === lineId);
+    const line = cart.find((item) => String(item.cartLineId) === lineId);
     if (!line) return;
-
-    if (action === "increase") line.quantity = Math.min(20, line.quantity + 1);
-    if (action === "decrease") line.quantity = Math.max(1, line.quantity - 1);
-    const updated = action === "remove" ? cart.filter((item) => item.cartLineId !== lineId) : cart;
+    if (action === "increase") line.quantity = Math.min(20, Number(line.quantity) + 1);
+    if (action === "decrease") line.quantity = Math.max(1, Number(line.quantity) - 1);
+    const updated = action === "remove" ? cart.filter((item) => String(item.cartLineId) !== lineId) : cart;
     HC.saveCart(updated);
     render();
   });
