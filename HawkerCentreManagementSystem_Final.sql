@@ -18,7 +18,7 @@ SET NOCOUNT ON;
 SET XACT_ABORT ON;
 GO
 
-DECLARE @AppLoginPassword NVARCHAR(128) = N'HawkerCenter@123';
+DECLARE @AppLoginPassword NVARCHAR(128) = N'CHANGE_ME_LOCAL_ONLY';
 
 IF NOT EXISTS (
     SELECT 1
@@ -1725,7 +1725,7 @@ BEGIN TRY
        N'08:00-20:00', N'vendor01@test.com', N'Chinese',
        N'operator01@test.com', 1800.00, 'DRA0000001'),
       (N'448 Clementi Avenue 3, Singapore 120448', N'#01-02',
-       N'May’s Noodle Corner', N'Classic Singapore noodle dishes.',
+       N'Mayï¿½s Noodle Corner', N'Classic Singapore noodle dishes.',
        N'07:30-21:00', N'vendor02@test.com', N'Chinese',
        N'operator01@test.com', 1750.00, 'DRA0000002'),
       (N'448 Clementi Avenue 3, Singapore 120448', N'#01-03',
@@ -1993,7 +1993,7 @@ BEGIN TRY
       (N'448 Clementi Avenue 3, Singapore 120448', N'#01-01', N'Chicken Noodle', N'Noodles', N'Springy noodles topped with sliced chicken and greens.', 5.80, 10, N'Chinese'),
       (N'448 Clementi Avenue 3, Singapore 120448', N'#01-01', N'Iced Lemon Tea', N'Drink', N'Chilled tea with a bright lemon finish.', 2.20, 3, N'Drinks'),
 
-      /* May’s Noodle Corner: 5 */
+      /* Mayï¿½s Noodle Corner: 5 */
       (N'448 Clementi Avenue 3, Singapore 120448', N'#01-02', N'Fishball Noodles', N'Noodles', N'Fishballs and noodles served dry or with soup.', 5.00, 8, N'Chinese'),
       (N'448 Clementi Avenue 3, Singapore 120448', N'#01-02', N'Minced Meat Noodles', N'Noodles', N'Noodles tossed with minced meat, mushrooms and vinegar.', 5.50, 9, N'Chinese'),
       (N'448 Clementi Avenue 3, Singapore 120448', N'#01-02', N'Laksa', N'Noodles', N'Rice noodles in a fragrant coconut curry broth.', 6.20, 11, N'Chinese'),
@@ -2822,6 +2822,274 @@ BEGIN CATCH
     IF XACT_STATE() <> 0 ROLLBACK TRANSACTION;
     THROW;
 END CATCH;
+GO
+/* ================================================================
+   Additional stall: Than Thar Local Kitchen
+   Assigned vendor: Sam Vendor â€” vendor01@test.com
+   ================================================================ */
+
+BEGIN TRY
+    BEGIN TRANSACTION;
+
+    DECLARE @ThanTharCentreId INT;
+    DECLARE @ThanTharVendorId INT;
+    DECLARE @ThanTharCuisineId INT;
+    DECLARE @ThanTharStallId INT;
+
+    /* Find Clementi 448 Market & Food Centre. */
+    SELECT @ThanTharCentreId = hc.centre_id
+    FROM dbo.hawker_centres AS hc
+    WHERE hc.address =
+          N'448 Clementi Avenue 3, Singapore 120448';
+
+    /* Find Sam Vendor using the vendor's email and role. */
+    SELECT @ThanTharVendorId = u.user_id
+    FROM dbo.users AS u
+    INNER JOIN dbo.roles AS r
+        ON r.role_id = u.role_id
+    WHERE u.email_normalized = LOWER(N'vendor01@test.com')
+      AND r.role_name = N'Vendor'
+      AND u.account_status = 'Active';
+
+    /* Find the Chinese cuisine record. */
+    SELECT @ThanTharCuisineId = c.cuisine_id
+    FROM dbo.cuisines AS c
+    WHERE c.name = N'Chinese';
+
+    /* Validate required records. */
+    IF @ThanTharCentreId IS NULL
+    BEGIN
+        THROW 52110,
+          'Clementi 448 Market & Food Centre was not found.',
+          1;
+    END;
+
+    IF @ThanTharVendorId IS NULL
+    BEGIN
+        THROW 52111,
+          'Active vendor vendor01@test.com was not found.',
+          1;
+    END;
+
+    IF @ThanTharCuisineId IS NULL
+    BEGIN
+        THROW 52112,
+          'Chinese cuisine was not found.',
+          1;
+    END;
+
+    /* Create the stall, or update it if it already exists. */
+    MERGE dbo.stalls AS target
+    USING (
+        SELECT
+            @ThanTharCentreId AS centre_id,
+            N'#01-04' AS unit_number,
+            N'Than Thar Local Kitchen' AS stall_name,
+            N'Local Singapore dishes, rice meals and beverages.'
+                AS description,
+            N'08:00-20:00' AS opening_hours
+    ) AS source
+      ON target.centre_id = source.centre_id
+     AND target.unit_number = source.unit_number
+
+    WHEN MATCHED THEN
+      UPDATE SET
+        target.name = source.stall_name,
+        target.description = source.description,
+        target.opening_hours = source.opening_hours,
+        target.is_active = 1,
+        target.updated_at = SYSUTCDATETIME()
+
+    WHEN NOT MATCHED THEN
+      INSERT (
+          centre_id,
+          name,
+          unit_number,
+          description,
+          opening_hours,
+          is_active
+      )
+      VALUES (
+          source.centre_id,
+          source.stall_name,
+          source.unit_number,
+          source.description,
+          source.opening_hours,
+          1
+      );
+
+    /* Obtain the generated stall ID without assuming it is 11. */
+    SELECT @ThanTharStallId = s.stall_id
+    FROM dbo.stalls AS s
+    WHERE s.centre_id = @ThanTharCentreId
+      AND s.unit_number = N'#01-04';
+
+    IF @ThanTharStallId IS NULL
+    BEGIN
+        THROW 52113,
+          'Than Thar Local Kitchen could not be created.',
+          1;
+    END;
+
+    /*
+       Stop the script if this unit is currently assigned to a
+       different active vendor.
+    */
+    IF EXISTS (
+        SELECT 1
+        FROM dbo.stall_owners AS so
+        WHERE so.stall_id = @ThanTharStallId
+          AND so.end_date IS NULL
+          AND so.vendor_id <> @ThanTharVendorId
+    )
+    BEGIN
+        THROW 52114,
+          'Unit #01-04 is already assigned to another active vendor.',
+          1;
+    END;
+
+    /* Assign the stall to Sam Vendor if not already assigned. */
+    IF NOT EXISTS (
+        SELECT 1
+        FROM dbo.stall_owners AS so
+        WHERE so.stall_id = @ThanTharStallId
+          AND so.vendor_id = @ThanTharVendorId
+          AND so.end_date IS NULL
+    )
+    BEGIN
+        INSERT INTO dbo.stall_owners (
+            stall_id,
+            vendor_id,
+            start_date,
+            end_date
+        )
+        VALUES (
+            @ThanTharStallId,
+            @ThanTharVendorId,
+            CAST('2026-08-05' AS DATE),
+            NULL
+        );
+    END;
+
+    /* Make Chinese the primary cuisine. */
+    UPDATE dbo.stall_cuisines
+    SET is_primary = 0
+    WHERE stall_id = @ThanTharStallId
+      AND cuisine_id <> @ThanTharCuisineId
+      AND is_primary = 1;
+
+    MERGE dbo.stall_cuisines AS target
+    USING (
+        SELECT
+            @ThanTharStallId AS stall_id,
+            @ThanTharCuisineId AS cuisine_id
+    ) AS source
+      ON target.stall_id = source.stall_id
+     AND target.cuisine_id = source.cuisine_id
+
+    WHEN MATCHED THEN
+      UPDATE SET target.is_primary = 1
+
+    WHEN NOT MATCHED THEN
+      INSERT (
+          stall_id,
+          cuisine_id,
+          is_primary
+      )
+      VALUES (
+          source.stall_id,
+          source.cuisine_id,
+          1
+      );
+
+    /* Set the stall's operational status to Open. */
+    MERGE dbo.stall_operations AS target
+    USING (
+        SELECT @ThanTharStallId AS stall_id
+    ) AS source
+      ON target.stall_id = source.stall_id
+
+    WHEN MATCHED THEN
+      UPDATE SET
+        target.operational_status = 'Open',
+        target.maintenance_note =
+            N'Additional stall created through the project SQL seed.',
+        target.updated_at = SYSUTCDATETIME()
+
+    WHEN NOT MATCHED THEN
+      INSERT (
+          stall_id,
+          operational_status,
+          maintenance_note,
+          updated_by
+      )
+      VALUES (
+          source.stall_id,
+          'Open',
+          N'Additional stall created through the project SQL seed.',
+          NULL
+      );
+
+    /*
+       Refresh the legacy FoodStall owner bridge even when the
+       normalized ownership record already existed.
+    */
+    UPDATE dbo.stall_owners
+    SET created_at = created_at
+    WHERE stall_id = @ThanTharStallId
+      AND vendor_id = @ThanTharVendorId
+      AND end_date IS NULL;
+
+    COMMIT TRANSACTION;
+
+    PRINT 'Than Thar Local Kitchen created or updated successfully.';
+END TRY
+BEGIN CATCH
+    IF XACT_STATE() <> 0
+        ROLLBACK TRANSACTION;
+
+    THROW;
+END CATCH;
+GO
+
+/* ================================================================
+   Verify Than Thar Local Kitchen
+   ================================================================ */
+
+SELECT
+    s.stall_id,
+    s.name AS stall_name,
+    s.unit_number,
+    s.description,
+    s.opening_hours,
+    s.is_active,
+    hc.name AS hawker_centre,
+    hc.town,
+    u.user_id AS vendor_id,
+    u.full_name AS vendor_name,
+    u.email AS vendor_email,
+    so.start_date,
+    so.end_date,
+    c.name AS cuisine,
+    sc.is_primary,
+    ops.operational_status
+FROM dbo.stalls AS s
+INNER JOIN dbo.hawker_centres AS hc
+    ON hc.centre_id = s.centre_id
+INNER JOIN dbo.stall_owners AS so
+    ON so.stall_id = s.stall_id
+   AND so.end_date IS NULL
+INNER JOIN dbo.users AS u
+    ON u.user_id = so.vendor_id
+LEFT JOIN dbo.stall_cuisines AS sc
+    ON sc.stall_id = s.stall_id
+LEFT JOIN dbo.cuisines AS c
+    ON c.cuisine_id = sc.cuisine_id
+LEFT JOIN dbo.stall_operations AS ops
+    ON ops.stall_id = s.stall_id
+WHERE hc.address =
+      N'448 Clementi Avenue 3, Singapore 120448'
+  AND s.unit_number = N'#01-04';
 GO
 
 /* ================================================================
