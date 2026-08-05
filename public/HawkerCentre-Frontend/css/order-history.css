@@ -1,0 +1,17 @@
+.history-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+}
+
+.history-items {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 620px) {
+  .history-card {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Vendor menu management">
+  <title>Menu Management | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/menu-management.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/menu-management.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <div class="page-heading"><div><span class="eyebrow">Vendor tools</span><h1>Menu management</h1><p>Add, edit, remove and update item availability.</p></div><button class="btn btn-primary" id="addMenuItem" type="button">Add menu item</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Item</th><th>Category</th><th>Price</th><th>Cuisines</th><th>Availability</th><th>Actions</th></tr></thead><tbody id="menuTableBody"></tbody></table></div>
+    <div class="empty-state" id="menuManagementEmpty" hidden><h2>No menu items</h2><p>Add the stall's first menu item.</p></div>
+    <div class="modal" id="menuModal" role="dialog" aria-modal="true" aria-labelledby="menuModalTitle" hidden>
+      <div class="modal-panel">
+        <div class="row-between"><h2 id="menuModalTitle">Add menu item</h2><button class="btn btn-muted" id="closeMenuModal" type="button">Close</button></div>
+        <form class="form-grid" id="menuItemForm" novalidate>
+          <input id="editMenuId" type="hidden">
+          <div class="field"><label for="itemName">Item name</label><input id="itemName" required></div>
+          <div class="field"><label for="itemCategory">Category</label><input id="itemCategory" required></div>
+          <div class="field"><label for="itemPrice">Price (S$)</label><input id="itemPrice" type="number" min="0.1" step="0.1" required></div>
+          <div class="field"><label for="itemPrep">Preparation time (minutes)</label><input id="itemPrep" type="number" min="1" required></div>
+          <div class="field field-full"><label for="itemCuisines">Cuisine tags</label><input id="itemCuisines" placeholder="Chinese, Singaporean" required></div>
+          <div class="field field-full"><label for="itemDescription">Description</label><textarea id="itemDescription" required></textarea></div>
+          <div class="field field-full"><label for="itemAddOns">Optional add-ons</label><input id="itemAddOns" placeholder="Braised egg:0.80, Extra rice:0.70"><p class="field-help">Separate add-ons with commas and use Name:Price.</p></div>
+          <div class="field field-full"><label for="itemAvailable"><input id="itemAvailable" type="checkbox" checked> Available for ordering</label></div>
+          <p class="field-error field-full" id="menuFormError"></p>
+          <button class="btn btn-primary field-full" type="submit">Save menu item</button>
+        </form>
+      </div>
+    </div>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

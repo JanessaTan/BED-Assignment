@@ -1,0 +1,56 @@
+.stall-banner {
+  display: flex;
+  margin: 1rem 0 1.5rem;
+  padding: clamp(1.4rem, 4vw, 2.4rem);
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-radius: 24px;
+  color: #fff;
+  background: linear-gradient(120deg, var(--primary-dark), var(--primary));
+}
+
+.stall-banner h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.3rem);
+  letter-spacing: -0.04em;
+}
+
+.stall-banner p,
+.stall-banner .card-meta {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.menu-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-card .menu-controls {
+  display: grid;
+  margin-top: auto;
+  padding-top: 1rem;
+  gap: 0.75rem;
+}
+
+.menu-addons {
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.menu-addons legend {
+  font-weight: 800;
+}
+
+.like-button.liked {
+  color: #fff;
+  background: var(--secondary);
+}
+
+@media (max-width: 620px) {
+  .stall-banner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

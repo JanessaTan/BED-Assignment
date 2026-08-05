@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Search Singapore hawker centres by location">
+  <title>Browse Hawker Centres | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/browse-hawker-centres.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/browse-hawker-centres.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <div class="page-heading"><div><span class="eyebrow">Explore Singapore</span><h1>Browse hawker centres</h1><p>Search by town, neighbourhood, centre name or nearby MRT.</p></div></div>
+    <form class="search-panel card" id="centreSearchForm">
+      <label for="centreSearch">Where would you like to eat?</label>
+      <div class="search-row">
+        <input class="input" id="centreSearch" placeholder="Example: Clementi" autocomplete="off">
+        <button class="btn btn-primary" type="submit">Search</button>
+        <button class="btn btn-muted" id="clearSearch" type="button">Clear search</button>
+      </div>
+      <p class="field-help">The location check uses OpenStreetMap Nominatim where available, then safely falls back to local demo data.</p>
+      <p id="apiStatus" class="api-status" role="status"></p>
+    </form>
+    <p class="result-summary" id="resultSummary"></p>
+    <!-- Replace placeholder panels with your own credited images if desired. -->
+    <div class="grid grid-3" id="centreResults"></div>
+    <div class="empty-state" id="noResults" hidden>
+      <h2>No matching hawker centres</h2>
+      <p>Try a broader place such as Clementi, Bedok, Tampines, Jurong, Toa Payoh or Chinatown.</p>
+    </div>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+.order-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.status-tracker {
+  display: grid;
+  margin: 2rem 0;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+}
+
+.status-step {
+  padding: 0.8rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.status-step.complete {
+  border-color: var(--secondary);
+  color: #fff;
+  background: var(--secondary);
+}
+
+@media (max-width: 650px) {
+  .status-tracker {
+    grid-template-columns: 1fr;
+  }
+}

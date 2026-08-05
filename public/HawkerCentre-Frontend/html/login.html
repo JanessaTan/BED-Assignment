@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Log in to the HawkerHub front-end demonstration">
+  <title>Login | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/login.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/login.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="auth-shell" id="mainContent">
+    <section class="auth-intro" aria-labelledby="loginTitle">
+      <span class="eyebrow">Welcome to HawkerHub</span>
+      <h1 id="loginTitle">Good food starts with a simple search.</h1>
+      <p>Explore Singapore hawker centres, compare crowds, view hygiene grades and place demonstration orders.</p>
+      <div class="demo-accounts">
+        <p><strong>Customer:</strong> customer@demo.sg / Customer123</p>
+        <p><strong>Vendor:</strong> vendor@demo.sg / Vendor123</p>
+      </div>
+    </section>
+    <section class="card auth-card" aria-label="Login form">
+      <h2>Sign in</h2>
+      <p class="muted">Use a demo account or continue as a guest.</p>
+      <form id="loginForm" novalidate>
+        <div class="field field-full">
+          <label for="identifier">Email or username</label>
+          <input id="identifier" name="identifier" autocomplete="username" required>
+          <p class="field-error" id="identifierError"></p>
+        </div>
+        <div class="field field-full">
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+            <button class="password-toggle" id="togglePassword" type="button" aria-pressed="false">Show</button>
+          </div>
+          <p class="field-error" id="passwordError"></p>
+        </div>
+        <div class="field field-full">
+          <label for="role">Account role</label>
+          <select id="role" name="role" required>
+            <option value="">Select a role</option>
+            <option value="customer">Customer</option>
+            <option value="vendor">Vendor</option>
+          </select>
+          <p class="field-error" id="roleError"></p>
+        </div>
+        <p class="notice notice-danger" id="loginMessage" role="alert" hidden></p>
+        <button class="btn btn-primary" type="submit">Sign in</button>
+        <button class="btn btn-secondary" id="guestButton" type="button">Continue as Guest</button>
+      </form>
+      <p class="auth-switch">New here? <a href="register.html">Create an account</a></p>
+      <p class="privacy-note">Demo only: do not enter or reuse a real password.</p>
+    </section>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

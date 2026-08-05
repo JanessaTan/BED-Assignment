@@ -1,4 +1,5 @@
 // Convert database errors into HTTP responses
+
 function databaseError(error) {
   const number = Number(
     error.number || error.originalError?.info?.number
@@ -54,6 +55,7 @@ module.exports = function errorHandler(
   res,
   next
 ) {
+  console.error(error);
   if (res.headersSent) {
     return next(error);
   }

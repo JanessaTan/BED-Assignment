@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="View a selected hawker stall menu">
+  <title>Menu | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/menu-item.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/menu-item.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <a class="back-link" id="backToStalls" href="stalls.html">← Back to stalls</a>
+    <section class="stall-banner">
+      <div><span class="eyebrow">Stall menu</span><h1 id="stallName">Menu</h1><p id="stallDescription"></p><div class="card-meta" id="stallMeta"></div></div>
+      <div class="stack" id="stallBadges"></div>
+    </section>
+    <section class="toolbar" aria-label="Menu filters">
+      <div class="field"><label for="menuSearch">Search menu items</label><input id="menuSearch" placeholder="Search dishes or descriptions"></div>
+      <div class="field field-quarter"><label for="categoryFilter">Category</label><select id="categoryFilter"><option value="">All categories</option></select></div>
+      <div class="field field-quarter"><label for="priceSort">Sort price</label><select id="priceSort"><option value="">Recommended</option><option value="low">Lowest first</option><option value="high">Highest first</option></select></div>
+    </section>
+    <p class="result-summary" id="menuResultCount"></p>
+    <div class="grid grid-2" id="menuResults"></div>
+    <div class="empty-state" id="menuEmpty" hidden><h2>No menu items found</h2><p>Try another search or category.</p></div>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>

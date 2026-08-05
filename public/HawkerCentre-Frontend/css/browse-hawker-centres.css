@@ -1,0 +1,26 @@
+.search-panel {
+  margin-bottom: 1.2rem;
+}
+
+.search-panel > label {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: var(--primary-dark);
+  font-size: 1.05rem;
+  font-weight: 850;
+}
+
+.api-status {
+  min-height: 1.4rem;
+  margin: 0.55rem 0 0;
+  color: var(--secondary);
+  font-weight: 700;
+}
+
+.centre-card {
+  cursor: pointer;
+}
+
+.centre-card:focus-within {
+  box-shadow: 0 0 0 4px rgba(255, 183, 3, 0.42);
+}

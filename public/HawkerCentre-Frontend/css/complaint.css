@@ -1,0 +1,5 @@
+.complaint-form {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: clamp(1.2rem, 4vw, 2rem);
+}

@@ -442,6 +442,28 @@
     const record = extractRecord(payload, ["promotion"]);
     return mergeState("promotions", [record], normalizePromotion)[0] || null;
   }
+  function normalizeInspection(raw) {
+    if (!raw) return null;
+    return {
+      id: firstDefined(raw, ["InspectionID", "inspectionId"], null),
+      stallId: firstDefined(raw, ["StallID", "stallId"], null),
+      date: firstDefined(raw, ["InspectionDate", "inspectionDate"], null),
+      validUntil: firstDefined(raw, ["GradeExpiry", "gradeExpiry"], null),
+      grade: firstDefined(raw, ["HygieneGrade", "grade"], null),
+      officerId: firstDefined(raw, ["OfficerID", "officerId"], null),
+      remarks: firstDefined(raw, ["InspectionRemark", "remarks"], "")
+    };
+  }
+
+  async function fetchCurrentInspection(stallId) {
+    try {
+      const payload = await apiRequest(`/hygiene/${encodeURIComponent(stallId)}`);
+      return normalizeInspection(payload);
+    } catch (error) {
+      if (error.status === 404) return null;
+      throw error;
+    }
+  }
 
   function normalizeRole(role) {
     const normalized = String(role || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
@@ -958,6 +980,7 @@
     fetchStalls,
     fetchStallById,
     fetchMenuItems,
+    fetchCurrentInspection,
     fetchPromotions,
     fetchPromotionById,
     normalizeRole,

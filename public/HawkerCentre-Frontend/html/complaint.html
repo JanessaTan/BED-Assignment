@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Submit a formal stall complaint">
+  <title>Complaint | HawkerHub</title>
+  <link rel="stylesheet" href="../css/shared.css">
+  <link rel="stylesheet" href="../css/complaint.css">
+  <script src="../js/shared.js" defer></script>
+  <script src="../js/complaint.js" defer></script>
+</head>
+<body>
+  <div id="siteHeader"></div>
+  <main class="page-shell" id="mainContent">
+    <div class="page-heading"><div><span class="eyebrow">Formal issue report</span><h1>Submit a complaint</h1><p>Provide clear factual details so the matter can be reviewed.</p></div></div>
+    <form class="card form-grid complaint-form" id="complaintForm" novalidate>
+      <div class="field"><label for="complaintStall">Food stall</label><select id="complaintStall" required><option value="">Select a stall</option></select><p class="field-error" id="complaintStallError"></p></div>
+      <div class="field"><label for="complaintCategory">Category</label><select id="complaintCategory" required><option value="">Select a category</option><option>Hygiene concern</option><option>Service issue</option><option>Food quality</option><option>Order problem</option><option>Other</option></select><p class="field-error" id="complaintCategoryError"></p></div>
+      <div class="field field-full"><label for="referenceNumber">Order/reference number (optional)</label><input id="referenceNumber" maxlength="40"></div>
+      <div class="field field-full"><label for="complaintDescription">Description</label><textarea id="complaintDescription" minlength="20" maxlength="600" required></textarea><p class="field-error" id="complaintDescriptionError"></p></div>
+      <div class="field field-full"><button class="btn btn-primary" type="submit">Submit complaint</button><a class="btn btn-muted" href="feedback.html">Back to feedback</a></div>
+      <p class="notice notice-info field-full" id="complaintMessage" role="status" hidden></p>
+    </form>
+  </main>
+  <div id="siteFooter"></div>
+</body>
+</html>
