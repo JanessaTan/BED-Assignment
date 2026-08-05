@@ -311,6 +311,8 @@
       id,
       menuItemId: id,
       stallId,
+      likeStallID: firstDefined(raw, ["likeStallID", "LikeStallID", "StallID"], null),
+      likeItemCode: firstDefined(raw, ["likeItemCode", "LikeItemCode", "ItemCode"], null),
       stallName: String(firstDefined(raw, ["stallName", "stall_name"], "")),
       name: String(firstDefined(raw, ["name", "itemName", "menuItemName"], "Unnamed menu item")),
       category: String(firstDefined(raw, ["category", "categoryName"], "Other")),

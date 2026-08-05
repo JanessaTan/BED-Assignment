@@ -16,6 +16,8 @@ const columns = `
   mi.price,
   mi.preparation_minutes AS preparationMinutes,
   mi.is_available AS isAvailable,
+  legacyMenuItem.StallID AS likeStallID,
+  legacyMenuItem.ItemCode AS likeItemCode,
   (
     SELECT STRING_AGG(c.name, '|')
     FROM menu_item_cuisines mic
@@ -33,8 +35,9 @@ const columns = `
   ) AS cuisineIds,
   (
     SELECT COUNT(*)
-    FROM menu_item_likes ml
-    WHERE ml.menu_item_id = mi.menu_item_id
+    FROM Likes l
+    WHERE l.StallID = legacyMenuItem.StallID
+      AND l.ItemCode = legacyMenuItem.ItemCode
   ) AS likeCount
 `;
 // Convert database values
@@ -125,6 +128,8 @@ async function list(filters = {}) {
     FROM menu_items mi
     JOIN stalls s
       ON s.stall_id = mi.stall_id
+    LEFT JOIN MenuItem legacyMenuItem
+      ON legacyMenuItem.LinkedMenuItemID = mi.menu_item_id
     WHERE s.is_active = 1
       AND (
         @stallId IS NULL
@@ -187,6 +192,8 @@ async function findById(menuItemId) {
     FROM menu_items mi
     JOIN stalls s
       ON s.stall_id = mi.stall_id
+    LEFT JOIN MenuItem legacyMenuItem
+      ON legacyMenuItem.LinkedMenuItemID = mi.menu_item_id
     WHERE mi.menu_item_id = @menuItemId;
   `);
   const row = result.recordset[0];
