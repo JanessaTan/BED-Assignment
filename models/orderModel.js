@@ -31,7 +31,25 @@ async function getOrderItems(orderId) {
     const pool = await poolPromise;
     const result = await pool.request()
         .input('orderId', sql.VarChar, orderId)
-        .query('SELECT * FROM OrderItem WHERE OrderID = @orderId ORDER BY OrderItemNo');
+        .query(`
+            SELECT
+                oi.OrderID,
+                oi.OrderItemNo,
+                oi.StallID,
+                fs.StallName,
+                oi.ItemCode,
+                mi.ItemDesc AS ItemName,
+                oi.Quantity,
+                oi.UnitPrice
+            FROM OrderItem oi
+            LEFT JOIN FoodStall fs
+                ON fs.StallID = oi.StallID
+            LEFT JOIN MenuItem mi
+                ON mi.StallID = oi.StallID
+               AND mi.ItemCode = oi.ItemCode
+            WHERE oi.OrderID = @orderId
+            ORDER BY oi.OrderItemNo
+        `);
     return result.recordset;
 }
  
