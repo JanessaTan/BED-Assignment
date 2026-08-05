@@ -50,11 +50,13 @@ async function createHygiene(req,res){
         });
 
     }catch(error){
-        console.error("Controller error:", error);
-        res.status(500).json({
-            error:"Error creating hygiene record"
-        });
-    }
+    console.error("Controller error:", error);
+
+    res.status(500).json({
+        error: error.message,
+        stack: error.stack
+    });
+}
 }
 
 

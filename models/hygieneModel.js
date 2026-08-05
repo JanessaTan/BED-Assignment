@@ -81,6 +81,7 @@ async function getOfficerID(userId) {
 }
 
 async function createHygiene(data) {
+    console.log("createHygiene data:", data);
     const connection = await poolPromise;
 
     // Generate new InspectionID
@@ -92,13 +93,20 @@ async function createHygiene(data) {
         ORDER BY InspectionID DESC
     `);
 
-    let newInspectionID = "IN001";
-
+    let newInspectionID = "DINSP00001";
+    console.log(lastInspection.recordset);
+    console.log(lastInspection.recordset[0]);
+    console.log("InspectionID:", lastInspection.recordset[0]?.InspectionID);
     if (lastInspection.recordset.length > 0) {
+        console.log("LAST RECORD:", lastInspection.recordset[0]);
         const lastID = lastInspection.recordset[0].InspectionID;
-        const number = parseInt(lastID.substring(2));
+        console.log("LAST ID:", lastID);
 
-        newInspectionID = "IN" + String(number + 1).padStart(3, "0");
+        // Remove the "DINSP" prefix
+        const number = parseInt(lastID.replace("DINSP", ""), 10);
+        console.log("NUMBER:", number);
+
+        newInspectionID = "DINSP" + String(number + 1).padStart(5, "0");
     }
 
     // Create inspection record
@@ -111,6 +119,14 @@ async function createHygiene(data) {
     request.input("OfficerID", data.OfficerID);
     request.input("StallID", data.StallID);
 
+    console.log({
+    InspectionID: newInspectionID,
+    InspectionDate: data.InspectionDate,
+    HygieneGrade: data.HygieneGrade,
+    GradeExpiry: data.GradeExpiry,
+    OfficerID: data.OfficerID,
+    StallID: data.StallID
+});
     await request.query(`
         INSERT INTO Inspection
         (
