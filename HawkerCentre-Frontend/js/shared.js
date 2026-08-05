@@ -311,6 +311,8 @@
       id,
       menuItemId: id,
       stallId,
+      likeStallID: firstDefined(raw, ["likeStallID", "LikeStallID", "StallID"], null),
+      likeItemCode: firstDefined(raw, ["likeItemCode", "LikeItemCode", "ItemCode"], null),
       stallName: String(firstDefined(raw, ["stallName", "stall_name"], "")),
       name: String(firstDefined(raw, ["name", "itemName", "menuItemName"], "Unnamed menu item")),
       category: String(firstDefined(raw, ["category", "categoryName"], "Other")),
@@ -961,6 +963,202 @@
     state.promotions.length = 0;
   }
 
+  function getCustomerIDFromCurrentUser() {
+    const currentUser = getCurrentUser();
+
+    if (!currentUser || currentUser.name === "Guest") {
+      return null;
+    }
+
+    const existingCustomerID =
+      currentUser.customerID ||
+      currentUser.CustomerID ||
+      currentUser.customerId;
+
+    if (existingCustomerID) {
+      return String(existingCustomerID);
+    }
+
+    const rawUserID =
+      currentUser.userId ||
+      currentUser.id ||
+      currentUser.UserID ||
+      currentUser.user_id;
+
+    const numericUserID = Number(rawUserID);
+
+    if (
+      Number.isInteger(numericUserID) &&
+      numericUserID > 0 &&
+      numericUserID <= 9999
+    ) {
+      return `C${String(numericUserID).padStart(4, "0")}`;
+    }
+
+    return null;
+  }
+
+  function extractOrderCollection(payload) {
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+
+    if (Array.isArray(payload?.data)) {
+      return payload.data;
+    }
+
+    if (Array.isArray(payload?.orders)) {
+      return payload.orders;
+    }
+
+    if (Array.isArray(payload?.data?.orders)) {
+      return payload.data.orders;
+    }
+
+    if (Array.isArray(payload?.items)) {
+      return payload.items;
+    }
+
+    if (Array.isArray(payload?.rows)) {
+      return payload.rows;
+    }
+
+    return [];
+  }
+
+  function extractOrderRecord(payload) {
+    if (!payload) {
+      return null;
+    }
+
+    if (payload.OrderID || payload.orderID || payload.orderId || payload.id) {
+      return payload;
+    }
+
+    if (payload.data) {
+      return extractOrderRecord(payload.data);
+    }
+
+    if (payload.order) {
+      return payload.order;
+    }
+
+    return payload;
+  }
+
+  async function fetchCustomerOrders(customerID) {
+    if (!customerID) {
+      return [];
+    }
+
+    const response = await apiRequest(
+      `/orders/customer/${encodeURIComponent(customerID)}`
+    );
+
+    return extractOrderCollection(response);
+  }
+
+  async function fetchOrderById(orderID) {
+    if (!orderID) {
+      return null;
+    }
+
+    const response = await apiRequest(
+      `/orders/${encodeURIComponent(orderID)}`
+    );
+
+    const order = extractOrderRecord(response);
+
+    if (!order) {
+      return null;
+    }
+
+    const normalizedOrderID =
+      order.OrderID ||
+      order.orderID ||
+      order.orderId ||
+      order.id;
+
+    return {
+      ...order,
+      id: normalizedOrderID,
+      OrderID: normalizedOrderID,
+      items:
+        order.items ||
+        order.orderItems ||
+        order.OrderItems ||
+        []
+    };
+  }
+
+  async function fetchVisibleOrders() {
+    const currentUser = getCurrentUser();
+
+    if (!currentUser || currentUser.name === "Guest") {
+      return [];
+    }
+
+    const role = String(
+      currentUser.role ||
+      currentUser.roleName ||
+      ""
+    ).toLowerCase();
+
+    let orders = [];
+
+    if (role === "customer") {
+      const customerID = getCustomerIDFromCurrentUser();
+
+      if (!customerID) {
+        return [];
+      }
+
+      orders = await fetchCustomerOrders(customerID);
+    } else {
+      orders = extractOrderCollection(await apiRequest("/orders"));
+    }
+
+    const enrichedOrders = await Promise.all(
+      orders.map(async (order) => {
+        const orderID =
+          order.OrderID ||
+          order.orderID ||
+          order.orderId ||
+          order.id;
+
+        const existingItems =
+          order.items ||
+          order.orderItems ||
+          order.OrderItems ||
+          [];
+
+        if (existingItems.length) {
+          return {
+            ...order,
+            id: orderID,
+            OrderID: orderID,
+            items: existingItems
+          };
+        }
+
+        const orderWithItems = await fetchOrderById(orderID);
+
+        return {
+          ...order,
+          ...(orderWithItems || {}),
+          id: orderID,
+          OrderID: orderID,
+          items: orderWithItems?.items || []
+        };
+      })
+    );
+    return enrichedOrders;
+  }
+
+  async function getVisibleOrders() {
+    return fetchVisibleOrders();
+  }
+
   const HC = {
     KEYS,
     API_BASE,
@@ -1031,7 +1229,12 @@
     renderHeader,
     renderFooter,
     initPage,
-    resetDemoData
+    resetDemoData,
+    getCustomerIDFromCurrentUser,
+    fetchCustomerOrders,
+    fetchOrderById,
+    fetchVisibleOrders,
+    getVisibleOrders,
   };
 
   Object.defineProperties(HC, {

@@ -103,6 +103,7 @@ Remember to re-comment these afterwards if you want new values to stay!
 --DROP TABLE IF EXISTS #StallSeed;
 --DROP TABLE IF EXISTS #OperatorCentreSeed;
 --DROP TABLE IF EXISTS #MenuSeed;
+--DROP TABLE IF EXISTS #LikeSeed;
 --DROP TABLE IF EXISTS #AddOnSeed;
 --DROP TABLE IF EXISTS #PromotionSeed;
 --DROP TABLE IF EXISTS #PromotionItemSeed;
@@ -771,8 +772,6 @@ BEGIN TRY
             CustomerID   VARCHAR(5) NOT NULL,
             StallID      VARCHAR(4) NOT NULL,
             ItemCode     VARCHAR(10) NOT NULL,
-            --CreatedAt    DATETIME2(0) NOT NULL
-            --    CONSTRAINT DF_Likes_CreatedAt DEFAULT SYSUTCDATETIME(),
             CONSTRAINT PK_Likes PRIMARY KEY (CustomerID, StallID, ItemCode),
             CONSTRAINT FK_Likes_Customer FOREIGN KEY (CustomerID)
                 REFERENCES dbo.Customer(CustomerID),
@@ -2174,6 +2173,169 @@ BEGIN TRY
       VALUES (
         source.menu_item_id, source.add_on_name, source.add_on_price, 1
       );
+
+
+
+    /* ================================================================
+       100 likes: at least 1 like for every menu item
+       ================================================================ */
+    CREATE TABLE #LikeSeed (
+        customer_id VARCHAR(5) NOT NULL,
+        stall_id    VARCHAR(4) NOT NULL,
+        item_code   VARCHAR(10) NOT NULL
+    );
+
+    INSERT #LikeSeed
+      (customer_id, stall_id, item_code)
+    VALUES
+      /* First pass: 51 likes, at least 1 like for each seeded MenuItem */
+      ('C0001', '1', '1'),
+      ('C0002', '1', '2'),
+      ('C0003', '1', '3'),
+      ('C0004', '1', '4'),
+      ('C0001', '1', '5'),
+      ('C0002', '1', '6'),
+
+      ('C0003', '2', '7'),
+      ('C0004', '2', '8'),
+      ('C0001', '2', '9'),
+      ('C0002', '2', '10'),
+      ('C0003', '2', '11'),
+
+      ('C0004', '3', '12'),
+      ('C0001', '3', '13'),
+      ('C0002', '3', '14'),
+      ('C0003', '3', '15'),
+      ('C0004', '3', '16'),
+
+      ('C0001', '4', '17'),
+      ('C0002', '4', '18'),
+      ('C0003', '4', '19'),
+      ('C0004', '4', '20'),
+      ('C0001', '4', '21'),
+
+      ('C0002', '5', '22'),
+      ('C0003', '5', '23'),
+      ('C0004', '5', '24'),
+      ('C0001', '5', '25'),
+      ('C0002', '5', '26'),
+
+      ('C0003', '6', '27'),
+      ('C0004', '6', '28'),
+      ('C0001', '6', '29'),
+      ('C0002', '6', '30'),
+      ('C0003', '6', '31'),
+
+      ('C0004', '7', '32'),
+      ('C0001', '7', '33'),
+      ('C0002', '7', '34'),
+      ('C0003', '7', '35'),
+      ('C0004', '7', '36'),
+
+      ('C0001', '8', '37'),
+      ('C0002', '8', '38'),
+      ('C0003', '8', '39'),
+      ('C0004', '8', '40'),
+      ('C0001', '8', '41'),
+
+      ('C0002', '9', '42'),
+      ('C0003', '9', '43'),
+      ('C0004', '9', '44'),
+      ('C0001', '9', '45'),
+      ('C0002', '9', '46'),
+
+      ('C0003', '10', '47'),
+      ('C0004', '10', '48'),
+      ('C0001', '10', '49'),
+      ('C0002', '10', '50'),
+      ('C0003', '10', '51'),
+
+      /* Second pass: extra 49 likes to make 100 total seed rows */
+      ('C0002', '1', '1'),
+      ('C0003', '1', '2'),
+      ('C0004', '1', '3'),
+      ('C0001', '1', '4'),
+      ('C0002', '1', '5'),
+      ('C0003', '1', '6'),
+
+      ('C0004', '2', '7'),
+      ('C0001', '2', '8'),
+      ('C0002', '2', '9'),
+      ('C0003', '2', '10'),
+      ('C0004', '2', '11'),
+
+      ('C0001', '3', '12'),
+      ('C0002', '3', '13'),
+      ('C0003', '3', '14'),
+      ('C0004', '3', '15'),
+      ('C0001', '3', '16'),
+
+      ('C0002', '4', '17'),
+      ('C0003', '4', '18'),
+      ('C0004', '4', '19'),
+      ('C0001', '4', '20'),
+      ('C0002', '4', '21'),
+
+      ('C0003', '5', '22'),
+      ('C0004', '5', '23'),
+      ('C0001', '5', '24'),
+      ('C0002', '5', '25'),
+      ('C0003', '5', '26'),
+
+      ('C0004', '6', '27'),
+      ('C0001', '6', '28'),
+      ('C0002', '6', '29'),
+      ('C0003', '6', '30'),
+      ('C0004', '6', '31'),
+
+      ('C0001', '7', '32'),
+      ('C0002', '7', '33'),
+      ('C0003', '7', '34'),
+      ('C0004', '7', '35'),
+      ('C0001', '7', '36'),
+
+      ('C0002', '8', '37'),
+      ('C0003', '8', '38'),
+      ('C0004', '8', '39'),
+      ('C0001', '8', '40'),
+      ('C0002', '8', '41'),
+
+      ('C0003', '9', '42'),
+      ('C0004', '9', '43'),
+      ('C0001', '9', '44'),
+      ('C0002', '9', '45'),
+      ('C0003', '9', '46'),
+
+      ('C0004', '10', '47'),
+      ('C0001', '10', '48'),
+      ('C0002', '10', '49');
+
+    /*
+      Insert into dbo.Likes only after confirming that:
+      - #LikeSeed.customer_id exists in dbo.Customer.CustomerID
+      - #LikeSeed.stall_id + #LikeSeed.item_code exists in dbo.MenuItem.StallID + dbo.MenuItem.ItemCode
+    */
+    INSERT dbo.Likes
+      (CustomerID, StallID, ItemCode)
+    SELECT
+        ls.customer_id,
+        ls.stall_id,
+        ls.item_code
+    FROM #LikeSeed ls
+    JOIN dbo.Customer c
+      ON c.CustomerID = ls.customer_id
+    JOIN dbo.MenuItem mi
+      ON mi.StallID = ls.stall_id
+     AND mi.ItemCode = ls.item_code
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM dbo.Likes existing_like
+        WHERE existing_like.CustomerID = ls.customer_id
+          AND existing_like.StallID = ls.stall_id
+          AND existing_like.ItemCode = ls.item_code
+    );
+
+
 
     /* ================================================================
        6. Eight active promotions and same-stall item links

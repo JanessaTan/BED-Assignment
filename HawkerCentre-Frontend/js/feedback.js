@@ -6,15 +6,6 @@ document.addEventListener("DOMContentLoaded", function initialiseFeedback() {
   const subcategorySelect = document.getElementById("subcategory");
   const comments = document.getElementById("comments");
   const feedbackForm = document.getElementById("feedbackForm");
-
-  // stallSelect.insertAdjacentHTML(
-  //   "beforeend",
-  //   HC.stalls
-  //     .map((stall) => `<option value="${stall.id}">${HC.escapeHtml(stall.name)}</option>`)
-  //     .join("")
-  // );
-
-  // const selectedStall = HC.getQueryParameter("stall");
   
 
   loadStallsIntoDropdown(stallSelect);
@@ -35,14 +26,6 @@ document.addEventListener("DOMContentLoaded", function initialiseFeedback() {
     const comment = comments.value.trim();
     const currentUser = HC.getCurrentUser();
     const customerID = currentUser?.userId;
-
-    console.log(stallId);
-    console.log(category);
-    console.log(subcategory);
-    console.log(rating);
-    console.log(comment);
-    console.log(currentUser);
-    console.log(customerID);
 
     let valid = true;
 
@@ -71,11 +54,6 @@ document.addEventListener("DOMContentLoaded", function initialiseFeedback() {
       valid = false;
     }
 
-    // if (!currentUser || !currentUser.id || currentUser.name === "Guest") {
-    //   setError("stallIdError", "Please log in as a customer before submitting feedback.");
-    //   valid = false;
-    // }
-
     if (!customerID) {
       setError("stallIdError", "Please log in as a customer before submitting feedback.");
       valid = false;
@@ -83,14 +61,6 @@ document.addEventListener("DOMContentLoaded", function initialiseFeedback() {
 
     if (!valid) return;
 
-    // const feedbackData = {
-    //   Category: category,
-    //   Subcategory: subcategory,
-    //   FbkComment: comment,
-    //   FbkRating: rating,
-    //   CustomerID: currentUser.id,
-    //   StallID: stallId
-    // };
 
     const feedbackData = {
       Category: category,
@@ -134,11 +104,9 @@ async function loadStallsIntoDropdown(stallSelect) {
 
     if (!response.ok || stalls.length === 0) {
       console.warn(
-        "Stall API failed or returned no usable stalls. Using fallback stall list.",
+        "Stall API failed or returned no usable stalls.",
         result
       );
-
-      stalls = getFallbackStalls();
     }
 
     stallSelect.innerHTML = `<option value="">Select a stall</option>`;
@@ -165,24 +133,7 @@ async function loadStallsIntoDropdown(stallSelect) {
 
     const stalls = getFallbackStalls();
 
-    stallSelect.innerHTML = `<option value="">Select a stall</option>`;
-
-    stallSelect.insertAdjacentHTML(
-      "beforeend",
-      stalls
-        .map((stall) => {
-          return `<option value="${HC.escapeHtml(stall.StallID)}">${HC.escapeHtml(stall.StallName)}</option>`;
-        })
-        .join("")
-    );
-
-    const selectedStall = normaliseSelectedStallId(
-      HC.getQueryParameter("stall")
-    );
-
-    if (selectedStall) {
-      stallSelect.value = selectedStall;
-    }
+    stallSelect.innerHTML = `<option value="">Something went wrong.</option>`;
   }
 }
 
@@ -226,42 +177,6 @@ function normaliseSelectedStallId(stallId) {
   return frontendStallToDatabaseStall[stallId] || stallId;
 }
 
-function getFallbackStalls() {
-  return [
-    { StallID: "S001", StallName: "Ah Huat Chicken Rice" },
-    { StallID: "S002", StallName: "Mak Cik Nasi Lemak" },
-    { StallID: "S003", StallName: "Burger Lab" },
-    { StallID: "S004", StallName: "Delight Curry Rice" },
-    { StallID: "S005", StallName: "Noodle Express" },
-    { StallID: "S006", StallName: "Popiah Corner" },
-    { StallID: "S007", StallName: "Satay Hut" },
-    { StallID: "S008", StallName: "Raj Briyani" },
-    { StallID: "S009", StallName: "Western Delight" },
-    { StallID: "S010", StallName: "Pho Saigon" },
-    { StallID: "S011", StallName: "Chinatown Dim Sum" },
-    { StallID: "S012", StallName: "Prawn Noodle House" },
-    { StallID: "S013", StallName: "Tokyo Ramen" },
-    { StallID: "S014", StallName: "Warung Kita" },
-    { StallID: "S015", StallName: "Sushi Go" },
-    { StallID: "S016", StallName: "Laksa Express" },
-    { StallID: "S017", StallName: "Chicken Rice Deluxe" },
-    { StallID: "S018", StallName: "Veggie Life" },
-    { StallID: "S019", StallName: "Laksa King" },
-    { StallID: "S020", StallName: "Mee Siam House" },
-    { StallID: "S021", StallName: "Roti John Stall" },
-    { StallID: "S022", StallName: "Thosai Corner" },
-    { StallID: "S023", StallName: "Claypot Master" },
-    { StallID: "S024", StallName: "BBQ Express" },
-    { StallID: "S025", StallName: "Seafood Paradise" },
-    { StallID: "S026", StallName: "Chicken Curry Corner" },
-    { StallID: "S027", StallName: "Fish Soup House" },
-    { StallID: "S028", StallName: "Amoy Chicken Rice" },
-    { StallID: "S029", StallName: "Amoy Nasi Lemak" },
-    { StallID: "S030", StallName: "Beef Noodle House" },
-    { StallID: "S031", StallName: "Curry Puff Corner" },
-    { StallID: "S032", StallName: "Claypot Delights" }
-  ];
-}
 
 async function submitFeedbackToApi(feedbackData) {
   const response = await fetch("/api/feedback", {

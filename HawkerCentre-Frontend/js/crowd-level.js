@@ -6,21 +6,51 @@ document.addEventListener("DOMContentLoaded", function initialiseCrowdLevels() {
     return "Typical peaks: 11:30 AM-1:30 PM and 6:00 PM-8:00 PM";
   }
 
-  function render(refreshAll) {
+async function render(refreshAll) {
+
+    // Load hawker centres from the API the first time
+    if (HC.centres.length === 0) {
+        await HC.fetchCentres();
+    }
+
     target.innerHTML = HC.centres.map((centre) => {
-      const crowd = HC.calculateCrowd(centre, Boolean(refreshAll));
-      return `
+
+        const crowd = HC.calculateCrowd(centre);
+
+        return `
         <article class="card crowd-card">
-          <div class="row-between"><span class="badge badge-primary">${HC.escapeHtml(centre.town)}</span><span class="badge ${HC.crowdBadgeClass(crowd.label)}">${crowd.label}</span></div>
-          <h2>${HC.escapeHtml(centre.name)}</h2><p>${HC.escapeHtml(centre.address)}</p>
-          <span class="crowd-percentage">${crowd.percentage}% estimated occupied</span>
-          <div class="progress" aria-label="${crowd.percentage}% estimated occupied"><span style="width:${crowd.percentage}%"></span></div>
-          <p><strong>${crowd.seats}</strong> estimated seats available</p><p class="muted">${peakHours()}</p>
-          <time datetime="${crowd.updatedAt}">Last updated ${HC.formatDate(crowd.updatedAt, true)}</time>
-          <div class="card-actions"><button class="btn btn-outline" type="button" data-refresh="${centre.id}">Refresh</button><button class="btn btn-primary" type="button" data-centre="${centre.id}">View stalls</button></div>
+            <div class="row-between">
+                <span class="badge badge-primary">${HC.escapeHtml(centre.town)}</span>
+                <span class="badge ${HC.crowdBadgeClass(crowd.label)}">${crowd.label}</span>
+            </div>
+
+            <h2>${HC.escapeHtml(centre.name)}</h2>
+            <p>${HC.escapeHtml(centre.address)}</p>
+
+            <span class="crowd-percentage">${crowd.percentage}% estimated occupied</span>
+
+            <div class="progress">
+                <span style="width:${crowd.percentage}%"></span>
+            </div>
+
+            <p><strong>${crowd.seats}</strong> estimated seats available</p>
+
+            <time>
+                Last updated ${HC.formatDate(crowd.updatedAt, true)}
+            </time>
+
+            <div class="card-actions">
+                <button class="btn btn-outline" data-refresh="${centre.id}">
+                    Refresh
+                </button>
+
+                <button class="btn btn-primary" data-centre="${centre.id}">
+                    View stalls
+                </button>
+            </div>
         </article>`;
     }).join("");
-  }
+}
 
   document.getElementById("refreshAll").addEventListener("click", function refreshAll() {
     render(true);
