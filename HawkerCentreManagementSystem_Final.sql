@@ -1469,7 +1469,7 @@ BEGIN TRY
 
     DECLARE @ResetExistingDemoPasswords BIT = 0;
     DECLARE @DemoPasswordHash NVARCHAR(100) =
-      N'$2b$12$XvjnK3VGes/1FImaAo65DuUxy0K2qFCFXvu.ejDhi5WNWaiOOjklC';
+      N'$2b$12$X8JsEE7U.r47o9N6J9nQvO0EUTnKH.hi.pvwd9b2noxOG2e0hxnoy';
 
     /* ================================================================
        1. Roles and normalized application accounts
